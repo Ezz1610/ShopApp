@@ -4,8 +4,11 @@
 //
 //  Created by mohamed ezz on 21/10/2025.
 //
+//
+//  CustomTextField.swift
+//  ShopApp
+//
 
-import Foundation
 import SwiftUI
 
 struct CustomTextField: View {
@@ -22,69 +25,79 @@ struct CustomTextField: View {
     var autocapitalization: TextInputAutocapitalization? = .never
     var submitLabel: SubmitLabel = .done
     var onCommit: (() -> Void)? = nil
-    
+    var isEmailField: Bool = false // ✨ إضافة للتحقق من الايميل
+
     var height: CGFloat = 48
     var cornerRadius: CGFloat = 12
     
     @State private var isSecured: Bool = true
     
+    private var emailIsValid: Bool {
+        guard isEmailField else { return true }
+        return text.contains("@") && text.contains(".")
+    }
+    
     var body: some View {
-        HStack(spacing: 12) {
-            if let iconName = iconName {
-                Image(systemName: iconName)
-                    .foregroundColor(.secondary)
-                    .frame(width: 22, height: 22)
-            }
-            
-            Group {
-                if fieldType == .secure {
-                    if isSecured {
-                        SecureField(placeholder, text: $text)
-                            .textInputAutocapitalization(autocapitalization)
-                            .keyboardType(keyboardType)
-                            .submitLabel(submitLabel)
-                            .onSubmit {
-                                onCommit?()
-                            }
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 12) {
+                if let iconName = iconName {
+                    Image(systemName: iconName)
+                        .foregroundColor(.secondary)
+                        .frame(width: 22, height: 22)
+                }
+                
+                Group {
+                    if fieldType == .secure {
+                        if isSecured {
+                            SecureField(placeholder, text: $text)
+                                .textInputAutocapitalization(autocapitalization)
+                                .keyboardType(keyboardType)
+                                .submitLabel(submitLabel)
+                                .onSubmit { onCommit?() }
+                        } else {
+                            TextField(placeholder, text: $text)
+                                .textInputAutocapitalization(autocapitalization)
+                                .keyboardType(keyboardType)
+                                .submitLabel(submitLabel)
+                                .onSubmit { onCommit?() }
+                        }
                     } else {
                         TextField(placeholder, text: $text)
                             .textInputAutocapitalization(autocapitalization)
                             .keyboardType(keyboardType)
                             .submitLabel(submitLabel)
-                            .onSubmit {
-                                onCommit?()
-                            }
+                            .onSubmit { onCommit?() }
                     }
-                } else {
-                    TextField(placeholder, text: $text)
-                        .textInputAutocapitalization(autocapitalization)
-                        .keyboardType(keyboardType)
-                        .submitLabel(submitLabel)
-                        .onSubmit {
-                            onCommit?()
-                        }
+                }
+                .disableAutocorrection(true)
+                
+                if fieldType == .secure {
+                    Button(action: { isSecured.toggle() }) {
+                        Image(systemName: isSecured ? "eye.slash" : "eye")
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(isSecured ? "Show password" : "Hide password")
                 }
             }
-            .disableAutocorrection(true)
+            .padding(.horizontal, 12)
+            .frame(height: height)
+            .background(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(Color(.secondarySystemBackground))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(emailIsValid ? Color(.quaternaryLabel) : Color.red, lineWidth: 0.5)
+            )
             
-            if fieldType == .secure {
-                Button(action: { isSecured.toggle() }) {
-                    Image(systemName: isSecured ? "eye.slash" : "eye")
-                        .foregroundColor(.secondary)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(isSecured ? "Show password" : "Hide password")
+            // رسالة الخطأ
+            if !emailIsValid && !text.isEmpty {
+                Text("Please enter a valid email")
+                    .font(.footnote)
+                    .foregroundColor(.red)
+                    .padding(.leading, 4)
             }
         }
-        .padding(.horizontal, 12)
-        .frame(height: height)
-        .background(
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(Color(.secondarySystemBackground))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .stroke(Color(.quaternaryLabel), lineWidth: 0.5)
-        )
     }
 }

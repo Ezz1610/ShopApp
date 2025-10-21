@@ -14,15 +14,15 @@ final class ManualDI {
     
     private init() {}
     
-    func resolveMovieViewModel() -> MovieViewModel {
-        return MovieViewModel(movieListUseCase: resolveMovieListUseCase())
-    }
-    
-    private func resolveMovieListUseCase() -> MovieListUseCaseProtocol {
-        return MovieListUseCase(dataHelper: resolveFetchDataHelper())
-    }
-    
-    private func resolveFetchDataHelper() -> FetchDataProtocol {
-        return RemoteDataHelper()
-    }
+//    func resolveMovieViewModel() -> MovieViewModel {
+//        return MovieViewModel(movieListUseCase: resolveMovieListUseCase())
+//    }
+//    
+//    private func resolveMovieListUseCase() -> MovieListUseCaseProtocol {
+//        return MovieListUseCase(dataHelper: resolveFetchDataHelper())
+//    }
+//    
+//    private func resolveFetchDataHelper() -> FetchDataProtocol {
+//        return RemoteDataHelper()
+//    }
 }
