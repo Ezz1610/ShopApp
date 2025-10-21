@@ -128,6 +128,8 @@
 		C3131F402EA7CFD400F46CCA /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				C335479D2EA81BD10076D72C /* ViewModel */,
+				C335479C2EA81BC80076D72C /* Model */,
 				C335961B2EA7F9BF00FBB43D /* View */,
 			);
 			path = Auth;
@@ -222,6 +224,20 @@
 				C315BA432EA573D1001FDCD4 /* utilits */,
 			);
 			path = core;
+			sourceTree = "<group>";
+		};
+		C335479C2EA81BC80076D72C /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		C335479D2EA81BD10076D72C /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		C33595E12EA7DBD600FBB43D /* Preview Content */ = {
