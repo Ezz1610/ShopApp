@@ -10,9 +10,6 @@ import FirebaseCore
 
 @main
 struct ShopAppApp: App {
-    // 1️⃣ Create the navigator as a StateObject
-    @StateObject private var navigator = AppNavigator()
-    
     init() {
         FirebaseApp.configure()
         print("✅ Firebase configured.")
@@ -20,9 +17,7 @@ struct ShopAppApp: App {
 
     var body: some Scene {
         WindowGroup {
-            // 2️⃣ Inject the navigator into environment
             RootView()
-                .environmentObject(navigator)
         }
     }
 }
