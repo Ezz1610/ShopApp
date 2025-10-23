@@ -13,12 +13,12 @@ final class RemoteDataHelper: FetchDataProtocol {
     static let shared = RemoteDataHelper()
     private init() {}
     
-//    private let accessToken = "Admin API access token that in drive file or password that in postman"
+    private let accessToken = "SHOPIFY_ACCESS_TOKEN"
     
     private var defaultHeaders: [String: String] {
         [
             "Content-Type": "application/json",
-//            "X-Shopify-Access-Token": ""
+            "X-Shopify-Access-Token": accessToken
         ]
     }
     
