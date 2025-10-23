@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -109,10 +109,6 @@
 		C3EF8A062EA8745500645178 /* FirebaseHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		1087095A2EA7FFC800C15F2D /* AdsAndCoupons */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AdsAndCoupons; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
-
 /* Begin PBXFrameworksBuildPhase section */
 		C315B9CF2EA572A7001FDCD4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -146,7 +142,6 @@
 		C3131F3F2EA7CFC500F46CCA /* Features */ = {
 			isa = PBXGroup;
 			children = (
-				1087095A2EA7FFC800C15F2D /* AdsAndCoupons */,
 				C3131F402EA7CFD400F46CCA /* Auth */,
 			);
 			path = Features;
@@ -363,9 +358,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				1087095A2EA7FFC800C15F2D /* AdsAndCoupons */,
 			);
 			name = ShopApp;
 			packageProductDependencies = (
