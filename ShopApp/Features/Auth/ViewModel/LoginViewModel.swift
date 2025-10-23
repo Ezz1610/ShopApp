@@ -11,30 +11,24 @@ import Combine
 import FirebaseAuth
 
 final class LoginViewModel: ObservableObject {
-    // MARK: - Dependencies
     private let firebaseHelper: FirebaseHelper
     
-    // MARK: - Input Fields
     @Published var email = ""
     @Published var password = ""
     
-    // MARK: - UI State
     @Published var isLoading = false
     @Published var showAlert = false
     @Published var alertTitle = ""
     @Published var alertMessage = ""
     
-    // MARK: - Init with Dependency Injection
     init(firebaseHelper: FirebaseHelper = .shared) {
         self.firebaseHelper = firebaseHelper
     }
     
-    // MARK: - Computed Properties
     var canLogin: Bool {
         !email.isEmpty && !password.isEmpty && !isLoading
     }
     
-    // MARK: - Public Methods
     func login(completion: @escaping (Bool) -> Void) {
         guard canLogin else {
             showAlert(title: "Error", message: "Please fill all fields correctly.")
@@ -55,7 +49,7 @@ final class LoginViewModel: ObservableObject {
         }
         
         isLoading = true
-        print("🟡 [LoginViewModel] Starting login...")
+        print("LoginViewModel Starting login...")
         
         firebaseHelper.login(email: email, password: password) { [weak self] result in
             DispatchQueue.main.async {
@@ -67,7 +61,7 @@ final class LoginViewModel: ObservableObject {
                     if isVerified {
                         completion(true) // Login success
                     } else {
-                        self.showAlert(title: "Error", message: "Email not verified. Please check your inbox.")
+                        self.showAlert(title: "error", message: "email not verified. please check your inbox.")
                         completion(false)
                     }
                 case .failure(let error):
@@ -78,7 +72,6 @@ final class LoginViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Private Helpers
     private func isValidEmail(_ email: String) -> Bool {
         let regex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
         return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: email)
