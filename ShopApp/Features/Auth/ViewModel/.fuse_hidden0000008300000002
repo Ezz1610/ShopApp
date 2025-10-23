@@ -10,23 +10,28 @@ import Combine
 
 
 final class RegisterViewModel: ObservableObject {
+    // MARK: - Dependencies
+    private let firebaseHelper: FirebaseHelper
+    
+    // MARK: - Input Fields
     @Published var firstName = ""
     @Published var lastName = ""
     @Published var email = ""
     @Published var password = ""
     @Published var confirmPassword = ""
-
+    
+    // MARK: - UI State
     @Published var isLoading = false
     @Published var showAlert = false
     @Published var alertTitle = ""
     @Published var alertMessage = ""
-
-    // MARK: - Validation
-    private func isValidEmail(_ email: String) -> Bool {
-        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
-        return NSPredicate(format:"SELF MATCHES %@", emailRegEx).evaluate(with: email)
+    
+    // MARK: - Init with Dependency Injection
+    init(firebaseHelper: FirebaseHelper = .shared) {
+        self.firebaseHelper = firebaseHelper
     }
-
+    
+    // MARK: - Computed Properties
     var canRegister: Bool {
         !firstName.isEmpty &&
         !lastName.isEmpty &&
@@ -35,28 +40,27 @@ final class RegisterViewModel: ObservableObject {
         password == confirmPassword &&
         !isLoading
     }
-
-    // MARK: - Register Method
+    
+    // MARK: - Public Methods
     func register() {
         guard canRegister else {
             showAlert(title: "Error", message: "Please fill all fields correctly.")
             return
         }
-
-        print("🟡 [RegisterViewModel] Starting registration...")
+        
         isLoading = true
-
-        FirebaseHelper.shared.register(
+        print("🟡 [RegisterViewModel] Starting registration...")
+        
+        firebaseHelper.register(
             firstName: firstName,
             lastName: lastName,
             email: email,
             password: password
         ) { [weak self] result in
-            guard let self = self else { return }
-
             DispatchQueue.main.async {
+                guard let self = self else { return }
                 self.isLoading = false
-
+                
                 switch result {
                 case .success:
                     self.showAlert(title: "Success", message: "Verification email sent. Please check your inbox.")
@@ -66,8 +70,13 @@ final class RegisterViewModel: ObservableObject {
             }
         }
     }
-
-    // MARK: - Alert Helper
+    
+    // MARK: - Private Helpers
+    private func isValidEmail(_ email: String) -> Bool {
+        let regex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: email)
+    }
+    
     private func showAlert(title: String, message: String) {
         alertTitle = title
         alertMessage = message
