@@ -6,36 +6,49 @@
 //
 
 import Foundation
+
+
 final class RemoteDataHelper: FetchDataProtocol {
+    
+    static let shared = RemoteDataHelper()
+    private init() {}
+    
+//    private let accessToken = "Admin API access token that in drive file or password that in postman"
+    
+    private var defaultHeaders: [String: String] {
+        [
+            "Content-Type": "application/json",
+//            "X-Shopify-Access-Token": ""
+        ]
+    }
+    
     func fetchData<T: Decodable>(
         from baseURL: String,
-        queryItems: [URLQueryItem] = [],
-        completionHandler: @escaping (Result<T, Error>) -> Void
-    ) {
+        queryItems: [URLQueryItem] = []
+    ) async throws -> T {
+        
         var components = URLComponents(string: baseURL)
         components?.queryItems = queryItems
         
         guard let finalURL = components?.url else {
-            completionHandler(.failure(NSError(domain: "InvalidURL", code: 400)))
-            return
+            throw NSError(domain: "InvalidURL", code: 400)
         }
         
-        let task = URLSession.shared.dataTask(with: finalURL) { data, _, error in
-            if let error = error {
-                completionHandler(.failure(error))
-                return
-            }
-            guard let data = data else {
-                completionHandler(.failure(NSError(domain: "NoData", code: 204)))
-                return
-            }
-            do {
-                let decoded = try JSONDecoder().decode(T.self, from: data)
-                completionHandler(.success(decoded))
-            } catch {
-                completionHandler(.failure(error))
-            }
+        var request = URLRequest(url: finalURL)
+        request.httpMethod = "GET"
+        
+        // Add default headers automatically
+        for (key, value) in defaultHeaders {
+            request.addValue(value, forHTTPHeaderField: key)
         }
-        task.resume()
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        if let httpResponse = response as? HTTPURLResponse,
+           !(200...299).contains(httpResponse.statusCode) {
+            throw NSError(domain: "HTTPError", code: httpResponse.statusCode)
+        }
+        
+        return try JSONDecoder().decode(T.self, from: data)
     }
 }
