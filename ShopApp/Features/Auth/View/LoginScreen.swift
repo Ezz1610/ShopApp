@@ -13,6 +13,7 @@
 
 import SwiftUI
 
+
 struct LoginScreen: View {
     @EnvironmentObject var navigator: AppNavigator
     @StateObject private var viewModel = LoginViewModel()
@@ -32,8 +33,6 @@ struct LoginScreen: View {
             VStack(spacing: 12) {
                 emailField
                 passwordField
-
-          
             }
             .padding(.horizontal)
 
@@ -50,7 +49,8 @@ struct LoginScreen: View {
                     navigator.goTo(.register)
                 }
                 .font(.footnote)
-                .padding(.top, 8)            }
+                .padding(.top, 8)
+            }
             .padding(.horizontal)
 
             Spacer()
@@ -59,12 +59,14 @@ struct LoginScreen: View {
     }
 
     private func attemptLogin() {
-        viewModel.login { success in
+        Task {
+            let success = await viewModel.login()
             if success {
                 navigator.goTo(.testHome)
             }
         }
     }
+
     private var emailField: some View {
         CustomTextField(
             iconName: "envelope",
@@ -78,6 +80,7 @@ struct LoginScreen: View {
             isEmailField: true
         )
     }
+
     private var passwordField: some View {
         CustomTextField(
             iconName: "lock",
@@ -90,21 +93,12 @@ struct LoginScreen: View {
             onCommit: attemptLogin
         )
     }
+
     private var loginButton: some View {
-          CustomButton(
-              title: AppStrings.loginButton,
-              action: attemptLogin,
-              enabled: viewModel.canLogin
-          )
-      }
-      private var registerButton: some View {
-          CustomButton(
-              title: AppStrings.registerButton,
-              action: { navigator.goTo(.register) },
-              enabled: true,
-              background: .clear,
-              textColor: AppColors.primary,
-              borderColor: AppColors.primary
-          )
-      }
+        CustomButton(
+            title: AppStrings.loginButton,
+            action: attemptLogin,
+            enabled: viewModel.canLogin
+        )
+    }
 }

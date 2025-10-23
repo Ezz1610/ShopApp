@@ -6,7 +6,6 @@
 //
 import SwiftUI
 
-
 struct RegisterScreen: View {
     @EnvironmentObject var navigator: AppNavigator
     @StateObject private var viewModel = RegisterViewModel()
@@ -27,47 +26,56 @@ struct RegisterScreen: View {
             }
             .padding(.horizontal)
             .disabled(viewModel.isLoading)
-            LoadingView(isLoading: $viewModel.isLoading, message: "Please wait...")
-            if viewModel.showAlert {
-                  CustomAlertView(
-                      title: viewModel.alertTitle,
-                      message: viewModel.alertMessage,
-                      onDismiss: {
-                          viewModel.showAlert = false
-                          if viewModel.alertTitle == "Success" {
-                              navigator.goTo(.login)
-                          }
-                      }
-                  )
-              }
 
+            LoadingView(isLoading: $viewModel.isLoading, message: "Please wait...")
+
+            if viewModel.showAlert {
+                CustomAlertView(
+                    title: viewModel.alertTitle,
+                    message: viewModel.alertMessage,
+                    onDismiss: {
+                        viewModel.showAlert = false
+                        if viewModel.alertTitle == "Success" {
+                            navigator.goTo(.login)
+                        }
+                    }
+                )
+            }
         }
     }
-    ////////////////////////////////////
+
+    private func attemptRegister() {
+        Task {
+            await viewModel.register()
+        }
+    }
+
+
     private var headerView: some View {
-         VStack(spacing: 12) {
-             HStack {
-                 Button(action: { navigator.goBack() }) {
-                     Image(systemName: "chevron.left")
-                         .font(.title2)
-                         .foregroundColor(AppColors.primary)
-                         .padding(.top, 8)
-                 }
-                 Spacer()
-             }
+        VStack(spacing: 12) {
+            HStack {
+                Button(action: { navigator.goBack() }) {
+                    Image(systemName: "chevron.left")
+                        .font(.title2)
+                        .foregroundColor(AppColors.primary)
+                        .padding(.top, 8)
+                }
+                Spacer()
+            }
 
-             Image("appicon")
-                 .resizable()
-                 .scaledToFit()
-                 .frame(width: 110, height: 110)
-                 .padding(.top, 30)
+            Image("appicon")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 110, height: 110)
+                .padding(.top, 30)
 
-             Text("Create Account")
-                 .font(.largeTitle)
-                 .bold()
-                 .padding(.top, 4)
-         }
-     }
+            Text("Create Account")
+                .font(.largeTitle)
+                .bold()
+                .padding(.top, 4)
+        }
+    }
+
     private var firstNameField: some View {
         CustomTextField(
             iconName: "person",
@@ -115,7 +123,7 @@ struct RegisterScreen: View {
     private var registerButton: some View {
         CustomButton(
             title: viewModel.isLoading ? "Registering..." : "Register",
-            action: { viewModel.register() },
+            action: attemptRegister,
             enabled: viewModel.canRegister && !viewModel.isLoading
         )
     }

@@ -5,11 +5,11 @@
 //  Created by mohamed ezz on 22/10/2025.
 //
 
-
 import Foundation
 import Combine
 import FirebaseAuth
 
+@MainActor
 final class LoginViewModel: ObservableObject {
     private let firebaseHelper: FirebaseHelper
     
@@ -29,46 +29,39 @@ final class LoginViewModel: ObservableObject {
         !email.isEmpty && !password.isEmpty && !isLoading
     }
     
-    func login(completion: @escaping (Bool) -> Void) {
+    func login() async -> Bool {
         guard canLogin else {
             showAlert(title: "Error", message: "Please fill all fields correctly.")
-            completion(false)
-            return
+            return false
         }
         
         guard isValidEmail(email) else {
             showAlert(title: "Error", message: "Please enter a valid email.")
-            completion(false)
-            return
+            return false
         }
         
         guard password.count >= 6 else {
             showAlert(title: "Error", message: "Password must be at least 6 characters.")
-            completion(false)
-            return
+            return false
         }
         
         isLoading = true
-        print("LoginViewModel Starting login...")
+        print("[LoginViewModel] Starting login...")
         
-        firebaseHelper.login(email: email, password: password) { [weak self] result in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
-                self.isLoading = false
-                
-                switch result {
-                case .success(let isVerified):
-                    if isVerified {
-                        completion(true) // Login success
-                    } else {
-                        self.showAlert(title: "error", message: "email not verified. please check your inbox.")
-                        completion(false)
-                    }
-                case .failure(let error):
-                    self.showAlert(title: "Error", message: error.localizedDescription)
-                    completion(false)
-                }
+        do {
+            let isVerified = try await firebaseHelper.login(email: email, password: password)
+            isLoading = false
+            
+            if isVerified {
+                return true
+            } else {
+                showAlert(title: "Error", message: "Email not verified. Please check your inbox.")
+                return false
             }
+        } catch {
+            isLoading = false
+            showAlert(title: "Error", message: error.localizedDescription)
+            return false
         }
     }
     
