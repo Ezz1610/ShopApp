@@ -11,25 +11,35 @@ import FirebaseAuth
 
 @MainActor
 final class LoginViewModel: ObservableObject {
+    // MARK: - Dependencies
     private let firebaseHelper: FirebaseHelper
     
+    // MARK: - Input Fields
     @Published var email = ""
     @Published var password = ""
     
+    // MARK: - UI State
     @Published var isLoading = false
     @Published var showAlert = false
     @Published var alertTitle = ""
     @Published var alertMessage = ""
     
+    // MARK: - Init with Dependency Injection
     init(firebaseHelper: FirebaseHelper = .shared) {
         self.firebaseHelper = firebaseHelper
     }
     
+    // MARK: - Computed Properties
     var canLogin: Bool {
         !email.isEmpty && !password.isEmpty && !isLoading
     }
     
+<<<<<<< HEAD
     func login() async -> Bool {
+=======
+    // MARK: - Public Methods
+    func login(completion: @escaping (Bool) -> Void) {
+>>>>>>> parent of f7fcb2a (before update coupons)
         guard canLogin else {
             showAlert(title: "Error", message: "Please fill all fields correctly.")
             return false
@@ -46,6 +56,7 @@ final class LoginViewModel: ObservableObject {
         }
         
         isLoading = true
+<<<<<<< HEAD
         print("[LoginViewModel] Starting login...")
         
         do {
@@ -57,6 +68,27 @@ final class LoginViewModel: ObservableObject {
             } else {
                 showAlert(title: "Error", message: "Email not verified. Please check your inbox.")
                 return false
+=======
+        print("🟡 [LoginViewModel] Starting login...")
+        
+        firebaseHelper.login(email: email, password: password) { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.isLoading = false
+                
+                switch result {
+                case .success(let isVerified):
+                    if isVerified {
+                        completion(true) // Login success
+                    } else {
+                        self.showAlert(title: "Error", message: "Email not verified. Please check your inbox.")
+                        completion(false)
+                    }
+                case .failure(let error):
+                    self.showAlert(title: "Error", message: error.localizedDescription)
+                    completion(false)
+                }
+>>>>>>> parent of f7fcb2a (before update coupons)
             }
         } catch {
             isLoading = false
@@ -65,6 +97,7 @@ final class LoginViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Private Helpers
     private func isValidEmail(_ email: String) -> Bool {
         let regex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
         return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: email)
