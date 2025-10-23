@@ -5,23 +5,35 @@
 //  Created by mohamed ezz on 21/10/2025.
 //
 
+
 import Foundation
 import SwiftUI
 
 final class AppNavigator: ObservableObject {
-@Published var currentScreen: Screen = .login
+    @Published private(set) var screenStack: [Screen] = [.login]
 
-enum Screen: Equatable {
-case login
-case register
-//case home
-}
+    enum Screen: Equatable {
+        case login
+        case register
+        case testHome
+        // case home
+    }
 
-func goTo(_ screen: Screen) {
-currentScreen = screen
-}
+    var currentScreen: Screen {
+        screenStack.last ?? .login
+    }
 
-func goBack() {
-currentScreen = .login
-}
+
+    func goTo(_ screen: Screen) {
+        screenStack.append(screen)
+    }
+
+    func goBack() {
+        guard screenStack.count > 1 else { return }
+        screenStack.removeLast()
+    }
+
+    func popToRoot() {
+        screenStack = [screenStack.first].compactMap { $0 }
+    }
 }

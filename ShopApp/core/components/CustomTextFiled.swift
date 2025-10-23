@@ -25,7 +25,10 @@ struct CustomTextField: View {
     var autocapitalization: TextInputAutocapitalization? = .never
     var submitLabel: SubmitLabel = .done
     var onCommit: (() -> Void)? = nil
-    var isEmailField: Bool = false // ✨ إضافة للتحقق من الايميل
+    var isEmailField: Bool = false
+    var autoFocus: Bool = false   // ← التركيز التلقائي
+        
+    @FocusState private var isFocused: Bool   // ← ضبط التركيز داخلي
 
     var height: CGFloat = 48
     var cornerRadius: CGFloat = 12
@@ -50,12 +53,14 @@ struct CustomTextField: View {
                     if fieldType == .secure {
                         if isSecured {
                             SecureField(placeholder, text: $text)
+                                .focused($isFocused)
                                 .textInputAutocapitalization(autocapitalization)
                                 .keyboardType(keyboardType)
                                 .submitLabel(submitLabel)
                                 .onSubmit { onCommit?() }
                         } else {
                             TextField(placeholder, text: $text)
+                                .focused($isFocused)
                                 .textInputAutocapitalization(autocapitalization)
                                 .keyboardType(keyboardType)
                                 .submitLabel(submitLabel)
@@ -63,6 +68,7 @@ struct CustomTextField: View {
                         }
                     } else {
                         TextField(placeholder, text: $text)
+                            .focused($isFocused)
                             .textInputAutocapitalization(autocapitalization)
                             .keyboardType(keyboardType)
                             .submitLabel(submitLabel)
@@ -77,7 +83,6 @@ struct CustomTextField: View {
                             .foregroundColor(.secondary)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(isSecured ? "Show password" : "Hide password")
                 }
             }
             .padding(.horizontal, 12)
@@ -88,10 +93,15 @@ struct CustomTextField: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(emailIsValid ? Color(.quaternaryLabel) : Color.red, lineWidth: 0.5)
+                    .stroke(
+                        (!isEmailField || text.isEmpty || emailIsValid)
+                        ? Color(.quaternaryLabel)
+                        : Color.red,
+                        lineWidth: 0.5
+                    )
             )
+
             
-            // رسالة الخطأ
             if !emailIsValid && !text.isEmpty {
                 Text("Please enter a valid email")
                     .font(.footnote)
@@ -99,5 +109,13 @@ struct CustomTextField: View {
                     .padding(.leading, 4)
             }
         }
+        .onAppear {
+            if autoFocus {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    isFocused = true
+                }
+            }
+        }
     }
 }
+

@@ -18,8 +18,10 @@ struct RootView: View {
                 LoginScreen()
             case .register:
                 RegisterScreen()
-             case .testHome:
-                TestHomeScreen()
+                
+                //            case .home:
+                //                HomeScreen()
+            
             }
         }
     }

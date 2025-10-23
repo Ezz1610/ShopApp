@@ -1,0 +1,87 @@
+//
+//  FirebaseHelper.swift
+//  ShopApp
+//
+//  Created by mohamed ezz on 21/10/2025.
+//
+
+//m7md019960@gmail.com
+
+import Foundation
+import FirebaseAuth
+import FirebaseCore
+
+final class FirebaseHelper {
+    static let shared = FirebaseHelper()
+    private init() {}
+
+    // MARK: - Register User
+    func register(
+        firstName: String,
+        lastName: String,
+        email: String,
+        password: String,
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
+        print("📨 [FirebaseHelper] Register started for \(email)")
+
+        // تأكد إن Firebase مهيأ
+        guard FirebaseApp.app() != nil else {
+            let err = NSError(domain: "FirebaseHelper", code: -10,
+                              userInfo: [NSLocalizedDescriptionKey: "Firebase not configured properly."])
+            print("🔴 FirebaseApp not configured.")
+            completion(.failure(err))
+            return
+        }
+
+        // إنشاء المستخدم في Auth فقط
+        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+            if let error = error {
+                print("🔴 Auth Error:", error.localizedDescription)
+                completion(.failure(error))
+                return
+            }
+
+            guard let user = authResult?.user else {
+                completion(.failure(NSError(domain: "FirebaseHelper", code: 0,
+                                            userInfo: [NSLocalizedDescriptionKey: "User creation failed."])))
+                return
+            }
+
+            print("🟢 Firebase Auth user created with UID:", user.uid)
+
+            // إرسال إيميل التحقق
+            user.sendEmailVerification { emailError in
+                if let emailError = emailError {
+                    print("⚠️ Email verification failed:", emailError.localizedDescription)
+                    completion(.failure(emailError))
+                } else {
+                    print("📧 Verification email sent successfully to \(email).")
+                    completion(.success(()))
+                }
+            }
+        }
+    }
+
+    // MARK: - Login
+    func login(email: String, password: String, completion: @escaping (Result<Bool, Error>) -> Void) {
+        Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                let isVerified = authResult?.user.isEmailVerified ?? false
+                completion(.success(isVerified))
+            }
+        }
+    }
+
+    // MARK: - Logout
+    func logout() throws {
+        try Auth.auth().signOut()
+    }
+
+    // MARK: - Current User
+    func currentUser() -> User? {
+        Auth.auth().currentUser
+    }
+}

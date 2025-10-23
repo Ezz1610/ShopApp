@@ -9,6 +9,7 @@ import SwiftUI
 
 extension Numeric {
     var h: CGFloat {
+        
         CGFloat(truncating: self as! NSNumber) / 100 * UIScreen.main.bounds.height
     }
 

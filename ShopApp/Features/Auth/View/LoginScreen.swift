@@ -4,17 +4,18 @@
 //
 //  Created by mohamed ezz on 21/10/2025.
 //
-import Foundation
+//
+//  LoginScreen.swift
+//  ShopApp
+//
+//  Created by mohamed ezz on 21/10/2025.
+//
+
 import SwiftUI
 
 struct LoginScreen: View {
     @EnvironmentObject var navigator: AppNavigator
-    @State private var email = ""
-    @State private var password = ""
-    @State private var isLoading = false
-    @State private var errorMessage: String?
-
-    private var canLogin: Bool { !email.isEmpty && !password.isEmpty && !isLoading }
+    @StateObject private var viewModel = LoginViewModel()
 
     var body: some View {
         VStack(spacing: 20) {
@@ -29,101 +30,81 @@ struct LoginScreen: View {
                 .fontWeight(.bold)
 
             VStack(spacing: 12) {
-                CustomTextField(
-                    iconName: "envelope",
-                    placeholder: AppStrings.emailPlaceholder,
-                    text: $email,
-                    fieldType: .plain,
-                    keyboardType: .emailAddress,
-                    autocapitalization: .never,
-                    submitLabel: .next,
-                    onCommit: {},
-                    isEmailField: true
-                )
+                emailField
+                passwordField
 
-                CustomTextField(
-                    iconName: "lock",
-                    placeholder: AppStrings.passwordPlaceholder,
-                    text: $password,
-                    fieldType: .secure,
-                    keyboardType: .default,
-                    autocapitalization: .never,
-                    submitLabel: .done,
-                    onCommit: { attemptLogin() }
-                )
+          
             }
             .padding(.horizontal)
 
-            if let msg = errorMessage {
-                Text(msg)
+            if viewModel.showAlert {
+                Text(viewModel.alertMessage)
                     .foregroundColor(.red)
                     .font(.footnote)
                     .multilineTextAlignment(.center)
             }
 
             VStack(spacing: 12) {
-                // Login button
-                CustomButton(
-                    title: AppStrings.loginButton,
-                    action: attemptLogin,
-                    enabled: canLogin
-                )
-
-                // Register button - outlined style
-                CustomButton(
-                    title: AppStrings.registerButton,
-                    action: {
-                        print("Navigating to RegisterScreen")
-                        navigator.goTo(.register)
-                    },
-                    enabled: true,
-                    background: .clear,
-                    textColor: AppColors.primary,
-                    borderColor: AppColors.primary
-                )
-            }
+                loginButton
+                Button("Don't have an account? click here to create one.") {
+                    navigator.goTo(.register)
+                }
+                .font(.footnote)
+                .padding(.top, 8)            }
             .padding(.horizontal)
 
             Spacer()
         }
+        .disabled(viewModel.isLoading)
     }
 
     private func attemptLogin() {
-        guard !isLoading else { return }
-        errorMessage = nil
-
-        // Validation example
-        guard email.contains("@"), email.contains(".") else {
-            errorMessage = "Please enter a valid email"
-            return
-        }
-        guard password.count >= 6 else {
-            errorMessage = "Password must be at least 6 characters"
-            return
-        }
-
-        isLoading = true
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-            isLoading = false
-            // fake login success
-//            navigator.goTo(.home)
+        viewModel.login { success in
+            if success {
+                navigator.goTo(.testHome)
+            }
         }
     }
-
-
+    private var emailField: some View {
+        CustomTextField(
+            iconName: "envelope",
+            placeholder: AppStrings.emailPlaceholder,
+            text: $viewModel.email,
+            fieldType: .plain,
+            keyboardType: .emailAddress,
+            autocapitalization: .never,
+            submitLabel: .next,
+            onCommit: {},
+            isEmailField: true
+        )
+    }
+    private var passwordField: some View {
+        CustomTextField(
+            iconName: "lock",
+            placeholder: AppStrings.passwordPlaceholder,
+            text: $viewModel.password,
+            fieldType: .secure,
+            keyboardType: .default,
+            autocapitalization: .never,
+            submitLabel: .done,
+            onCommit: attemptLogin
+        )
+    }
+    private var loginButton: some View {
+          CustomButton(
+              title: AppStrings.loginButton,
+              action: attemptLogin,
+              enabled: viewModel.canLogin
+          )
+      }
+      private var registerButton: some View {
+          CustomButton(
+              title: AppStrings.registerButton,
+              action: { navigator.goTo(.register) },
+              enabled: true,
+              background: .clear,
+              textColor: AppColors.primary,
+              borderColor: AppColors.primary
+          )
+      }
 }
-
-
-
-//// MARK: - Previews
-//struct LoginScreen_Previews: PreviewProvider {
-//    static var previews: some View {
-//        Group {
-//            LoginScreen()
-//                .preferredColorScheme(.light)
-//            LoginScreen()
-//                .preferredColorScheme(.dark)
-//        }
-//    }
-//}
