@@ -9,7 +9,6 @@ import Foundation
 protocol FetchDataProtocol {
     func fetchData<T: Decodable>(
         from baseURL: String,
-        queryItems: [URLQueryItem],
-        completionHandler: @escaping (Result<T, Error>) -> Void
-    )
+        queryItems: [URLQueryItem]
+    ) async throws -> T
 }
