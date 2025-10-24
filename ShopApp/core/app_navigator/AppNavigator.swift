@@ -10,12 +10,13 @@ import Foundation
 import SwiftUI
 
 final class AppNavigator: ObservableObject {
-    @Published private(set) var screenStack: [Screen] = [.login]
+    @Published private(set) var screenStack: [Screen] = [.testHome]
 
     enum Screen: Equatable {
         case login
         case register
         case testHome
+        case productsView
         // case home
     }
 

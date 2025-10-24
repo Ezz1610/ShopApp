@@ -19,7 +19,9 @@ struct RootView: View {
             case .register:
                 RegisterScreen()
              case .testHome:
-                TestHomeScreen()
+                TestHomeScreen()  
+            case .productsView:
+                ProductsView()
             }
         }
     }
