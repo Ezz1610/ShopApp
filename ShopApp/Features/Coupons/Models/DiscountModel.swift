@@ -12,6 +12,6 @@ struct DiscountCode: Codable, Identifiable {
     let code: String
 }
 
-struct Response: Codable {
+struct  DiscountResponse: Codable {
     let discount_codes: [DiscountCode]
 }

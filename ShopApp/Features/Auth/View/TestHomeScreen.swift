@@ -12,9 +12,26 @@ struct TestHomeScreen: View {
     @State private var nearbyCities: [City] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
+    @StateObject private var viewModel = ProductsViewModel()
+    @EnvironmentObject var navigator: AppNavigator
+
+
 
     var body: some View {
         VStack {
+            Button(action: {
+                Task {
+                                await viewModel.fetchProducts()
+                                navigator.goTo(.productsView)        // ← MOVE NAVIGATION HERE
+                            }
+                      }) {
+                          Text("Load Products")
+                              .font(.headline)
+                              .foregroundColor(.white)
+                              .padding()
+                              .background(Color.green)
+                              .cornerRadius(10)
+                      }
             CouponsView()
             Text("Nearby Cities")
                 .font(.largeTitle)
