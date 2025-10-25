@@ -97,6 +97,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1087095A2EA7FFC800C15F2D /* AdsAndCoupons */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AdsAndCoupons; sourceTree = "<group>"; };
+		6332060A2EA9B21C008756C9 /* Home */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Home; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +129,7 @@
 		C3131F3F2EA7CFC500F46CCA /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				6332060A2EA9B21C008756C9 /* Home */,
 				1087095A2EA7FFC800C15F2D /* AdsAndCoupons */,
 				C3131F402EA7CFD400F46CCA /* Auth */,
 			);
@@ -335,6 +337,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				1087095A2EA7FFC800C15F2D /* AdsAndCoupons */,
+				6332060A2EA9B21C008756C9 /* Home */,
 			);
 			name = ShopApp;
 			packageProductDependencies = (
