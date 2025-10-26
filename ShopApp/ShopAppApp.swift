@@ -5,14 +5,24 @@
 //  Created by mohamed ezz on 19/10/2025.
 //
 
+
 import SwiftUI
 import FirebaseCore
+import SwiftData
+
+
 
 @main
 struct ShopAppApp: App {
-    // 1️⃣ Create the navigator as a StateObject
     @StateObject private var navigator = AppNavigator()
-    
+
+    // ✅ بنضيف الـ ModelContainer هنا عشان SwiftData يشتغل
+    var sharedModelContainer: ModelContainer = {
+        let schema = Schema([FavoriteProduct.self])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        return try! ModelContainer(for: schema, configurations: [config])
+    }()
+
     init() {
         FirebaseApp.configure()
         print("✅ Firebase configured.")
@@ -20,9 +30,9 @@ struct ShopAppApp: App {
 
     var body: some Scene {
         WindowGroup {
-            // 2️⃣ Inject the navigator into environment
             RootView()
                 .environmentObject(navigator)
+                .modelContainer(sharedModelContainer) // ✅ بنربط الـ context هنا
         }
     }
 }

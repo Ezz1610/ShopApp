@@ -1,0 +1,28 @@
+//
+//  File.swift
+//  ShopApp
+//
+//  Created by mohamed ezz on 21/10/2025.
+//
+
+import Foundation
+import SwiftUI
+
+struct RootView: View {
+    @EnvironmentObject var navigator: AppNavigator
+
+    var body: some View {
+        NavigationStack {
+            switch navigator.currentScreen {
+            case .login:
+                LoginScreen()
+            case .register:
+                RegisterScreen()
+             case .testHome:
+                TestHomeScreen()  
+            case .productsView:
+                ProductsView()
+            }
+        }
+    }
+}
