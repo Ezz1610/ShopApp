@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		63706D642EAE1B1300D3333E /* .gitignore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63706D632EAE1B1300D3333E /* .gitignore.swift */; };
 		C3131F422EA7D16200F46CCA /* CustomTextFiled.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3131F412EA7D16200F46CCA /* CustomTextFiled.swift */; };
 		C3131F442EA7D19200F46CCA /* customButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3131F432EA7D19200F46CCA /* customButton.swift */; };
 		C3131F462EA7D1DA00F46CCA /* LoginScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3131F452EA7D1DA00F46CCA /* LoginScreen.swift */; };
@@ -59,6 +60,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		63706D632EAE1B1300D3333E /* .gitignore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = .gitignore.swift; sourceTree = "<group>"; };
 		C3131F412EA7D16200F46CCA /* CustomTextFiled.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextFiled.swift; sourceTree = "<group>"; };
 		C3131F432EA7D19200F46CCA /* customButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = customButton.swift; sourceTree = "<group>"; };
 		C3131F452EA7D1DA00F46CCA /* LoginScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginScreen.swift; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 				C315B9EF2EA572AA001FDCD4 /* ShopAppUITests */,
 				C315B9D32EA572A7001FDCD4 /* Products */,
 				C33596072EA7E12500FBB43D /* Frameworks */,
+				63706D632EAE1B1300D3333E /* .gitignore.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -484,6 +487,7 @@
 				C33595ED2EA7DDAD00FBB43D /* FetchDataProtocol.swift in Sources */,
 				C33596152EA7EF3800FBB43D /* RegisterScreen.swift in Sources */,
 				C335960C2EA7E1C100FBB43D /* RemoteDataHelper.swift in Sources */,
+				63706D642EAE1B1300D3333E /* .gitignore.swift in Sources */,
 				C3131F422EA7D16200F46CCA /* CustomTextFiled.swift in Sources */,
 				C33596012EA7E00400FBB43D /* AppTextStyle.swift in Sources */,
 			);
