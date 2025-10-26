@@ -27,7 +27,7 @@ struct HomeSearchBar: View {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(Color.black.opacity(0.05))
         )
-        .padding(.horizontal)
+        .padding(.horizontal, 16)
         .padding(.top, 8)
     }
 }

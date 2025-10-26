@@ -13,11 +13,11 @@ final class HomeApiService {
     static let shared = HomeApiService()
     private init() {}
 
-    func fetchBrands() async throws -> [Brand] {
-        let url = "\(AppConfig.adminBase)/custom_collections.json"
-        let response: BrandsResponse = try await NetworkClient.shared.get(url, type: BrandsResponse.self)
-        return response.custom_collections
-    }
+    func fetchCategories() async throws -> [Category] {
+           let url = "\(AppConfig.adminBase)/custom_collections.json"
+           let response: CategoriesResponse = try await NetworkClient.shared.get(url, type: CategoriesResponse.self)
+           return response.custom_collections
+       }
 
     func fetchProducts(for collectionID: Int) async throws -> [Product] {
         // Step 1: Get collects

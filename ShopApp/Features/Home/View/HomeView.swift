@@ -10,9 +10,8 @@ struct HomeView: View {
     @State private var searchText: String = ""
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView(showsIndicators: false) {
-
                 VStack(spacing: 16) {
 
                     HomeHeaderView()
@@ -20,10 +19,8 @@ struct HomeView: View {
 
                     VStack(alignment: .leading, spacing: 20) {
 
-                        // Search bar
                         HomeSearchBar(searchText: $searchText)
 
-                        // Ads / Banner section as a card
                         ZStack {
                             RoundedRectangle(cornerRadius: 16, style: .continuous)
                                 .fill(Color.white)
@@ -32,12 +29,11 @@ struct HomeView: View {
                             AdsScreen()
                                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         }
-                        .frame(height: 280)  
+                        .frame(height: 250)
+                        .padding(.horizontal, 16)
 
-                        // Brands
                         BrandCollectionView(brands: vm.brands)
                     }
-                    .padding(.horizontal, 16)
                     .padding(.bottom, 24)
                 }
                 .background(Color(.systemGray6))

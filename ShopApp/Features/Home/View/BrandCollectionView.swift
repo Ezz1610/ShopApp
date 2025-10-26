@@ -6,57 +6,100 @@
 //
 
 import SwiftUI
+import SwiftUI
 
 struct BrandCollectionView: View {
     let brands: [SmartCollection]
 
+    private let columns: [GridItem] = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
 
             Text("Brands")
-                .font(.headline)
-                .padding(.horizontal)
+                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .foregroundColor(.primary)
+                .padding(.horizontal, 16)
 
-            ScrollView(.horizontal, showsIndicators: false) {
+            LazyVGrid(
+                columns: columns,
+                alignment: .leading,
+                spacing: 16
+            ) {
 
-                LazyHGrid(
-                    rows: [
-                        GridItem(.fixed(110)),
-                        GridItem(.fixed(110))
-                    ],
-                    spacing: 12
-                ) {
-
-                    ForEach(brands) { brand in
-                        NavigationLink(
-                            destination: BrandProductsView(vendor: brand.title)
-                        ) {
-                            VStack(spacing: 8) {
-
-                                AsyncImage(url: URL(string: brand.image?.src ?? "")) { img in
-                                    img
-                                        .resizable()
-                                        .scaledToFill()
-                                } placeholder: {
-                                    Color(.systemGray5)
-                                }
-                                .frame(width: 110, height: 80)
-                                .cornerRadius(10)
-
-                                Text(brand.title)
-                                    .font(.caption)
-                                    .lineLimit(1)
-                            }
-                            .frame(width: 110)
-                            .background(Color.white)
-                            .cornerRadius(12)
-                            .shadow(radius: 2)
-                        }
+                ForEach(brands, id: \.title) { brand in
+                    NavigationLink(
+                        destination: BrandProductsView(vendor: brand.title)
+                    ) {
+                        BrandCardLuxury(brand: brand)
                     }
-
+                    .buttonStyle(.plain)
                 }
-                .padding(.horizontal)
             }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 32)
         }
+        .background(Color(.systemGray6))
+    }
+}
+
+private struct BrandCardLuxury: View {
+    let brand: SmartCollection
+
+    var body: some View {
+        VStack(spacing: 10) {
+
+            AsyncImage(url: URL(string: brand.image?.src ?? "")) { phase in
+                switch phase {
+                case .empty:
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.05))
+                        .overlay(
+                            ProgressView().scaleEffect(0.7)
+                        )
+
+                case .success(let img):
+                    img
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity, maxHeight: 50)
+                        .padding(.top, 8)
+                        .padding(.horizontal, 8)
+                        .padding(.bottom, 4)
+
+                case .failure:
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.05))
+                        .overlay(
+                            Image(systemName: "photo")
+                                .font(.title3)
+                                .foregroundColor(.gray)
+                        )
+
+                @unknown default:
+                    EmptyView()
+                }
+            }
+            .frame(height: 60)
+
+            Text(brand.title.uppercased())
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .foregroundColor(.primary)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, minHeight: 28, alignment: .top)
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 10)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
+        )
     }
 }

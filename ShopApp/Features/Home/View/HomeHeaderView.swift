@@ -40,7 +40,6 @@ struct HomeHeaderView: View {
             Spacer()
 
             HStack(spacing: 12) {
-
                 // Favorites
                 Button {
                     // favorites action
@@ -71,8 +70,7 @@ struct HomeHeaderView: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.top, 8)
-        .padding(.bottom, 4)
+        .padding(.vertical, 8)
         .background(Color(.systemBackground))
     }
 }
