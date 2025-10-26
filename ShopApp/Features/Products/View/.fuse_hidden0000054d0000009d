@@ -1,0 +1,45 @@
+//
+//  pp.swift
+//  ShopApp
+//
+//  Created by mohamed ezz on 25/10/2025.
+//
+import Foundation
+import SwiftUI
+import SwiftData
+
+struct ProductItemView: View {
+    @EnvironmentObject var navigator: AppNavigator
+    @ObservedObject var viewModel: ProductsViewModel
+    let product: ProductModel
+
+    @State private var isFavorite = false
+
+    var body: some View {
+        VStack {
+            CustomNetworkImage(
+                url: product.image?.src,
+                width: 160,
+                height: 160,
+                cornerRadius: 12
+            )
+
+            Text(product.title)
+                .font(.headline)
+                .multilineTextAlignment(.center)
+
+            Button(action: {
+                viewModel.toggleFavorite(product: product)
+                isFavorite = viewModel.isFavorite(product: product)
+            }) {
+                Image(systemName: isFavorite ? "heart.fill" : "heart")
+                    .foregroundColor(isFavorite ? .red : .gray)
+                    .padding(6)
+            }
+            .onAppear {
+                isFavorite = viewModel.isFavorite(product: product)
+            }
+        }
+        .padding()
+    }
+}

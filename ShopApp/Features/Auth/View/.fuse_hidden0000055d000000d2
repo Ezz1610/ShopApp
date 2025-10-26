@@ -8,15 +8,16 @@ import SwiftUI
 import SwiftData
 
 struct TestHomeScreen: View {
-    @Environment(\.modelContext) private var context
+    @Environment(\.modelContext) private var context  // ✅ Access SwiftData context
     @EnvironmentObject var navigator: AppNavigator
 
     @State private var nearbyCities: [City] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
 
-    @StateObject private var viewModel: ProductsViewModel
+    @StateObject private var viewModel: ProductsViewModel   // ✅ Remove default init
 
+    // ✅ Custom initializer to inject context into ProductsViewModel
     init(context: ModelContext) {
         _viewModel = StateObject(wrappedValue: ProductsViewModel(context: context))
     }

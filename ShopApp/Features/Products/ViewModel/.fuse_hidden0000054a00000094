@@ -8,6 +8,9 @@ import SwiftData
 final class ProductsViewModel: ObservableObject {
     @Published var products: [ProductModel] = []
     @Published var favorites: [FavoriteProduct] = []
+    @Published var searchText: String = ""
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
 
     private let apiService = ApiServices()
     private let dataHelper: SwiftDataHelper
@@ -28,18 +31,31 @@ final class ProductsViewModel: ObservableObject {
     func toggleFavorite(product: ProductModel) {
         dataHelper.toggleFavorite(product: product)
         loadFavorites()
+        objectWillChange.send()
     }
 
     func removeFavorite(_ favorite: FavoriteProduct) {
         dataHelper.removeFavorite(id: favorite.id)
         loadFavorites()
+        objectWillChange.send()
+    }
+
+    var filteredProducts: [ProductModel] {
+        if searchText.isEmpty { return products }
+        return products.filter {
+            $0.title.localizedCaseInsensitiveContains(searchText) ||
+            $0.vendor.localizedCaseInsensitiveContains(searchText) ||
+            $0.tags.localizedCaseInsensitiveContains(searchText)
+        }
     }
 
     func fetchProducts() async {
+        isLoading = true
+        defer { isLoading = false }
         do {
             products = try await apiService.fetchProducts()
         } catch {
-            print("Error fetching products: \(error)")
+            errorMessage = error.localizedDescription
         }
     }
 }
