@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+
+
+
 struct BrandProductsView: View {
     let vendor: String
     @StateObject private var vm: BrandProductsViewModel
@@ -15,6 +18,11 @@ struct BrandProductsView: View {
         _vm = StateObject(wrappedValue: BrandProductsViewModel(vendor: vendor))
     }
 
+    private let columns = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
+
     var body: some View {
         ScrollView {
             if vm.products.isEmpty && !vm.isLoading {
@@ -22,50 +30,39 @@ struct BrandProductsView: View {
                     Image(systemName: "shippingbox")
                         .font(.largeTitle)
                         .foregroundColor(.gray)
+
                     Text("No products found for \(vendor)")
                         .foregroundColor(.gray)
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
                 }
                 .padding(.top, 100)
+                .frame(maxWidth: .infinity)
             } else {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(vm.products) { product in
-                        VStack(alignment: .leading, spacing: 8) {
-                            AsyncImage(url: URL(string: product.image?.src ?? "")) { img in
-                                img.resizable().scaledToFill()
-                            } placeholder: {
-                                Color(.systemGray5)
-                            }
-                            .frame(height: 140)
-                            .cornerRadius(10)
-
-                            Text(product.title)
-                                .font(.subheadline)
-                                .lineLimit(2)
-                            Text("$\(product.variants?.first?.price ?? "-")")
-                                .font(.headline)
-                        }
-                        .padding(8)
-                        .background(Color.white)
-                        .cornerRadius(12)
-                        .shadow(radius: 2)
+                        ProductCardView(product: product)
+                            .frame(maxWidth: .infinity)
                     }
                 }
-                .padding()
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 32)
             }
         }
-        .navigationTitle(vendor)
+        .background(Color(.systemGray6))
         .navigationTitle(vendor)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color.white, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(.light, for: .navigationBar)
-        .task { await vm.load() }
+        .task {
+            await vm.load()
+        }
         .overlay {
             if vm.isLoading {
-                ProgressView().scaleEffect(1.3)
+                ProgressView()
+                    .scaleEffect(1.3)
             }
         }
     }
 }
-
-

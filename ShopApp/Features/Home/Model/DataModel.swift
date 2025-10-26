@@ -28,18 +28,18 @@ struct ProductsResponse: Decodable {
 }
 
 
-struct Brand: Identifiable, Decodable {
+struct Category: Identifiable, Decodable {
     let id: Int
     let title: String
-    let image: BrandImage?
+    let image: CategoryImage?
 
-    struct BrandImage: Decodable {
+    struct CategoryImage: Decodable {
         let src: String?
     }
 }
 
-struct BrandsResponse: Decodable {
-    let custom_collections: [Brand]
+struct CategoriesResponse: Decodable {
+    let custom_collections: [Category]
 }
 
 struct SmartCollectionResponse: Decodable {
@@ -55,3 +55,4 @@ struct SmartCollection: Identifiable, Decodable {
 struct SmartImage: Decodable {
     let src: String?
 }
+
