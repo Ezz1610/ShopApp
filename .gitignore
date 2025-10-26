@@ -1,0 +1,4 @@
+ShopApp.xcodeproj/xcshareddata/xcschemes/*.xcscheme
+ShopApp.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcuserstate
+.DS_Store
