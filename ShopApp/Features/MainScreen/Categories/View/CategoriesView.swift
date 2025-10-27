@@ -4,20 +4,29 @@
 //
 //  Created by Mohammed Hassanien on 24/10/2025.
 //
+import Foundation
+import SwiftUI
+import SwiftData
 
 import SwiftUI
-import SwiftUI
+import SwiftData
 
 struct CategoriesView: View {
-    @StateObject private var categoriesVM = CategoriesViewModel()
-    @StateObject private var productsVM = InlineCategoryProductsViewModel()
+    @EnvironmentObject var navigator: AppNavigator
+    @Environment(\.modelContext) private var context
+    @State private var searchText = ""
 
+    @StateObject private var categoriesVM: CategoriesProductsViewModel
     @State private var selectedCategory: Category?
 
     private let gridCols = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
     ]
+
+    init(context: ModelContext) {
+        _categoriesVM = StateObject(wrappedValue: CategoriesProductsViewModel(context: context))
+    }
 
     var body: some View {
         NavigationStack {
@@ -35,6 +44,10 @@ struct CategoriesView: View {
                             .foregroundColor(.primary)
                             .padding(.horizontal, 16)
 
+                        // Use HomeSearchBar here
+                        HomeSearchBar(searchText: $searchText)
+
+                        // MARK: - Categories Horizontal Scroll
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
                                 ForEach(categoriesVM.categories) { cat in
@@ -43,7 +56,9 @@ struct CategoriesView: View {
                                         isSelected: cat.id == selectedCategory?.id,
                                         onTap: {
                                             selectedCategory = cat
-                                            productsVM.loadProducts(for: cat)
+                                            Task {
+                                                await categoriesVM.loadProducts(for: cat)
+                                            }
                                         }
                                     )
                                 }
@@ -52,6 +67,7 @@ struct CategoriesView: View {
                             .padding(.bottom, 4)
                         }
 
+                        // MARK: - Category Hero Image
                         if let heroURL = selectedCategory?.image?.src {
                             AsyncImage(url: URL(string: heroURL)) { phase in
                                 switch phase {
@@ -79,18 +95,19 @@ struct CategoriesView: View {
                             .padding(.horizontal, 16)
                         }
 
-                        Group {
-                            if productsVM.isLoading && productsVM.products.isEmpty {
+                        // MARK: - Products Grid / States
+                        VStack {
+                            if categoriesVM.isLoading && categoriesVM.products.isEmpty {
                                 ProgressView("Loading products…")
                                     .padding(.horizontal, 16)
 
-                            } else if let err = productsVM.errorMessage, productsVM.products.isEmpty {
+                            } else if let err = categoriesVM.errorMessage, categoriesVM.products.isEmpty {
                                 Text("Error: \(err)")
                                     .foregroundColor(.red)
                                     .padding(.horizontal, 16)
 
-                            } else if productsVM.products.isEmpty {
-                                Text("No products available.")
+                            } else if filteredProducts.isEmpty {
+                                Text("No products match your search.")
                                     .foregroundColor(.secondary)
                                     .padding(.horizontal, 16)
 
@@ -100,9 +117,12 @@ struct CategoriesView: View {
                                     alignment: .leading,
                                     spacing: 16
                                 ) {
-                                    ForEach(productsVM.products) { product in
-                                        ProductCardView(product: product)
+                                    ForEach(filteredProducts) { product in
+                                        ProductCardView(product: product, viewModel: categoriesVM)
                                             .frame(maxWidth: .infinity)
+                                            .onTapGesture {
+                                                navigator.goTo(.productDetails(product))
+                                            }
                                     }
                                 }
                                 .padding(.horizontal, 16)
@@ -115,18 +135,33 @@ struct CategoriesView: View {
             }
             .background(Color(.systemGray6))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar(.hidden, for: .navigationBar) 
+            .toolbar(.hidden, for: .navigationBar)
             .onAppear {
-                if categoriesVM.categories.isEmpty {
-                    categoriesVM.loadCategories()
+                Task {
+                    if categoriesVM.categories.isEmpty {
+                        await categoriesVM.loadCategories()
+                    }
                 }
             }
             .onChange(of: categoriesVM.categories.count) { _ in
                 if selectedCategory == nil,
                    let first = categoriesVM.categories.first {
                     selectedCategory = first
-                    productsVM.loadProducts(for: first)
+                    Task {
+                        await categoriesVM.loadProducts(for: first)
+                    }
                 }
+            }
+        }
+    }
+
+    // MARK: - Filtered Products
+    private var filteredProducts: [ProductModel] {
+        if searchText.isEmpty {
+            return categoriesVM.products
+        } else {
+            return categoriesVM.products.filter {
+                $0.title.localizedCaseInsensitiveContains(searchText)
             }
         }
     }

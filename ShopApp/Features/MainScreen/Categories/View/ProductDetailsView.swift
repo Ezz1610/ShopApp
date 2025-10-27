@@ -8,25 +8,36 @@
 import Foundation
 import SwiftUI
 
+
 struct ProductDetailsView: View {
     let product: ProductModel
+    @Environment(\.dismiss) private var dismiss  // For back action
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                
+                // MARK: - Product Images
                 TabView {
                     ForEach(product.images) { img in
-                        CustomNetworkImage(url: img.src, width: UIScreen.main.bounds.width, height: 300, cornerRadius: 0)
-                            .frame(maxWidth: .infinity, maxHeight: 300)
+                        CustomNetworkImage(
+                            url: img.src,
+                            width: UIScreen.main.bounds.width,
+                            height: 300,
+                            cornerRadius: 0
+                        )
+                        .frame(maxWidth: .infinity, maxHeight: 300)
                     }
                 }
                 .tabViewStyle(PageTabViewStyle())
                 .frame(height: 300)
 
+                // MARK: - Product Title
                 Text(product.title)
                     .font(.title2.bold())
                     .padding(.horizontal)
 
+                // MARK: - Product Price
                 if let price = product.variants.first?.price {
                     Text("$\(price)")
                         .font(.title3.bold())
@@ -34,11 +45,12 @@ struct ProductDetailsView: View {
                         .padding(.horizontal)
                 }
 
+                // MARK: - Product Description
                 Text(product.bodyHTML)
                     .font(.body)
                     .padding(.horizontal)
 
-                // Options example placeholder
+                // MARK: - Product Options
                 if !product.options.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
                         ForEach(product.options) { option in
@@ -60,6 +72,7 @@ struct ProductDetailsView: View {
                     .padding(.horizontal)
                 }
 
+                // MARK: - Add to Cart Button
                 Button(action: {
                     // add to cart
                 }) {
@@ -75,5 +88,18 @@ struct ProductDetailsView: View {
         }
         .navigationTitle("Details")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            // MARK: - Custom Back Button
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+            }
+        }
     }
 }

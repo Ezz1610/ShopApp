@@ -9,6 +9,7 @@ import SwiftUI
 struct MainTabView: View {
 
     @State private var selectedTab: Int = 0
+    @Environment(\.modelContext) private var context
 
     init() {
         let appearance = UITabBarAppearance()
@@ -24,7 +25,7 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
 
-            HomeView()
+            HomeView(context: context)
                 .tabItem {
                     VStack {
                         Image(systemName: selectedTab == 0 ? "house.fill" : "house")
@@ -35,7 +36,7 @@ struct MainTabView: View {
                 }
                 .tag(0)
 
-            CategoriesView()
+            CategoriesView(context: context)
                 .tabItem {
                     VStack {
                         Image(systemName: selectedTab == 1 ? "square.grid.2x2.fill" : "square.grid.2x2")
@@ -45,7 +46,7 @@ struct MainTabView: View {
                     }
                 }
                 .tag(1)
-            Me()
+        
                 .tabItem {
                     VStack {
                         Image(systemName: selectedTab == 2 ? "person.fill" : "person")
@@ -63,7 +64,4 @@ struct MainTabView: View {
     }
 }
 
-#Preview {
-    MainTabView()
-}
 

@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
-import SwiftUI
+
+import SwiftData
 
 struct BrandCollectionView: View {
     let brands: [SmartCollection]
+    @ObservedObject var viewModel: CategoriesProductsViewModel  // Shared VM
 
     private let columns: [GridItem] = [
         GridItem(.flexible(), spacing: 12),
@@ -33,7 +35,10 @@ struct BrandCollectionView: View {
 
                 ForEach(brands, id: \.title) { brand in
                     NavigationLink(
-                        destination: BrandProductsView(vendor: brand.title)
+                        destination: BrandProductsView(
+                            vendor: brand.title,
+                            viewModel: viewModel  // Inject shared VM
+                        )
                     ) {
                         BrandCardLuxury(brand: brand)
                     }

@@ -7,34 +7,24 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct ProductCardView: View {
-    let product: Product
+    let product: ProductModel
+    @ObservedObject var viewModel: CategoriesProductsViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
 
-        
             ZStack(alignment: .topTrailing) {
 
                 AsyncImage(url: URL(string: product.image?.src ?? "")) { phase in
                     switch phase {
                     case .empty:
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.1))
-
+                        Rectangle().fill(Color.gray.opacity(0.1))
                     case .success(let image):
-                        image
-                            .resizable()
+                        image.resizable()
                             .scaledToFit()
-                            .frame(
-                                maxWidth: .infinity,
-                                maxHeight: 140,
-                                alignment: .center
-                            )
+                            .frame(maxWidth: .infinity, maxHeight: 140)
                             .clipped()
-
                     case .failure:
                         Rectangle()
                             .fill(Color.gray.opacity(0.1))
@@ -43,7 +33,6 @@ struct ProductCardView: View {
                                     .font(.title3)
                                     .foregroundColor(.gray)
                             )
-
                     @unknown default:
                         EmptyView()
                     }
@@ -53,18 +42,18 @@ struct ProductCardView: View {
                 .background(Color.gray.opacity(0.05))
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
-                // FAVORITE
+                // FAVORITE BUTTON
                 Button {
-                    // wishlist action
+                    viewModel.toggleFavorite(product: product)
                 } label: {
                     Circle()
                         .fill(.white)
                         .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)
                         .frame(width: 28, height: 28)
                         .overlay(
-                            Image(systemName: "heart.fill")
+                            Image(systemName: viewModel.isFavorite(product: product) ? "heart.fill" : "heart")
                                 .font(.system(size: 13, weight: .semibold))
-                                .foregroundColor(.black)
+                                .foregroundColor(viewModel.isFavorite(product: product) ? .red : .black)
                         )
                 }
                 .padding(8)
@@ -72,7 +61,6 @@ struct ProductCardView: View {
 
             // TITLE + PRICE
             VStack(alignment: .leading, spacing: 4) {
-
                 Text(product.title)
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .foregroundColor(.primary)
@@ -112,11 +100,9 @@ struct ProductCardView: View {
         )
     }
 
-    private func lowestPrice(_ product: Product) -> String {
-        let prices = product.variants?
-            .compactMap { $0.price }
-            .compactMap { Double($0) } ?? []
-
+    private func lowestPrice(_ product: ProductModel) -> String {
+        let prices = product.variants
+            .compactMap { Double($0.price ?? "") }
         if let minPrice = prices.min() {
             return String(format: "$%.2f", minPrice)
         } else {

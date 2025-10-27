@@ -6,13 +6,19 @@
 //
 
 import SwiftUI
+
+
 struct CategoryChip: View {
     let category: Category
     let isSelected: Bool
-    let onTap: () -> Void
+    let onTap: () async -> Void   // ✅ async closure
 
     var body: some View {
-        Button(action: onTap) {
+        Button {
+            Task {
+                await onTap()
+            }
+        } label: {
             Text(category.title.capitalized)
                 .font(.system(size: 13, weight: isSelected ? .semibold : .regular, design: .rounded))
                 .foregroundColor(isSelected ? .white : .primary)
