@@ -13,7 +13,8 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject var navigator: AppNavigator
-    @Environment(\.modelContext) private var context
+    @Environment(\.modelContext) private var context   // ✅ Needed for SwiftData Views
+
     var body: some View {
         NavigationStack {
             switch navigator.currentScreen {
@@ -23,16 +24,14 @@ struct RootView: View {
             case .register:
                 RegisterScreen()
 
-            case .mainTabView:
-                MainTabView()
             case .testHome:
-                TestHomeScreen(context: context)
+                TestHomeScreen(context: context)   // ✅ Pass the model context
 
             case .productsView:
                 ProductsView(context: context)
 
             case .favoritesView:
-                FavoritesView(context: context)
+                FavoritesView(context: context)   // ✅ Also uses context
 
             case .productDetails(let product):
                 ProductDetailsView(product: product)

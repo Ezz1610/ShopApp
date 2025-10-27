@@ -8,7 +8,7 @@ import Foundation
 import SwiftUI
 
 final class AppNavigator: ObservableObject {
-    @Published private(set) var screenStack: [Screen] = [.testHome]
+    @Published private(set) var screenStack: [Screen] = [.mainTabView]
 
     enum Screen: Equatable {
         static func == (lhs: AppNavigator.Screen, rhs: AppNavigator.Screen) -> Bool {
@@ -30,6 +30,7 @@ final class AppNavigator: ObservableObject {
 
         case login
         case register
+        case mainTabView
         case testHome
         case productsView
         case favoritesView               // ✅ Added new screen case
