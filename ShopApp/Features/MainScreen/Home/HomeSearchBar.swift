@@ -8,6 +8,7 @@ import SwiftUI
 
 struct HomeSearchBar: View {
     @Binding var searchText: String
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         HStack(spacing: 8) {
@@ -20,6 +21,16 @@ struct HomeSearchBar: View {
                 .font(.system(size: 15, weight: .regular, design: .rounded))
                 .foregroundColor(.black)
                 .disableAutocorrection(true)
+                .focused($isFocused)
+                .onSubmit { isFocused = false }
+
+            if !searchText.isEmpty {
+                Button(action: { searchText = "" }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray.opacity(0.6))
+                        .font(.system(size: 16))
+                }
+            }
         }
         .padding(.horizontal, 12)
         .frame(height: 44)

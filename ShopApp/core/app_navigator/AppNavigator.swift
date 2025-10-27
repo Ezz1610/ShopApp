@@ -17,7 +17,7 @@ final class AppNavigator: ObservableObject {
                  (.register, .register),
                  (.testHome, .testHome),
                  (.productsView, .productsView),
-                 (.favoritesView, .favoritesView):   // ✅ Added comparison
+                 (.favoritesView, .favoritesView):
                 return true
                 
             case (.productDetails(let a), .productDetails(let b)):
@@ -33,7 +33,7 @@ final class AppNavigator: ObservableObject {
         case mainTabView
         case testHome
         case productsView
-        case favoritesView               // ✅ Added new screen case
+        case favoritesView
         case productDetails(ProductModel)
     }
 
