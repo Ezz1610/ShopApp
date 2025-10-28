@@ -12,6 +12,7 @@ import SwiftUI
 struct ProductDetailsView: View {
     let product: ProductModel
     @Environment(\.dismiss) private var dismiss  // For back action
+    @Environment(CartManager.self)  var cartManager: CartManager
 
     var body: some View {
         ScrollView {
@@ -74,7 +75,8 @@ struct ProductDetailsView: View {
 
                 // MARK: - Add to Cart Button
                 Button(action: {
-                    // add to cart
+                    cartManager.addToCart(product: product)
+                    print("Added to cart: \(product.title)")
                 }) {
                     Text("Add to Cart")
                         .frame(maxWidth: .infinity)

@@ -10,7 +10,7 @@ import SwiftUI
 struct ProductCardView: View {
     let product: ProductModel
     @ObservedObject var viewModel: CategoriesProductsViewModel
-
+    @Environment(CartManager.self) var cartManager : CartManager
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
 
@@ -75,7 +75,8 @@ struct ProductCardView: View {
 
             // ADD TO CART
             Button {
-                // add to cart action
+                cartManager.addToCart(product: product)
+                print("Added to cart: \(product.title)")
             } label: {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(Color.black)

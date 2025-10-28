@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct HomeHeaderView: View {
+    
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
 
@@ -62,9 +63,19 @@ struct HomeHeaderView: View {
                         .fill(Color.black.opacity(0.05))
                         .frame(width: 36, height: 36)
                         .overlay(
-                            Image(systemName: "cart.fill")
-                                .font(.system(size: 15, weight: .semibold))
-                                .foregroundColor(.primary)
+                            ZStack {
+                                Image(systemName: "cart.fill")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundColor(.primary)
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.red)
+                                        .frame(width: 25, height: 25)
+                                    Text("1")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.white)
+                                }.offset(CGSize(width: 10, height: -10))
+                            }
                         )
                 }
             }

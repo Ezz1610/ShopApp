@@ -46,19 +46,26 @@ struct MainTabView: View {
                     }
                 }
                 .tag(1)
-        
+        //ME SECTION
+//                .tabItem {
+//                    VStack {
+//                        Image(systemName: selectedTab == 2 ? "person.fill" : "person")
+//                            .font(.system(size: 18, weight: .semibold))
+//                        Text("Me")
+//                            .font(.system(size: 11, weight: .medium))
+//                    }
+//                }
+//                .tag(2)
+             CartView()
                 .tabItem {
                     VStack {
-                        Image(systemName: selectedTab == 2 ? "person.fill" : "person")
+                        Image(systemName: selectedTab == 2 ? "cart.fill" : "cart")
                             .font(.system(size: 18, weight: .semibold))
-                        Text("Me")
+                        Text("Shopping Cart")
                             .font(.system(size: 11, weight: .medium))
                     }
                 }
                 .tag(2)
-
-
-           
         }
         .tint(.green)
     }

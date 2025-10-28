@@ -62,7 +62,7 @@ struct LoginScreen: View {
         Task {
             let success = await viewModel.login()
             if success {
-                navigator.goTo(.testHome)
+                navigator.goTo(.homeView)
             }
         }
     }
