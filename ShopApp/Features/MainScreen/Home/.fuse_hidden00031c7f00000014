@@ -88,3 +88,11 @@ struct HomeHeaderView: View {
         .background(Color(.systemBackground))
     }
 }
+
+#Preview {
+    HomeHeaderView()
+        .environment(CartManager())
+        .previewLayout(.sizeThatFits)
+        .padding()
+        .background(Color(.systemGray6))
+}
