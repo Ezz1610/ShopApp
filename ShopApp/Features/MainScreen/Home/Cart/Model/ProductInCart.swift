@@ -13,12 +13,8 @@ struct ProductInCart: Identifiable {
     }
     let product: ProductModel
     var quantity: Int
-    var selectedVariant: Variant?
+    var price: Variant?
     
-    var totalPrice: Double {
-        guard let variant = selectedVariant,
-              let price = Double(variant.price) else { return 0 }
-        return price * Double(quantity)
-    }
+   
 }
  

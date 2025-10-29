@@ -41,6 +41,7 @@ struct RootView: View {
                 
             case .homeView:
                 HomeView(context: context)
+                    .environment(CartManager())
             }
         }
         .animation(.easeInOut, value: navigator.currentScreen)

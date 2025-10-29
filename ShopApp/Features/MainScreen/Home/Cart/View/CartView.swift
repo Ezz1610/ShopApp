@@ -23,9 +23,9 @@ struct CartView: View {
                     .modifier(AppTextStyle.mediumStyle())
                 Text("$\(productInCart.product.variants.first?.price ?? "0.00")")
                 Stepper("Quantity \(productInCart.quantity)") {
-                    
+                    cartManager.addToCart(product: productInCart.product)
                 } onDecrement: {
-                    
+                    cartManager.removeFromCart(product: productInCart.product)
                 }
 
             }
@@ -34,22 +34,31 @@ struct CartView: View {
    
     
     var body: some View {
+        @Bindable var cartManager = cartManager
         VStack {
             Spacer()
             if (cartManager.productsInCart).isEmpty {
-               
-                Text("Your cart is empty.")
-                    .modifier(AppTextStyle.mediumStyle())
+                Text("Your cart is empty 👀")
+                    .modifier(AppTextStyle.customStyle(fontSize: 30))
                     .padding()
-                  
             } else {
                 List {
                     ForEach(cartManager.productsInCart) { productInCart in
                         cartRow(productInCart: productInCart)
                     }
-                    
                 }
-                
+                VStack {
+                    Divider()
+                    HStack {
+                        Text("Total: \(cartManager.displayTotalCartQuantity) items")
+                            .font(.title2.bold())
+                        Spacer()
+                        Text(cartManager.displayTotalCartPrice)
+                            .font(.title2.bold())
+                            
+                    }
+                    .padding(.horizontal)
+                }
             }
             Spacer()
             Button(action: {
@@ -57,16 +66,26 @@ struct CartView: View {
             }) {
                 Text("Proceed to Checkout")
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color.blue)
+                    .background(AppColors.primary)
                     .cornerRadius(10)
                     .padding()
                 
             }
             
-        }
+        } .alert("Remove Last Item?",
+                 isPresented: $cartManager.showRemoveConfirmation) {
+              Button("OK", role: .destructive) {
+                  cartManager.confirmRemove()
+              }
+              Button("Undo", role: .cancel) {
+                  cartManager.cancelRemove()
+              }
+          } message: {
+              Text("Are you sure to delete \(cartManager.pendingProductToRemove?.title ?? "this product") from your cart.")
+          }
     }
 }
 #Preview {

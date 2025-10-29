@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct HomeHeaderView: View {
+    @Environment(CartManager.self) var cartManager: CartManager
     
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -57,7 +58,7 @@ struct HomeHeaderView: View {
 
                 // Cart
                 Button {
-                    // cart action
+                
                 } label: {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(Color.black.opacity(0.05))
@@ -67,14 +68,16 @@ struct HomeHeaderView: View {
                                 Image(systemName: "cart.fill")
                                     .font(.system(size: 15, weight: .semibold))
                                     .foregroundColor(.primary)
+                                if cartManager.displayTotalCartQuantity > 0 {
                                 ZStack {
                                     Circle()
                                         .fill(Color.red)
                                         .frame(width: 25, height: 25)
-                                    Text("1")
+                                    Text("\(cartManager.displayTotalCartQuantity)")
                                         .font(.system(size: 13))
                                         .foregroundColor(.white)
                                 }.offset(CGSize(width: 10, height: -10))
+                            }
                             }
                         )
                 }
@@ -88,6 +91,7 @@ struct HomeHeaderView: View {
 
 #Preview {
     HomeHeaderView()
+        .environment(CartManager())
         .previewLayout(.sizeThatFits)
         .padding()
         .background(Color(.systemGray6))
