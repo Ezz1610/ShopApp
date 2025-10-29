@@ -13,21 +13,21 @@ final class RemoteDataHelper: FetchDataProtocol {
     static let shared = RemoteDataHelper()
     private init() {}
     
-//   private let accessToken = "Admin API access token that in drive file or password that in postman"
+//    private let accessToken = "Admin API access token that in drive file or password that in postman"
     
     private var defaultHeaders: [String: String] {
         [
             "Content-Type": "application/json",
-            "X-Shopify-Access-Token": ""
+//            "X-Shopify-Access-Token": ""
         ]
     }
     
     func fetchData<T: Decodable>(
-        from url: String,
+        from baseURL: String,
         queryItems: [URLQueryItem] = []
     ) async throws -> T {
         
-        var components = URLComponents(string: url)
+        var components = URLComponents(string: baseURL)
         components?.queryItems = queryItems
         
         guard let finalURL = components?.url else {
@@ -48,7 +48,7 @@ final class RemoteDataHelper: FetchDataProtocol {
            !(200...299).contains(httpResponse.statusCode) {
             throw NSError(domain: "HTTPError", code: httpResponse.statusCode)
         }
-
+        
         return try JSONDecoder().decode(T.self, from: data)
     }
 }

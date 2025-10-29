@@ -14,10 +14,11 @@ final class AppNavigator: ObservableObject {
         static func == (lhs: AppNavigator.Screen, rhs: AppNavigator.Screen) -> Bool {
             switch (lhs, rhs) {
             case (.login, .login),
-                 (.register, .register),
-                 (.testHome, .testHome),
-                 (.productsView, .productsView),
-                 (.favoritesView, .favoritesView):
+                (.register, .register),
+              //  (.testHome, .testHome),
+                (.homeView, .homeView):
+              //  (.productsView, .productsView):
+                // (.favoritesView, .favoritesView):
                 return true
                 
             case (.productDetails(let a), .productDetails(let b)):
@@ -31,9 +32,10 @@ final class AppNavigator: ObservableObject {
         case login
         case register
         case mainTabView
-        case testHome
-        case productsView
-        case favoritesView
+        case homeView
+       // case testHome
+        //case productsView
+       // case favoritesView
         case productDetails(ProductModel)
     }
 

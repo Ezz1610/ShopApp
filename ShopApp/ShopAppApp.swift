@@ -15,7 +15,7 @@ import SwiftData
 @main
 struct ShopAppApp: App {
     @StateObject private var navigator = AppNavigator()
-
+    @State  var cartManager = CartManager()
     // ✅ بنضيف الـ ModelContainer هنا عشان SwiftData يشتغل
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([FavoriteProduct.self])
@@ -33,6 +33,7 @@ struct ShopAppApp: App {
             RootView()
                 .environmentObject(navigator)
                 .modelContainer(sharedModelContainer) // ✅ بنربط الـ context هنا
+                .environment(cartManager)
         }
     }
 }

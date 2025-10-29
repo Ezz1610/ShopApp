@@ -8,13 +8,9 @@
 import SwiftUI
 import SwiftData
 
-import SwiftUI
-import SwiftData
-
 struct HomeView: View {
     @StateObject private var homeVM = HomeViewModel()
     @StateObject private var categoriesVM: CategoriesProductsViewModel
-
     @State private var searchText: String = ""
 
     init(context: ModelContext) {

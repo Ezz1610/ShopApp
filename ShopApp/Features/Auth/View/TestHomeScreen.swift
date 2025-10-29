@@ -15,18 +15,18 @@ struct TestHomeScreen: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
 
-    @StateObject private var viewModel: ProductsViewModel
+    @StateObject private var viewModel: ProductViewModel
 
-    init(context: ModelContext) {
-        _viewModel = StateObject(wrappedValue: ProductsViewModel(context: context))
-    }
+//    init(context: ModelContext) {
+//        _viewModel = StateObject(wrappedValue: ProductViewModel(context: context))
+//    }
 
     var body: some View {
         VStack {
             Button(action: {
                 Task {
                     await viewModel.fetchProducts()
-                    navigator.goTo(.productsView)
+                 //   navigator.goTo(.productsView)
                 }
             }) {
                 Text("Load Products")
@@ -38,7 +38,7 @@ struct TestHomeScreen: View {
             }     
             Button(action: {
                 Task {
-                    navigator.goTo(.favoritesView)
+                  //  navigator.goTo(.favoritesView)
                 }
             }) {
                 Text("Load Favorites Products")

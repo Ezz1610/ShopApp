@@ -18,22 +18,21 @@ struct CouponsView: View {
             } else {
                 TabView {
                     ForEach(vm.ads) { ad in
-                        VStack {
+                        VStack() {
+                            Text("Tap to copy code 🤩")
+                                .font(.subheadline)
+                                .foregroundColor(.primary.opacity(0.8))
+                                .padding(.bottom, 12)
                             Image(ad.imageName)
                                 .resizable()
                                 .scaledToFill()
                                 .frame(height: 180)
-                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .clipShape(RoundedRectangle(cornerRadius: 25))
                                 .shadow(radius: 20)
                                 .padding(.horizontal, 10)
                                 .onTapGesture {
                                     vm.copyCode(ad)
                                 }
-                                Text("Tap to copy code")
-                                    .font(.subheadline)
-                                    .foregroundColor(.white.opacity(0.8))
-                                    .padding(.bottom, 12)
-                            
                         }
                     }
                 }

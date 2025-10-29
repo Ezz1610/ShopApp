@@ -12,8 +12,10 @@ import SwiftUI
 struct ProductDetailsView: View {
     let product: ProductModel
     @Environment(\.dismiss) private var dismiss  // For back action
+    @Environment(CartManager.self)  var cartManager: CartManager
 
     var body: some View {
+        @Bindable var cartManager = cartManager
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 
@@ -74,7 +76,8 @@ struct ProductDetailsView: View {
 
                 // MARK: - Add to Cart Button
                 Button(action: {
-                    // add to cart
+                    cartManager.addToCart(product: product)
+                    cartManager.addToCartAlert = true
                 }) {
                     Text("Add to Cart")
                         .frame(maxWidth: .infinity)
@@ -85,6 +88,14 @@ struct ProductDetailsView: View {
                 }
                 .padding()
             }
+            .alert("Added to cart", isPresented: $cartManager.addToCartAlert) {
+                Button("OK") {
+                    
+                }
+            } message: {
+                Text("You have added \(product.title)to your cart.")
+            }
+
         }
         .navigationTitle("Details")
         .navigationBarTitleDisplayMode(.inline)

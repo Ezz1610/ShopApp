@@ -25,17 +25,23 @@ struct RootView: View {
 
             case .mainTabView:
                 MainTabView()
-            case .testHome:
-                TestHomeScreen(context: context)
+       //     case .testHome:
+//              TestHomeScreen(context: context)
 
-            case .productsView:
-                ProductsView(context: context)
-
-            case .favoritesView:
-                FavoritesView(context: context)
+//            case .productsView:
+//              ProductsView(context: context)
+////
+//            case .favoritesView:
+//                FavoritesView(context: context)
 
             case .productDetails(let product):
                 ProductDetailsView(product: product)
+                    .environment(CartManager())
+                    
+                
+            case .homeView:
+                HomeView(context: context)
+                    .environment(CartManager())
             }
         }
         .animation(.easeInOut, value: navigator.currentScreen)
