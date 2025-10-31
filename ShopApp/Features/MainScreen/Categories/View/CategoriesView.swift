@@ -4,10 +4,6 @@
 //
 //  Created by Mohammed Hassanien on 24/10/2025.
 //
-import Foundation
-import SwiftUI
-import SwiftData
-
 import SwiftUI
 import SwiftData
 
@@ -15,9 +11,10 @@ struct CategoriesView: View {
     @EnvironmentObject var navigator: AppNavigator
     @Environment(\.modelContext) private var context
     @State private var searchText = ""
-
     @StateObject private var categoriesVM: CategoriesProductsViewModel
     @State private var selectedCategory: Category?
+    @State private var showTypeFilterSheet = false
+    @State private var chosenGroups: Set<String> = []
 
     private let gridCols = [
         GridItem(.flexible(), spacing: 12),
@@ -28,26 +25,54 @@ struct CategoriesView: View {
         _categoriesVM = StateObject(wrappedValue: CategoriesProductsViewModel(context: context))
     }
 
+    private var filterButtonTitle: String {
+        let count = categoriesVM.filter.productTypes.count
+        return count == 0 ? "Filter" : "Filter (\(count))"
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
 
+                    // Header
                     HomeHeaderView()
                         .padding(.top, 8)
                         .background(Color(.systemBackground))
 
                     VStack(alignment: .leading, spacing: 16) {
+                        // SEARCH + FILTER
+                        HStack(spacing: 8) {
 
-                        Text("Categories")
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
-                            .padding(.horizontal, 16)
+                            // Search
+                            HomeSearchBar(searchText: $searchText)
+                                .onChange(of: searchText) { newValue in
+                                    categoriesVM.searchText = newValue
+                                }
 
-                        // Use HomeSearchBar here
-                        HomeSearchBar(searchText: $searchText)
+                            Button {
+                         
+                                chosenGroups = categoriesVM.currentChosenGroups()
+                                showTypeFilterSheet = true
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "line.3.horizontal.decrease.circle")
+                                        .font(.system(size: 16, weight: .semibold))
+                                    Text(filterButtonTitle)
+                                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                }
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 10)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                        .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .padding(.horizontal, 16)
 
-                        // MARK: - Categories Horizontal Scroll
+                        // CATEGORIES HORIZONTAL CHIPS
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
                                 ForEach(categoriesVM.categories) { cat in
@@ -67,47 +92,20 @@ struct CategoriesView: View {
                             .padding(.bottom, 4)
                         }
 
-                        // MARK: - Category Hero Image
-                        if let heroURL = selectedCategory?.image?.src {
-                            AsyncImage(url: URL(string: heroURL)) { phase in
-                                switch phase {
-                                case .empty:
-                                    Rectangle()
-                                        .fill(Color.gray.opacity(0.15))
-                                case .success(let img):
-                                    img
-                                        .resizable()
-                                        .scaledToFill()
-                                case .failure:
-                                    Rectangle()
-                                        .fill(Color.gray.opacity(0.15))
-                                        .overlay(
-                                            Image(systemName: "photo")
-                                                .font(.title3)
-                                                .foregroundColor(.gray)
-                                        )
-                                @unknown default:
-                                    EmptyView()
-                                }
-                            }
-                            .frame(height: 180)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                            .padding(.horizontal, 16)
-                        }
-
-                        // MARK: - Products Grid / States
+                        // PRODUCTS GRID / STATES
                         VStack {
                             if categoriesVM.isLoading && categoriesVM.products.isEmpty {
                                 ProgressView("Loading products…")
                                     .padding(.horizontal, 16)
 
-                            } else if let err = categoriesVM.errorMessage, categoriesVM.products.isEmpty {
+                            } else if let err = categoriesVM.errorMessage,
+                                      categoriesVM.products.isEmpty {
                                 Text("Error: \(err)")
                                     .foregroundColor(.red)
                                     .padding(.horizontal, 16)
 
-                            } else if filteredProducts.isEmpty {
-                                Text("No products match your search.")
+                            } else if categoriesVM.filteredProductsFinal.isEmpty {
+                                Text("No products match your filters.")
                                     .foregroundColor(.secondary)
                                     .padding(.horizontal, 16)
 
@@ -117,7 +115,7 @@ struct CategoriesView: View {
                                     alignment: .leading,
                                     spacing: 16
                                 ) {
-                                    ForEach(filteredProducts) { product in
+                                    ForEach(categoriesVM.filteredProductsFinal) { product in
                                         ProductCardView(product: product, viewModel: categoriesVM)
                                             .frame(maxWidth: .infinity)
                                             .onTapGesture {
@@ -153,16 +151,122 @@ struct CategoriesView: View {
                 }
             }
         }
+        // bottom sheet for selecting product type icons
+        .sheet(isPresented: $showTypeFilterSheet) {
+            IconMultiSelectSheet(
+                chosenGroups: $chosenGroups,
+                onApply: { finalGroups in
+                   
+                    categoriesVM.applyGroups(finalGroups)
+                }
+            )
+            .presentationDetents([.medium])
+        }
+    }
+}
+
+// MARK: - Bottom sheet with icons (Shoes / Accessories)
+struct IconMultiSelectSheet: View {
+    @Binding var chosenGroups: Set<String>
+    let onApply: (Set<String>) -> Void
+
+   
+    private let groupsMeta: [(key: String, label: String, systemImage: String)] = [
+        ("shoes",        "Shoes",               "shoeprints.fill"),
+        ("accessories",  "Bags & Accessories",  "bag.fill")
+    ]
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+
+                Spacer().frame(height: 8)
+
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible(), spacing: 24),
+                        GridItem(.flexible(), spacing: 24)
+                    ],
+                    alignment: .center,
+                    spacing: 32
+                ) {
+                    ForEach(groupsMeta, id: \.key) { item in
+                        let isOn = chosenGroups.contains(item.key)
+
+                        Button {
+                            toggle(item.key)
+                        } label: {
+                            VStack(spacing: 10) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                        .fill(isOn ? Color.black : Color.white)
+                                        .frame(width: 100, height: 100)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                                .stroke(
+                                                    isOn ? Color.black : Color.gray.opacity(0.3),
+                                                    lineWidth: 1
+                                                )
+                                        )
+                                        .shadow(
+                                            color: .black.opacity(isOn ? 0.18 : 0.07),
+                                            radius: 8, x: 0, y: 4
+                                        )
+
+                                    Image(systemName: item.systemImage)
+                                        .font(.system(size: 30, weight: .semibold))
+                                        .foregroundColor(isOn ? .white : .primary)
+                                }
+
+                                Text(item.label)
+                                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                                    .foregroundColor(.primary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 8)
+
+                Button {
+                    // clear all
+                    chosenGroups.removeAll()
+                } label: {
+                    Text("Show all products")
+                        .font(.system(size: 14, weight: .regular, design: .rounded))
+                        .foregroundColor(.blue)
+                }
+                .padding(.top, 4)
+
+                Spacer(minLength: 0)
+
+                Button {
+                    onApply(chosenGroups)
+                } label: {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color.black)
+                        .frame(height: 52)
+                        .overlay(
+                            Text("Apply")
+                                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                .foregroundColor(.white)
+                        )
+                        .padding(.horizontal, 20)
+                }
+                .padding(.bottom, 24)
+            }
+            .navigationBarTitleDisplayMode(.inline)
+        }
     }
 
-    // MARK: - Filtered Products
-    private var filteredProducts: [ProductModel] {
-        if searchText.isEmpty {
-            return categoriesVM.products
+    private func toggle(_ key: String) {
+        if chosenGroups.contains(key) {
+            chosenGroups.remove(key)
         } else {
-            return categoriesVM.products.filter {
-                $0.title.localizedCaseInsensitiveContains(searchText)
-            }
+            chosenGroups.insert(key)
         }
     }
 }

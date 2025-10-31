@@ -11,7 +11,7 @@ import SwiftUI
 struct CategoryChip: View {
     let category: Category
     let isSelected: Bool
-    let onTap: () async -> Void   // ✅ async closure
+    let onTap: () async -> Void   
 
     var body: some View {
         Button {
