@@ -10,6 +10,8 @@ import SwiftUI
 
 
 struct ProductDetailsView: View {
+    @EnvironmentObject var navigator: AppNavigator
+
     let product: ProductModel
     @Environment(\.dismiss) private var dismiss  // For back action
     @Environment(CartManager.self)  var cartManager: CartManager
@@ -103,7 +105,8 @@ struct ProductDetailsView: View {
             // MARK: - Custom Back Button
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
-                    dismiss()
+//                    dismiss()
+                    navigator.goBack()
                 }) {
                     HStack {
                         Image(systemName: "chevron.left")

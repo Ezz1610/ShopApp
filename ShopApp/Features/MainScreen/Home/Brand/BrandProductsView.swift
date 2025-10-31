@@ -13,6 +13,7 @@ struct BrandProductsView: View {
     let vendor: String
     @ObservedObject var viewModel: CategoriesProductsViewModel
     @State private var searchText = ""
+    @EnvironmentObject var navigator: AppNavigator
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -49,6 +50,9 @@ struct BrandProductsView: View {
                         ForEach(filteredProducts) { product in
                             ProductCardView(product: product, viewModel: viewModel)
                                 .frame(maxWidth: .infinity)
+                                .onTapGesture {
+                                    navigator.goTo(.productDetails(product))
+                                }
                         }
                     }
                     .padding(.horizontal, 16)

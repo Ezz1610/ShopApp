@@ -13,7 +13,8 @@ class CartManager {
     var productsInCart : [ProductInCart] = []
     var addToCartAlert = false
     var pendingProductToRemove: ProductModel?
-    var showRemoveConfirmation = false         
+    var showRemoveConfirmation = false
+    var showCheckout = false
     
     var displayTotalCartQuantity: Int {
         productsInCart.reduce(0) { $0 + $1.quantity }
@@ -67,5 +68,8 @@ class CartManager {
         pendingProductToRemove = nil
         showRemoveConfirmation = false
     }
-
+ 
+    func clearCart() {
+           productsInCart.removeAll()
+       }
 }

@@ -10,6 +10,7 @@ import SwiftUI
 struct CartView: View {
     
     @Environment(CartManager.self) var cartManager: CartManager
+    @State private var showCheckout = false
     fileprivate func cartRow(productInCart: ProductInCart) -> some View {
         HStack {
             CustomNetworkImage(
@@ -58,23 +59,28 @@ struct CartView: View {
                             
                     }
                     .padding(.horizontal)
+                   
                 }
             }
             Spacer()
-            Button(action: {
-                // Proceed to checkout action
-            }) {
-                Text("Proceed to Checkout")
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(AppColors.primary)
-                    .cornerRadius(10)
-                    .padding()
+           
+                Button(action: {
+                    showCheckout = true
+                }) {
+                    Text("Proceed to Checkout")
+                        .font(.headline.bold())
+                        .foregroundColor(.primary)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(AppColors.primary)
+                        .cornerRadius(10)
+                        .padding()
+                    
+                }
                 
-            }
-            
+                .sheet(isPresented: $showCheckout) {
+                            CheckoutView()
+                        }
         } .alert("Remove Last Item?",
                  isPresented: $cartManager.showRemoveConfirmation) {
               Button("OK", role: .destructive) {
@@ -88,7 +94,4 @@ struct CartView: View {
           }
     }
 }
-#Preview {
-    CartView()
-        .environment(CartManager())
-}
+

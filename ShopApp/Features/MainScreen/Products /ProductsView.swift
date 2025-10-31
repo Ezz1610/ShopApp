@@ -10,7 +10,8 @@ import SwiftUI
 
 struct ProductsView: View {
     @StateObject private var viewModel = ProductViewModel()
-    
+    @EnvironmentObject var navigator: AppNavigator
+
     private let columns = [
         GridItem(.flexible(), spacing: 16),
         GridItem(.flexible(), spacing: 16)
@@ -56,7 +57,10 @@ struct ProductsView: View {
                     ScrollView {
                         LazyVGrid(columns: columns, spacing: 16) {
                             ForEach(viewModel.filteredProducts) { product in
-                                ProductItemView(product: product)
+                                ProductItemView(product: product).frame(maxWidth: .infinity)
+                                    .onTapGesture {
+                                        navigator.goTo(.productDetails(product))
+                                    }
                             }
                         }
                         .padding(.horizontal)
