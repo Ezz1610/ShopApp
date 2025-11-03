@@ -1,0 +1,110 @@
+//
+//  BrandCollectionView.swift
+//  ShopApp
+//
+//  Created by Mohammed Hassanien on 25/10/2025.
+//
+
+import SwiftUI
+
+import SwiftData
+
+struct BrandCollectionView: View {
+    let brands: [SmartCollection]
+    @ObservedObject var viewModel: CategoriesProductsViewModel  // Shared VM
+
+    private let columns: [GridItem] = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+
+            Text("Brands")
+                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .foregroundColor(.primary)
+                .padding(.horizontal, 16)
+
+            LazyVGrid(
+                columns: columns,
+                alignment: .leading,
+                spacing: 16
+            ) {
+
+                ForEach(brands, id: \.title) { brand in
+                    NavigationLink(
+                        destination: BrandProductsView(
+                            vendor: brand.title,
+                            viewModel: viewModel  // Inject shared VM
+                        )
+                    ) {
+                        BrandCardLuxury(brand: brand)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 32)
+        }
+        .background(Color(.systemGray6))
+    }
+}
+
+private struct BrandCardLuxury: View {
+    let brand: SmartCollection
+
+    var body: some View {
+        VStack(spacing: 10) {
+
+            AsyncImage(url: URL(string: brand.image?.src ?? "")) { phase in
+                switch phase {
+                case .empty:
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.05))
+                        .overlay(
+                            ProgressView().scaleEffect(0.7)
+                        )
+
+                case .success(let img):
+                    img
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity, maxHeight: 50)
+                        .padding(.top, 8)
+                        .padding(.horizontal, 8)
+                        .padding(.bottom, 4)
+
+                case .failure:
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.05))
+                        .overlay(
+                            Image(systemName: "photo")
+                                .font(.title3)
+                                .foregroundColor(.gray)
+                        )
+
+                @unknown default:
+                    EmptyView()
+                }
+            }
+            .frame(height: 60)
+
+            Text(brand.title.uppercased())
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .foregroundColor(.primary)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, minHeight: 28, alignment: .top)
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 10)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
+        )
+    }
+}
