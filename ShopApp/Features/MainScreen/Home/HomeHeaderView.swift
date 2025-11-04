@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct HomeHeaderView: View {
-    @EnvironmentObject var cartManager: CartManager // ✅ Singleton
+    @EnvironmentObject var cartManager: CartManager 
     @EnvironmentObject var navigator: AppNavigator
 
     var body: some View {

@@ -155,7 +155,7 @@ func loadCategories() async {
 
         await loadProducts(for: allCategory)
     } catch {
-        errorMessage = "Failed to load categories: \(error.localizedDescription)"
+        errorMessage = "⚠️ Failed to load categories: \(error.localizedDescription)"
         products = []
     }
 }
@@ -176,7 +176,7 @@ func loadProducts(for category: Category? = nil) async {
             products = try await api.fetchProducts(for: cat.id)
         }
     } catch {
-        errorMessage = " Failed to load products: \(error.localizedDescription)"
+        errorMessage = "⚠️ Failed to load products: \(error.localizedDescription)"
         products = []
     }
 }
@@ -188,7 +188,7 @@ func loadProducts(forVendor vendor: String) async {
     do {
         products = try await api.fetchProducts(byVendor: vendor)
     } catch {
-        errorMessage = " Failed to load vendor products: \(error.localizedDescription)"
+        errorMessage = "⚠️ Failed to load vendor products: \(error.localizedDescription)"
         products = []
     }
 }
@@ -210,23 +210,19 @@ func isFavorite(_ product: ProductModel) -> Bool {
     dataHelper.isFavorite(product.id)
 }
 
-    @MainActor
-    func toggleFavorite(_ product: ProductModel) {
-        dataHelper.toggleFavorite(product: product)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            let fetched = self.dataHelper.fetchAllFavorites()
-            // خُد نسخة منفصلة علشان الـ UI ما يتجمدش
-            self.favorites = fetched.map { $0.copy() }
-        }
+@MainActor
+func toggleFavorite(_ product: ProductModel) {
+    dataHelper.toggleFavorite(product: product)
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        self.favorites = self.dataHelper.fetchAllFavorites()
     }
+}
 
+@MainActor
+func refreshFavorites() {
+    favorites = dataHelper.fetchAllFavorites()
+}
 
-    @MainActor
-    func refreshFavorites() async {
-        let fetched = dataHelper.fetchAllFavorites()
-        // نعمل نسخة علشان الـ UI ما يتجمدش بعد الحذف
-        self.favorites = fetched.map { $0.copy() }
-    }
 func removeFavorite(id: Int) {
     dataHelper.removeFavorite(id: id)
     favorites.removeAll { $0.id == id }

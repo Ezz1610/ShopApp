@@ -15,6 +15,7 @@ struct ProductsView: View {
 
     // MARK: - Init
     init(context: ModelContext) {
+        // 👇 استخدم الـ singleton بدل ما تعمل instance جديد
         CategoriesProductsViewModel.initializeSingleton(context: context)
         _viewModel = StateObject(wrappedValue: CategoriesProductsViewModel.shared)
     }

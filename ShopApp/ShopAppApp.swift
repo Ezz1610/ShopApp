@@ -38,9 +38,10 @@ struct ShopAppApp: App {
     
     var body: some Scene {
         WindowGroup {
+            
             RootView()
                 .environmentObject(navigator)
-                .environmentObject(CartManager.shared) // ✅ Singleton shared instance
+                .environmentObject(CartManager.shared)
                 .modelContainer(sharedModelContainer)
         }
     }

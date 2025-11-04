@@ -10,7 +10,7 @@ import SwiftUI
 
 struct CartView: View {
     
-    @EnvironmentObject var cartManager: CartManager // ✅ Singleton instance
+    @EnvironmentObject var cartManager: CartManager 
     @EnvironmentObject var navigator: AppNavigator
     @State private var showCheckout = false
 

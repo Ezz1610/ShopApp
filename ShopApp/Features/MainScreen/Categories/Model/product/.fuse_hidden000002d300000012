@@ -192,33 +192,3 @@ extension ProductModel {
         )
     }
 }
-extension Variant {
-    func copy() -> Variant {
-        Variant(
-            id: self.id,
-            title: self.title,
-            price: self.price,
-            sku: self.sku,
-            inventoryQuantity: self.inventoryQuantity
-        )
-    }
-}
-
-extension ProductOption {
-    func copy() -> ProductOption {
-        ProductOption(
-            id: self.id,
-            name: self.name,
-            values: self.values
-        )
-    }
-}
-
-extension ProductImage {
-    func copy() -> ProductImage {
-        ProductImage(
-            id: self.id,
-            src: self.src
-        )
-    }
-}

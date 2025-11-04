@@ -16,22 +16,27 @@ final class SwiftDataHelper {
 private let context: ModelContext
 
 
+// MARK: - Singleton Instance
 static private var _shared: SwiftDataHelper?
-    static func shared(context: ModelContext? = nil) -> SwiftDataHelper {
-        if let instance = _shared { return instance }
-        guard let context else {
-            fatalError("SwiftDataHelper needs a ModelContext during first initialization.")
+static func shared(context: ModelContext? = nil) -> SwiftDataHelper {
+    if let instance = _shared {
+        return instance
+    } else {
+        guard let context = context else {
+            fatalError("SwiftDataHelper not initialized yet. Pass a ModelContext when first accessing shared instance.")
         }
         let instance = SwiftDataHelper(context: context)
         _shared = instance
         return instance
     }
+}
 
-
+// MARK: - Private Init
 private init(context: ModelContext) {
     self.context = context
 }
 
+// MARK: - Toggle Favorite
     @MainActor
 func toggleFavorite(product: ProductModel) {
     if let existing = fetchFavorite(by: product.id) {
@@ -68,7 +73,7 @@ func toggleFavorite(product: ProductModel) {
     do {
         try context.save()
     } catch {
-        print("Error saving favorite: \(error.localizedDescription)")
+        print("❌ Error saving favorite: \(error.localizedDescription)")
     }
 }
 
@@ -97,7 +102,7 @@ func removeFavorite(id: Int) {
         do {
             try context.save()
         } catch {
-            print("Error removing favorite: \(error.localizedDescription)")
+            print("❌ Error removing favorite: \(error.localizedDescription)")
         }
     }
 }

@@ -25,7 +25,7 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
 
-            HomeView(context: context)
+            HomeView(context: context) // ✅ تمرير الـ context
                 .tabItem {
                     VStack {
                         Image(systemName: selectedTab == 0 ? "house.fill" : "house")
@@ -36,7 +36,7 @@ struct MainTabView: View {
                 }
                 .tag(0)
 
-            CategoriesView(context: context) 
+            CategoriesView(context: context) // ✅ تمرير الـ context
                 .tabItem {
                     VStack {
                         Image(systemName: selectedTab == 1 ? "square.grid.2x2.fill" : "square.grid.2x2")

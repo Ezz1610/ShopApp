@@ -17,7 +17,9 @@ struct HomeView: View {
     @State private var searchText: String = ""
 
     init(context: ModelContext) {
+        // تهيئة الـ singleton إذا مش موجود
         CategoriesProductsViewModel.initializeSingleton(context: context)
+        // ربط الـ StateObject بالـ singleton
         _categoriesVM = StateObject(wrappedValue: CategoriesProductsViewModel.shared!)
     }
 

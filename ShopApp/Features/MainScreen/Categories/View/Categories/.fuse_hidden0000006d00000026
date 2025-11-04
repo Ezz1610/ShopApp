@@ -18,6 +18,7 @@ struct CategoriesView: View {
     @StateObject private var categoriesVM: CategoriesProductsViewModel
 
       init(context: ModelContext) {
+          // أول مرة نعمل singleton
           CategoriesProductsViewModel.initializeSingleton(context: context)
           _categoriesVM = StateObject(wrappedValue: CategoriesProductsViewModel.shared)
       }

@@ -9,7 +9,7 @@ import SwiftUI
 struct ProductCardView: View {
     var product: ProductModel
     @ObservedObject var viewModel: CategoriesProductsViewModel
-    @EnvironmentObject var cartManager: CartManager // ✅ Singleton
+    @EnvironmentObject var cartManager: CartManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -103,7 +103,7 @@ struct ProductCardView: View {
                 .fill(Color.white)
                 .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
         )
-        // ✅ Alert for Add to Cart
+        // Alert for Add to Cart
         .alert("Added to cart", isPresented: $cartManager.addToCartAlert) {
             Button("OK") {}
         } message: {

@@ -6,14 +6,10 @@
 //  Created by mohamed ezz on 21/10/2025.
 //
 
-//  RootView.swift
-//  ShopApp
-//
-//  Created by mohamed ezz on 21/10/2025.
-//
 
-import SwiftUI
 import Foundation
+import SwiftUI
+
 
 struct RootView: View {
     @EnvironmentObject var navigator: AppNavigator
@@ -30,7 +26,7 @@ struct RootView: View {
 
             case .cartView:
                 CartView()
-                    .environmentObject(CartManager.shared) // ✅ استخدم Singleton مباشرة
+                    .environmentObject(CartManager.shared)
 
             case .mainTabView:
                 MainTabView()
@@ -50,5 +46,9 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut, value: navigator.currentScreen)
+        .task {
+            SwiftDataHelper.shared(context: context)
+            print(" SwiftDataHelper initialized with persistent context")
+        }
     }
 }
