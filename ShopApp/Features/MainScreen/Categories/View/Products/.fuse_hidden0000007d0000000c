@@ -4,20 +4,20 @@
 //
 //  Created by Mohammed Hassanien on 26/10/2025.
 //
+
 import SwiftUI
 
 struct ProductCardView: View {
     var product: ProductModel
     @ObservedObject var viewModel: CategoriesProductsViewModel
-    @EnvironmentObject var cartManager: CartManager // ✅ Singleton
-
+    @Environment(CartManager.self) var cartManager : CartManager
     var body: some View {
+        @Bindable var cartManager = cartManager
         VStack(alignment: .leading, spacing: 10) {
             
-            // MARK: - Product Image + Favorite Button
             ZStack(alignment: .topTrailing) {
                 
-                AsyncImage(url: URL(string: product.image?.src ?? product.productImage)) { phase in
+                AsyncImage(url: URL(string: product.image?.src ?? "")) { phase in
                     switch phase {
                     case .empty:
                         Rectangle().fill(Color.gray.opacity(0.1))
@@ -43,10 +43,10 @@ struct ProductCardView: View {
                 .background(Color.gray.opacity(0.05))
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 
-                // Favorite Button
+                // FAVORITE BUTTON
                 Button {
-                    if let safeProduct = viewModel.products.first(where: { $0.id == product.id }) {
-                        viewModel.toggleFavorite(safeProduct)
+                    Task {
+                        viewModel.toggleFavorite(product)
                     }
                 } label: {
                     Circle()
@@ -61,9 +61,11 @@ struct ProductCardView: View {
                 }
                 .padding(8)
                 .animation(.easeInOut(duration: 0.2), value: viewModel.favorites)
+
+
             }
             
-            // MARK: - Title + Price
+            // TITLE + PRICE
             VStack(alignment: .leading, spacing: 4) {
                 Text(product.title)
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
@@ -77,10 +79,11 @@ struct ProductCardView: View {
                     .foregroundColor(.secondary)
             }
             
-            // MARK: - Add to Cart Button
+            // ADD TO CART
             Button {
                 cartManager.addToCart(product: product)
                 print("Added to cart: \(product.title)")
+                print("Added to cart: \(product.validPrice)")
             } label: {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(Color.black)
@@ -103,16 +106,20 @@ struct ProductCardView: View {
                 .fill(Color.white)
                 .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
         )
-        // ✅ Alert for Add to Cart
         .alert("Added to cart", isPresented: $cartManager.addToCartAlert) {
-            Button("OK") {}
+            Button("OK") {
+                
+            }
         } message: {
-            Text("You have added \(product.title) to your cart.")
+            Text("You have added \(product.title)to your cart.")
         }
+        
     }
     
-    // MARK: - Helper
+
     private func lowestPrice(_ product: ProductModel) -> String {
-        return String(format: "$%.2f", product.validPrice)
+        return String(format: "$%.2f",  product.validPrice)
+
     }
+
 }

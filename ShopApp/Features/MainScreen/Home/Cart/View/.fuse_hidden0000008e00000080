@@ -10,13 +10,16 @@ import SwiftUI
 
 struct CartView: View {
     
-    @EnvironmentObject var cartManager: CartManager // ✅ Singleton instance
-    @EnvironmentObject var navigator: AppNavigator
+    @Environment(CartManager.self) var cartManager: CartManager
     @State private var showCheckout = false
+    @EnvironmentObject var navigator: AppNavigator
 
     fileprivate func cartRow(productInCart: ProductInCart) -> some View {
         let product = productInCart.product
-        let price = cartManager.validPrice(for: product)
+        let price = product.validPrice // ✅ استخدم نفس الـcartManager
+//        let price = cartManager.validPrice(for: product) // ✅ استخدم نفس الـcartManager
+        print("ppppppppppppppp\(product.validPrice)")
+        print("tttttttttttttt")
 
         return HStack {
             CustomNetworkImage(
@@ -26,7 +29,7 @@ struct CartView: View {
                 isSquared: true
             )
             
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 15) {
                 Text(product.title)
                     .modifier(AppTextStyle.mediumStyle())
                 
@@ -41,12 +44,13 @@ struct CartView: View {
                 }
             }
         }
-        .padding(.vertical, 4)
     }
 
+
+    
     var body: some View {
+        @Bindable var cartManager = cartManager
         VStack {
-            // MARK: - Header
             HStack {
                 Button(action: { navigator.goBack() }) {
                     Image(systemName: "chevron.backward")
@@ -60,21 +64,17 @@ struct CartView: View {
             }
             .padding()
 
-            // MARK: - Cart Content
+            Spacer()
             if cartManager.productsInCart.isEmpty {
-                Spacer()
                 Text("Your cart is empty 👀")
                     .modifier(AppTextStyle.customStyle(fontSize: 30))
                     .padding()
-                Spacer()
             } else {
                 List {
                     ForEach(cartManager.productsInCart) { productInCart in
                         cartRow(productInCart: productInCart)
                     }
                 }
-                .listStyle(PlainListStyle())
-                
                 VStack {
                     Divider()
                     HStack {
@@ -88,11 +88,11 @@ struct CartView: View {
                 }
             }
             
-            // MARK: - Checkout Button
+            Spacer()
             Button(action: { showCheckout = true }) {
                 Text("Proceed to Checkout")
                     .font(.headline.bold())
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .padding()
                     .frame(maxWidth: .infinity)
                     .background(AppColors.primary)
@@ -103,7 +103,6 @@ struct CartView: View {
                 CheckoutView()
             }
         }
-        // MARK: - Remove Confirmation Alert
         .alert("Remove Last Item?", isPresented: $cartManager.showRemoveConfirmation) {
             Button("OK", role: .destructive) {
                 cartManager.confirmRemove()

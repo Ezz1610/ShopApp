@@ -4,40 +4,42 @@
 //
 //  Created by Soha Elgaly on 27/10/2025.
 //
+
+
 import Foundation
 import SwiftUI
 
-@Observable
-class CartManager {
+
+class CartManager: ObservableObject {
     
-    var productsInCart: [ProductInCart] = []
-    var addToCartAlert = false
-    var pendingProductToRemove: ProductModel?
-    var showRemoveConfirmation = false
-    var showCheckout = false
-    
+    static let shared = CartManager()   // Singleton
+    private init() {}
+
+    @Published var productsInCart: [ProductInCart] = []
+    @Published var addToCartAlert = false
+    @Published var pendingProductToRemove: ProductModel?
+    @Published var showRemoveConfirmation = false
+    @Published var showCheckout = false
+
     // MARK: - Helpers
-    
     private func cleanPrice(_ raw: String?) -> Double {
         guard let raw = raw else { return 0.0 }
-        // إزالة أي رموز غير أرقام أو نقاط (زي $ أو مسافات)
         let cleaned = raw.replacingOccurrences(of: "[^0-9.]", with: "", options: .regularExpression)
         return Double(cleaned) ?? 0.0
     }
-    
-    public func validPrice(for product: ProductModel) -> Double {
-        if !product.price.isEmpty {
-            return cleanPrice(product.price)
-        }
-        return cleanPrice(product.variants.first?.price)
+
+    func validPrice(for product: ProductModel) -> Double {
+        let mainPrice = cleanPrice(product.price)
+        if mainPrice > 0 { return mainPrice }
+
+        let variantPrices = product.variants.map { cleanPrice($0.price) }.filter { $0 > 0 }
+        return variantPrices.min() ?? 0.0
     }
-    
-    // MARK: - Computed
-    
+
     var displayTotalCartQuantity: Int {
         productsInCart.reduce(0) { $0 + $1.quantity }
     }
-    
+
     var displayTotalCartPrice: String {
         let total = productsInCart.reduce(0.0) { $0 + (validPrice(for: $1.product) * Double($1.quantity)) }
         let formatter = NumberFormatter()
@@ -45,22 +47,29 @@ class CartManager {
         formatter.currencySymbol = "$"
         return formatter.string(from: NSNumber(value: total)) ?? "$0.00"
     }
-    
-    // MARK: - Logic
-    
+
+    // MARK: - Core Logic
     func addToCart(product: ProductModel) {
-        print("🛒 Added product: \(product.title) | price: \(product.price)")
-        if let index = productsInCart.firstIndex(where: { $0.id == product.id }) {
+        var cartProduct = product
+        if cartProduct.price.isEmpty {
+            cartProduct.price = product.variants.first?.price ?? "0"
+        }
+        if cartProduct.productImage.isEmpty {
+            cartProduct.productImage = product.images.first?.src ?? product.image?.src ?? ""
+        }
+
+        if let index = productsInCart.firstIndex(where: { $0.id == cartProduct.id }) {
             productsInCart[index].quantity += 1
         } else {
-            productsInCart.append(ProductInCart(product: product, quantity: 1))
+            productsInCart.append(ProductInCart(product: cartProduct, quantity: 1))
         }
+
+        addToCartAlert = true
     }
-    
+
     func removeFromCart(product: ProductModel) {
         if let index = productsInCart.firstIndex(where: { $0.id == product.id }) {
-            let currentQuantity = productsInCart[index].quantity
-            if currentQuantity > 1 {
+            if productsInCart[index].quantity > 1 {
                 productsInCart[index].quantity -= 1
             } else {
                 pendingProductToRemove = product
@@ -68,7 +77,7 @@ class CartManager {
             }
         }
     }
-    
+
     func confirmRemove() {
         if let product = pendingProductToRemove,
            let index = productsInCart.firstIndex(where: { $0.id == product.id }) {
@@ -77,12 +86,12 @@ class CartManager {
         pendingProductToRemove = nil
         showRemoveConfirmation = false
     }
-    
+
     func cancelRemove() {
         pendingProductToRemove = nil
         showRemoveConfirmation = false
     }
-    
+
     func clearCart() {
         productsInCart.removeAll()
     }

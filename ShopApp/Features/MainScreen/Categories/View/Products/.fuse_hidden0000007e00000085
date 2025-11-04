@@ -4,16 +4,20 @@
 //
 //  Created by mohamed ezz on 25/10/2025.
 //
+
+import Foundation
 import SwiftUI
+
 
 struct ProductDetailsView: View {
     @EnvironmentObject var navigator: AppNavigator
-    @EnvironmentObject var cartManager: CartManager // ✅ Singleton
 
     let product: ProductModel
     @Environment(\.dismiss) private var dismiss  // For back action
+    @Environment(CartManager.self)  var cartManager: CartManager
 
     var body: some View {
+        @Bindable var cartManager = cartManager
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 
@@ -86,11 +90,12 @@ struct ProductDetailsView: View {
                 }
                 .padding()
             }
-            // ✅ Alert for Add to Cart
             .alert("Added to cart", isPresented: $cartManager.addToCartAlert) {
-                Button("OK") {}
+                Button("OK") {
+                    
+                }
             } message: {
-                Text("You have added \(product.title) to your cart.")
+                Text("You have added \(product.title)to your cart.")
             }
 
         }
@@ -100,6 +105,7 @@ struct ProductDetailsView: View {
             // MARK: - Custom Back Button
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
+//                    dismiss()
                     navigator.goBack()
                 }) {
                     HStack {

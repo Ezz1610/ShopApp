@@ -13,7 +13,7 @@ struct ProductInCart: Identifiable {
     }
     let product: ProductModel
     var quantity: Int
-    var price: Variant?
+//    var price: Variant?
     
    
 }

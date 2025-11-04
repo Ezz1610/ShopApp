@@ -221,21 +221,24 @@ final class CategoriesProductsViewModel: ObservableObject {
         dataHelper.isFavorite(product.id)
     }
 
-    @MainActor
     func toggleFavorite(_ product: ProductModel) {
         dataHelper.toggleFavorite(product: product)
-
-        // delay بسيط يسيب الـ context يخلص commit
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            self.favorites = self.dataHelper.fetchAllFavorites()
+        Task { @MainActor in
+            // نعمل تحديث خفيف بدون نعمل refetch مباشر بعد الحذف
+            await refreshFavorites(safe: true)
         }
     }
 
-
-
-    @MainActor
-    func refreshFavorites() {
-        favorites = dataHelper.fetchAllFavorites()
+    func refreshFavorites(safe: Bool = false) async {
+        let fetched = dataHelper.fetchAllFavorites()
+        if safe {
+            // نحمي الـ UI من freeze لو كان آخر عنصر اتمسح
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                self.favorites = fetched
+            }
+        } else {
+            favorites = fetched
+        }
     }
 
 

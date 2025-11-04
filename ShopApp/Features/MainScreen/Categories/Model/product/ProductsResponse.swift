@@ -2,12 +2,12 @@ import Foundation
 import SwiftData
 //FIRST
 
+
+
 // MARK: - Response Wrapper
 struct ProductsResponse: Decodable {
     let products: [ProductModel]
 }
-
-
 
 // MARK: - Product Model
 @Model
@@ -27,8 +27,11 @@ final class ProductModel: Identifiable, Codable {
     var status: String
     var adminGraphqlAPIID: String
     
-    //  السعر اللي هيتحفظ فعلاً في SwiftData
+    // السعر اللي هيتخزن فعلاً في SwiftData
     var price: String
+    
+    // الصورة اللي هتتحفظ
+    var productImage: String
 
     // MARK: - Transient (مش محفوظ)
     @Transient var variants: [Variant] = []
@@ -50,6 +53,8 @@ final class ProductModel: Identifiable, Codable {
         case tags, status
         case adminGraphqlAPIID = "admin_graphql_api_id"
         case variants, options, images, image
+        case price
+        case productImage
     }
 
     // MARK: - Init
@@ -68,7 +73,8 @@ final class ProductModel: Identifiable, Codable {
         tags: String = "",
         status: String = "",
         adminGraphqlAPIID: String = "",
-        price: String = "", //  السعر الجديد
+        price: String = "",
+        productImage: String = "",
         variants: [Variant] = [],
         options: [ProductOption] = [],
         images: [ProductImage] = [],
@@ -89,12 +95,14 @@ final class ProductModel: Identifiable, Codable {
         self.status = status
         self.adminGraphqlAPIID = adminGraphqlAPIID
         self.price = price
+        self.productImage = productImage
         self.variants = variants
         self.options = options
         self.images = images
         self.image = image
     }
 
+    // MARK: - Codable
     required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decodeIfPresent(Int.self, forKey: .id) ?? 0
@@ -115,8 +123,10 @@ final class ProductModel: Identifiable, Codable {
         options = try c.decodeIfPresent([ProductOption].self, forKey: .options) ?? []
         images = try c.decodeIfPresent([ProductImage].self, forKey: .images) ?? []
         image = try c.decodeIfPresent(ProductImage.self, forKey: .image)
-        // نحدد السعر من أول variant لو موجود
-        price = variants.first?.price ?? ""
+        
+        // السعر والصورة
+        price = try c.decodeIfPresent(String.self, forKey: .price) ?? variants.first?.price ?? ""
+        productImage = try c.decodeIfPresent(String.self, forKey: .productImage) ?? images.first?.src ?? ""
     }
 
     func encode(to encoder: Encoder) throws {
@@ -139,23 +149,20 @@ final class ProductModel: Identifiable, Codable {
         try c.encode(options, forKey: .options)
         try c.encode(images, forKey: .images)
         try c.encode(image, forKey: .image)
+        try c.encode(price, forKey: .price)
+        try c.encode(productImage, forKey: .productImage)
     }
-    
 }
+
+// MARK: - Extensions
 extension ProductModel {
     var validPrice: Double {
-        // نحاول نقرأ price الأساسي
         if let mainPrice = Double(price), mainPrice > 0 {
             return mainPrice
         }
-
-        // لو مش متاح، نحاول من الـvariants
         if let variantPrice = Double(variants.first?.price ?? "0"), variantPrice > 0 {
             return variantPrice
         }
-
-        // fallback
         return 0.0
     }
 }
-
