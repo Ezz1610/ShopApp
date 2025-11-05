@@ -34,25 +34,31 @@ final class ApiServices {
         let response: CategoriesResponse = try await dataHelper.fetchData(from: fullURL)
         return response.custom_collections
     }
-    func fetchProducts(for collectionID: Int) async throws -> [ProductModel] {
-        // ✅ لو All أو ID = -1 نجيب كل المنتجات ونرجع من غير ما نكمل
-        if collectionID == -1 {
-            print("⚠️ collectionID = -1 → Fetching ALL products instead")
-            return try await fetchAllProducts(limit: 250)
+    func fetchProducts(for collectionId: Int, limit: Int = 50) async throws -> [ProductModel] {
+        if collectionId == -1 || collectionId == 0 {
+            print("⚠️ Fetching all products because collectionId = \(collectionId)")
+            return try await fetchAllProducts(limit: limit)
         }
 
-        // 🔽 لو ID حقيقي، كمل عادي
-        let collectsURL = "\(baseURL)/collects.json?collection_id=\(collectionID)"
+        // ✅ Step 1: Get collects
+        let collectsURL = "\(baseURL)/collects.json?collection_id=\(collectionId)"
         struct CollectsResponse: Decodable { let collects: [Collect] }
         struct Collect: Decodable { let product_id: Int }
 
         let collectsResponse: CollectsResponse = try await dataHelper.fetchData(from: collectsURL)
         let productIDs = collectsResponse.collects.map { String($0.product_id) }
-        guard !productIDs.isEmpty else { return [] }
 
+        guard !productIDs.isEmpty else {
+            print("⚠️ No products found for collection \(collectionId)")
+            return []
+        }
+
+        // ✅ Step 2: Get products by IDs
         let idsString = productIDs.joined(separator: ",")
-        let productsURL = "\(baseURL)/products.json?ids=\(idsString)"
+        let productsURL = "\(baseURL)/products.json?ids=\(idsString)&limit=\(limit)"
         let response: ProductsResponse = try await dataHelper.fetchData(from: productsURL)
+
+        print("✅ Loaded \(response.products.count) products for collection \(collectionId)")
         return response.products
     }
 
@@ -99,7 +105,6 @@ final class ApiServices {
         let response: SmartCollectionResponse = try await dataHelper.fetchData(from: fullURL)
         return response.smart_collections
     }
-    
     func fetchProductsByCollectionID(_ collectionID: Int) async throws -> [ProductModel] {
         let fullURL = "\(baseURL)/collections/\(collectionID)/products.json"
         print("Fetching products for collection ID: \(collectionID)")

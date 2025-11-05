@@ -12,7 +12,7 @@ struct ProductsView: View {
     @StateObject private var viewModel: CategoriesProductsViewModel
     @EnvironmentObject var navigator: AppNavigator
     @Environment(\.modelContext) private var context
-
+    @State private var searchText = ""
     // MARK: - Init
     init(context: ModelContext) {
         CategoriesProductsViewModel.initializeSingleton(context: context)
@@ -38,19 +38,9 @@ struct ProductsView: View {
             .padding(.top, 8)
             
             // MARK: Search Bar
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.gray)
-                TextField("Search products...", text: $viewModel.searchText)
-                    .textInputAutocapitalization(.never)
-                    .disableAutocorrection(true)
-            }
-            .padding(10)
-            .background(Color(.secondarySystemBackground))
-            .cornerRadius(10)
-            .padding(.horizontal)
-            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
-            
+            HomeSearchBar(searchText: $searchText)
+                .padding(.top, 4.h)
+
             // MARK: Product Grid
             Group {
                 if viewModel.isLoading {

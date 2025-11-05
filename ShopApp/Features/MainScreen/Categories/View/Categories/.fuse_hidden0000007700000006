@@ -49,17 +49,14 @@ struct CategoriesView: View {
                     HStack(spacing: 10) {
              
 
+                        // ✅ API categories
                         ForEach(viewModel.categories, id: \.id) { category in
                             Button {
                                 withAnimation(.easeInOut) {
                                     selectedCategoryID = category.id
                                 }
                                 Task {
-                                    if category.id == -1 || category.title.lowercased() == "all" {
-                                        await viewModel.loadProducts() // دي بتجيب كل المنتجات
-                                    } else {
-                                        await viewModel.loadProductsByCollectionID(category.id)
-                                    }
+                                    await viewModel.loadProductsByCollectionID(category.id)
                                 }
                             } label: {
                                 Text(category.title)

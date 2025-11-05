@@ -554,7 +554,6 @@ final class CategoriesProductsViewModel: ObservableObject {
             products = []
         }
     }
-
     // MARK: - Load Products by Collection ID (new)
     func loadProductsByCollectionID(_ collectionID: Int) async {
         isLoading = true

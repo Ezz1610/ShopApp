@@ -34,17 +34,16 @@ struct BrandCollectionView: View {
             ) {
 
                 ForEach(brands, id: \.title) { brand in
-                    
                     NavigationLink(
                         destination: BrandProductsView(
                             vendor: brand.title,
                             viewModel: viewModel  // Inject shared VM
                         )
                     ) {
-
                         BrandCardLuxury(brand: brand)
                     }
                     .buttonStyle(.plain)
+                    print("kkkkkkkkk\(brand.id)")
 
                 }
             }
