@@ -16,7 +16,7 @@ final class CouponsViewModel: ObservableObject {
     @Published var message: String?
     @Published var isLoading: Bool = false
     
-    private let apiService = ApiServices()
+    private let apiService = ApiServices.shared
     private let ruleID: Int
     
     init(ruleID: Int = 1185842102407) {

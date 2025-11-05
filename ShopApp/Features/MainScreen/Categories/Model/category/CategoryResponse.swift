@@ -8,14 +8,17 @@
 import Foundation
 
 
-struct Category: Identifiable, Decodable {
+
+struct CategoryResponse: Codable{
+    let custom_collections : [Category]
+}
+struct Category: Codable, Identifiable,Hashable {
     let id: Int
     let title: String
     let image: CategoryImage?
-
-    struct CategoryImage: Decodable {
-        let src: String?
-    }
+}
+struct CategoryImage: Codable, Hashable{
+    let src: String?
 }
 
 struct CategoriesResponse: Decodable {

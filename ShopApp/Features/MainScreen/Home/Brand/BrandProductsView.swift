@@ -6,9 +6,6 @@
 //
 
 import SwiftUI
-
-import SwiftUI
-
 struct BrandProductsView: View {
     let vendor: String
     @ObservedObject var viewModel: CategoriesProductsViewModel

@@ -8,8 +8,12 @@
 
 import Foundation
 final class ApiServices {
+    static let shared = ApiServices()
+    private init() {}
+
     private let baseURL = AppConstant.baseUrl
     private let dataHelper = RemoteDataHelper.shared
+   
     
     func fetchDiscountCodes(for ruleID: Int) async throws -> [DiscountCode] {
         let fullURL = "\(baseURL)/price_rules/\(ruleID)/discount_codes.json"
@@ -29,7 +33,7 @@ final class ApiServices {
     
     func fetchCategories() async throws -> [Category] {
         let fullURL = "\(baseURL)/custom_collections.json"
-        let response: CategoriesResponse = try await dataHelper.fetchData(from: fullURL)
+        let response: CategoryResponse = try await dataHelper.fetchData(from: fullURL)
         return response.custom_collections
     }
 

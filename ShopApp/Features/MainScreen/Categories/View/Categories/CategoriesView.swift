@@ -10,11 +10,8 @@ import SwiftData
 struct CategoriesView: View {
     @EnvironmentObject var navigator: AppNavigator
     @Environment(\.modelContext) private var context
-    @State private var searchText = ""
-    @StateObject private var categoriesVM: CategoriesProductsViewModel
+    @StateObject private var vm: CategoriesProductsViewModel
     @State private var selectedCategory: Category?
-    @State private var showTypeFilterSheet = false
-    @State private var chosenGroups: Set<String> = []
 
     private let gridCols = [
         GridItem(.flexible(), spacing: 12),
@@ -22,68 +19,30 @@ struct CategoriesView: View {
     ]
 
     init(context: ModelContext) {
-        _categoriesVM = StateObject(wrappedValue: CategoriesProductsViewModel(context: context))
-    }
-
-    private var filterButtonTitle: String {
-        let count = categoriesVM.filter.productTypes.count
-        return count == 0 ? "Filter" : "Filter (\(count))"
+        _vm = StateObject(wrappedValue: CategoriesProductsViewModel(context: context))
     }
 
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
-
                     // Header
                     HomeHeaderView()
                         .padding(.top, 8)
                         .background(Color(.systemBackground))
 
                     VStack(alignment: .leading, spacing: 16) {
-                        // SEARCH + FILTER
-                        HStack(spacing: 8) {
-
-                            // Search
-                            HomeSearchBar(searchText: $searchText)
-                                .onChange(of: searchText) { newValue in
-                                    categoriesVM.searchText = newValue
-                                }
-
-                            Button {
-                         
-                                chosenGroups = categoriesVM.currentChosenGroups()
-                                showTypeFilterSheet = true
-                            } label: {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "line.3.horizontal.decrease.circle")
-                                        .font(.system(size: 16, weight: .semibold))
-                                    Text(filterButtonTitle)
-                                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                                }
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 10)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                        .stroke(Color.gray.opacity(0.4), lineWidth: 1)
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        .padding(.horizontal, 16)
 
                         // CATEGORIES HORIZONTAL CHIPS
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
-                                ForEach(categoriesVM.categories) { cat in
+                                ForEach(vm.categories) { cat in
                                     CategoryChip(
                                         category: cat,
                                         isSelected: cat.id == selectedCategory?.id,
                                         onTap: {
                                             selectedCategory = cat
-                                            Task {
-                                                await categoriesVM.loadProducts(for: cat)
-                                            }
+                                            Task { await vm.loadProducts(for: cat) }
                                         }
                                     )
                                 }
@@ -94,17 +53,17 @@ struct CategoriesView: View {
 
                         // PRODUCTS GRID / STATES
                         VStack {
-                            if categoriesVM.isLoading && categoriesVM.products.isEmpty {
+                            if vm.isLoading && vm.products.isEmpty {
                                 ProgressView("Loading products…")
                                     .padding(.horizontal, 16)
 
-                            } else if let err = categoriesVM.errorMessage,
-                                      categoriesVM.products.isEmpty {
+                            } else if let err = vm.errorMessage,
+                                      vm.products.isEmpty {
                                 Text("Error: \(err)")
                                     .foregroundColor(.red)
                                     .padding(.horizontal, 16)
 
-                            } else if categoriesVM.filteredProducts.isEmpty {
+                            } else if vm.filteredProducts.isEmpty {
                                 Text("No products match your filters.")
                                     .foregroundColor(.secondary)
                                     .padding(.horizontal, 16)
@@ -115,8 +74,8 @@ struct CategoriesView: View {
                                     alignment: .leading,
                                     spacing: 16
                                 ) {
-                                    ForEach(categoriesVM.filteredProducts) { product in
-                                        ProductCardView(product: product, viewModel: categoriesVM)
+                                    ForEach(vm.filteredProducts) { product in
+                                        ProductCardView(product: product, viewModel: vm)
                                             .frame(maxWidth: .infinity)
                                             .onTapGesture {
                                                 navigator.goTo(.productDetails(product))
@@ -134,33 +93,18 @@ struct CategoriesView: View {
             .background(Color(.systemGray6))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .navigationBar)
-            .onAppear {
-                Task {
-                    if categoriesVM.categories.isEmpty {
-                        await categoriesVM.loadCategories()
-                    }
+            .task {
+                if vm.categories.isEmpty {
+                    await vm.loadCategories()
                 }
             }
-            .onChange(of: categoriesVM.categories.count) { _ in
+            .onChange(of: vm.categories.count) { _ in
                 if selectedCategory == nil,
-                   let first = categoriesVM.categories.first {
+                   let first = vm.categories.first {
                     selectedCategory = first
-                    Task {
-                        await categoriesVM.loadProducts(for: first)
-                    }
+                    Task { await vm.loadProducts(for: first) }
                 }
             }
-        }
-        // bottom sheet for selecting product type icons
-        .sheet(isPresented: $showTypeFilterSheet) {
-            IconMultiSelectSheet(
-                chosenGroups: $chosenGroups,
-                onApply: { finalGroups in
-                   
-                    categoriesVM.applyGroups(finalGroups)
-                }
-            )
-            .presentationDetents([.medium])
         }
     }
 }

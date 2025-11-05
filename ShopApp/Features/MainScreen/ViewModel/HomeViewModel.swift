@@ -15,7 +15,7 @@ final class HomeViewModel: ObservableObject {
     private let api: ApiServices
 
     // Dependency injection for easier testing
-    init(api: ApiServices = ApiServices()) {
+    init(api: ApiServices = ApiServices.shared) {
         self.api = api
     }
 

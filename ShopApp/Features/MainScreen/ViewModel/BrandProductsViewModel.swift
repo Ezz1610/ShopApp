@@ -13,7 +13,7 @@ final class BrandProductsViewModel: ObservableObject {
     @Published var errorMessage: String?
     
 
-    private let service = ApiServices()
+    private let service = ApiServices.shared
     let vendor: String
 
     init(vendor: String) {

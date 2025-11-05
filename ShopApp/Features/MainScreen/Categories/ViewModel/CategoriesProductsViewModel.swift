@@ -27,7 +27,6 @@ struct ProductFilter {
     var onlyAccessories: Bool = false
 }
 
-
 // MARK: - ViewModel
 @MainActor
 final class CategoriesProductsViewModel: ObservableObject {
@@ -41,9 +40,12 @@ final class CategoriesProductsViewModel: ObservableObject {
     @Published var filter = ProductFilter()
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var filteredProducts: [ProductModel] = []
+    @Published var allProducts: [ProductModel] = []
+    @Published var allProductTypes: [String] = ["All"]
 
     // MARK: - Dependencies
-    private let api = ApiServices()
+    private let api = ApiServices.shared
     private let dataHelper: SwiftDataHelper
     private let vendor: String?
 
@@ -51,7 +53,6 @@ final class CategoriesProductsViewModel: ObservableObject {
     init(context: ModelContext, vendor: String? = nil) {
         self.dataHelper = SwiftDataHelper(context: context)
         self.vendor = vendor
-
         Task { await initializeData() }
     }
 
@@ -82,92 +83,74 @@ final class CategoriesProductsViewModel: ObservableObject {
             .reduce(into: Set<String>()) { $0.formUnion($1) }
     }
 
-    // MARK: - Filtered Products
-    var filteredProducts: [ProductModel] {
-        products.filter { product in
-            // Product type filter
-            if !filter.productTypes.isEmpty {
-                let type = product.productType.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !filter.productTypes.contains(where: { $0.caseInsensitiveCompare(type) == .orderedSame }) {
-                    return false
-                }
-            }
-
-            // Accessories filter
-            if filter.onlyAccessories {
-                let isAccessory = product.productType.lowercased().contains("accessor")
-                    || product.tags.lowercased().contains("accessor")
-                if !isAccessory { return false }
-            }
-
-            // Vendor filter
-            if let wantedVendor = filter.vendor,
-               !wantedVendor.isEmpty,
-               product.vendor.caseInsensitiveCompare(wantedVendor) != .orderedSame {
-                return false
-            }
-
-            // Max price filter
-            if let limit = filter.maxPrice {
-                let prices = product.variants.compactMap { Double($0.price) }
-                if let minPrice = prices.min(), minPrice > limit { return false }
-            }
-
-            // Stock filter
-            if filter.onlyInStock,
-               !product.variants.contains(where: { $0.inventoryQuantity > 0 }) {
-                return false
-            }
-
-            // Options filter
-            for (optionName, chosenValue) in filter.optionSelections {
-                guard let option = product.options.first(where: { $0.name == optionName }) else {
-                    return false
-                }
-                if !option.values.contains(where: { $0.caseInsensitiveCompare(chosenValue) == .orderedSame }) {
-                    return false
-                }
-            }
-
-            // Search filter
-            if !searchText.isEmpty {
-                let keyword = searchText.lowercased()
-                if !(product.title.lowercased().contains(keyword)
-                     || product.vendor.lowercased().contains(keyword)
-                     || product.tags.lowercased().contains(keyword)) {
-                    return false
-                }
-            }
-
-            return true
+    // MARK: - Filtering Helpers
+    func filterProducts(by subCategory: String) {
+        guard !products.isEmpty else {
+            print("No products to filter")
+            return
         }
+
+        print("Filtering by:", subCategory)
+        print("Available product types:", Set(products.compactMap { $0.productType }))
+
+        guard subCategory != "All" else {
+            if let selected = selectedCategory {
+                filterByCategory(selected)
+            } else {
+                filteredProducts = allProducts
+            }
+            return
+        }
+
+        let sub = subCategory.lowercased()
+        filteredProducts = products.filter { product in
+            let type = product.productType.lowercased()
+            let title = product.title.lowercased()
+            return type.contains(sub) || title.contains(sub)
+        }
+
+        print("Filtered count:", filteredProducts.count)
+    }
+
+    func loadAllProductTypes() async throws {
+        let all = try await api.fetchAllProducts(limit: 250)
+        let types = Set(
+            all.compactMap { $0.productType.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+        )
+        allProductTypes = ["All"] + types.sorted()
+    }
+
+    func loadAllProducts() async {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+        do {
+            let fetched = try await api.fetchAllProducts(limit: 250)
+            allProducts = fetched
+            products = fetched
+            filteredProducts = fetched
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func filterByCategory(_ category: Category) {
+        filteredProducts = products.filter { product in
+                product.title.localizedCaseInsensitiveContains(category.title)
+            }
     }
 
     // MARK: - Load Categories
     func loadCategories() async {
-        guard categories.isEmpty else { return }
-
-        isLoading = true; errorMessage = nil
+        isLoading = true
         defer { isLoading = false }
-
         do {
-            let fetched = try await api.fetchCategories()
-            let valid = fetched.filter { $0.image?.src != nil }
-
-            let priority = ["MEN", "WOMEN", "KID", "SALE"]
-            let sorted = valid.sorted {
-                (priority.firstIndex(of: $0.title.uppercased()) ?? 999) <
-                (priority.firstIndex(of: $1.title.uppercased()) ?? 999)
-            }
-
-            let allCategory = Category(id: -1, title: "All", image: nil)
-            categories = [allCategory] + sorted
-            selectedCategory = allCategory
-
-            await loadProducts(for: allCategory)
+            let fetched = try await ApiServices.shared.fetchCategories()
+            categories = fetched
+            self.selectedCategory = fetched.first
         } catch {
-            errorMessage = "⚠️ Failed to load categories: \(error.localizedDescription)"
-            products = []
+            errorMessage = error.localizedDescription
         }
     }
 
@@ -177,7 +160,8 @@ final class CategoriesProductsViewModel: ObservableObject {
         guard let cat else { return }
 
         selectedCategory = cat
-        isLoading = true; errorMessage = nil
+        isLoading = true
+        errorMessage = nil
         defer { isLoading = false }
 
         do {
@@ -186,21 +170,29 @@ final class CategoriesProductsViewModel: ObservableObject {
             } else {
                 products = try await api.fetchProducts(for: cat.id)
             }
+            filteredProducts = products
+            if let selected = selectedCategory {
+                filterByCategory(selected)
+            }
         } catch {
             errorMessage = "⚠️ Failed to load products: \(error.localizedDescription)"
             products = []
+            filteredProducts = []
         }
     }
 
     func loadProducts(forVendor vendor: String) async {
-        isLoading = true; errorMessage = nil
+        isLoading = true
+        errorMessage = nil
         defer { isLoading = false }
 
         do {
             products = try await api.fetchProducts(byVendor: vendor)
+            filteredProducts = products
         } catch {
             errorMessage = "⚠️ Failed to load vendor products: \(error.localizedDescription)"
             products = []
+            filteredProducts = []
         }
     }
 
