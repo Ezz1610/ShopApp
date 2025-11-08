@@ -21,7 +21,7 @@ final class RemoteDataHelper: FetchDataProtocol {
             "Content-Type": "application/json",
 
             
-            "X-Shopify-Access-Token": "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"
+            "X-Shopify-Access-Token": ""
         ]
     }
     
