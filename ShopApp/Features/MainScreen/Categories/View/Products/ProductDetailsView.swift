@@ -9,7 +9,7 @@ import SwiftUI
 struct ProductDetailsView: View {
     @EnvironmentObject var navigator: AppNavigator
     @EnvironmentObject var cartManager: CartManager // ✅ Singleton
-
+    @State private var isAdded = false
     let product: ProductModel
     @Environment(\.dismiss) private var dismiss  // For back action
 
@@ -76,8 +76,17 @@ struct ProductDetailsView: View {
                 Button(action: {
                     cartManager.addToCart(product: product)
                     cartManager.addToCartAlert = true
+                    isAdded = true
+                       DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                           isAdded = false
+                       }
                 }) {
-                    Text("Add to Cart")
+                    HStack {
+                            if isAdded {
+                                Image(systemName: "checkmark.circle.fill")
+                            }
+                            Text(isAdded ? "Added to Cart!" : "Add to Cart")
+                        }
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.accentColor)
@@ -85,13 +94,10 @@ struct ProductDetailsView: View {
                         .cornerRadius(12)
                 }
                 .padding()
+                .animation(.easeInOut, value: isAdded)
             }
-            // ✅ Alert for Add to Cart
-            .alert("Added to cart", isPresented: $cartManager.addToCartAlert) {
-                Button("OK") {}
-            } message: {
-                Text("You have added \(product.title) to your cart.")
-            }
+            
+            
 
         }
         .navigationTitle("Details")

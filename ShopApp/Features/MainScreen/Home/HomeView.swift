@@ -40,6 +40,7 @@ struct HomeView: View {
                                 categoriesVM.searchText = newValue
                             }
                         CouponsView()
+                            .frame(height: 250)
                         // MARK: - Dynamic Content (Search / Brands)
                         if !searchText.isEmpty {
                             // ✅ عرض المنتجات لو في بحث
