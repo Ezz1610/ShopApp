@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewModel()
+    @Bindable var currencyManager = CurrencyManager.shared
     var body: some View {
         NavigationView {
             
@@ -39,11 +40,14 @@ struct SettingsView: View {
                             }
                         Text("\(viewModel.location)")
                     }
-                    Picker(selection: $viewModel.selectedCurrency, label: Label("Currency", systemImage: "dollarsign.circle")) {
-                        ForEach(viewModel.currencies, id: \.self) { currency in
-                            Text(currency)
+                    Picker(selection: $currencyManager.selectedCurrency, label: Label("Currency", systemImage: "dollarsign.circle")) {
+                            ForEach(viewModel.currencies, id: \.self) { currency in
+                                Text(currency)
+                            }
                         }
-                    }
+                        .onChange(of: currencyManager.selectedCurrency) { newCurrency in
+                            currencyManager.updateCurrency(to: newCurrency)
+                        }
                 }
 
                 Section(header: Text("App Settings")) {

@@ -14,6 +14,7 @@
 		1085ACA12EBFA98100344DB0 /* BraintreeLocalPayment in Frameworks */ = {isa = PBXBuildFile; productRef = 1085ACA02EBFA98100344DB0 /* BraintreeLocalPayment */; };
 		1085ACA32EBFA98100344DB0 /* BraintreePayPal in Frameworks */ = {isa = PBXBuildFile; productRef = 1085ACA22EBFA98100344DB0 /* BraintreePayPal */; };
 		1085ACA52EBFA98100344DB0 /* BraintreePayPalNativeCheckout in Frameworks */ = {isa = PBXBuildFile; productRef = 1085ACA42EBFA98100344DB0 /* BraintreePayPalNativeCheckout */; };
+		1085ACA72EBFFC6800344DB0 /* CurrencyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1085ACA62EBFFC6800344DB0 /* CurrencyManager.swift */; };
 		C30DEAE52EB1F46000E48392 /* ProductsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30DEAE22EB1F46000E48392 /* ProductsView.swift */; };
 		C30DEAEC2EB1F48B00E48392 /* CartManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30DEAE62EB1F48A00E48392 /* CartManager.swift */; };
 		C30DEAED2EB1F48B00E48392 /* ProductInCart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30DEAE72EB1F48A00E48392 /* ProductInCart.swift */; };
@@ -109,6 +110,7 @@
 /* Begin PBXFileReference section */
 		1085AC972EBFA59500344DB0 /* CheckoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutView.swift; sourceTree = "<group>"; };
 		1085AC992EBFA5B500344DB0 /* CheckoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutViewModel.swift; sourceTree = "<group>"; };
+		1085ACA62EBFFC6800344DB0 /* CurrencyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyManager.swift; sourceTree = "<group>"; };
 		C30DEAE22EB1F46000E48392 /* ProductsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductsView.swift; sourceTree = "<group>"; };
 		C30DEAE62EB1F48A00E48392 /* CartManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartManager.swift; sourceTree = "<group>"; };
 		C30DEAE72EB1F48A00E48392 /* ProductInCart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductInCart.swift; sourceTree = "<group>"; };
@@ -335,6 +337,7 @@
 			isa = PBXGroup;
 			children = (
 				C311AAD62EB8514F00C2AD80 /* SettingsModel.swift */,
+				1085ACA62EBFFC6800344DB0 /* CurrencyManager.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -867,6 +870,7 @@
 				C31218FC2EAB6B9C008456E4 /* ApiServices.swift in Sources */,
 				C3EF8A072EA8745500645178 /* FirebaseHelper.swift in Sources */,
 				C36097F82EA9CFF400225EA2 /* LoadingView.swift in Sources */,
+				1085ACA72EBFFC6800344DB0 /* CurrencyManager.swift in Sources */,
 				C335960C2EA7E1C100FBB43D /* RemoteDataHelper.swift in Sources */,
 				C3131F422EA7D16200F46CCA /* CustomTextFiled.swift in Sources */,
 				C33596012EA7E00400FBB43D /* AppTextStyle.swift in Sources */,

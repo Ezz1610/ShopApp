@@ -12,8 +12,11 @@ import BraintreePayPalNativeCheckout
 struct CheckoutView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var vm = CheckoutViewModel()
-    let braintreeTokenizationKey = "sandbox_sh55mkdq_876zjrvwhbwqnjxj"
+    @Bindable var currencyManager = CurrencyManager.shared
+    
+    let braintreeTokenizationKey = ""
     var body: some View {
+        
         NavigationStack {
             ScrollView {
                 VStack(spacing: 25) {
@@ -52,12 +55,14 @@ struct CheckoutView: View {
                 .font(.title2.bold())
             VStack(spacing: 20) {
                 ForEach(CartManager.shared.productsInCart) { item in
+                    let basePrice = Double(item.product.variants.first?.price ?? "0") ?? 0
+                   let converted = basePrice * currencyManager.exchangeRate * Double(item.quantity)
                     HStack {
                         Text("\(item.product.title) x\(item.quantity)")
                             .font(.body)
                         Spacer()
-                        Text("$\((Double(item.product.variants.first?.price ?? "0") ?? 0) * Double(item.quantity), specifier: "%.2f")")
-                            .font(.body.bold())
+                        Text("\(String(format: "%.2f", converted)) \(currencyManager.selectedCurrency)")
+                                   .font(.body.bold())
                     }
                 }
                 Divider()
@@ -65,8 +70,12 @@ struct CheckoutView: View {
                     Text("Subtotal")
                         .font(.body)
                     Spacer()
-                    Text(CartManager.shared.displayTotalCartPrice)
-                        .font(.body)
+                    let baseTotal = CartManager.shared.totalCartValueInUSD
+                    let convertedTotal = baseTotal * currencyManager.exchangeRate
+                    Text("\(String(format: "%.2f", convertedTotal)) \(currencyManager.selectedCurrency)")
+
+//                    Text(CartManager.shared.displayTotalCartPrice)
+//                        .font(.body)
                 }
                 HStack {
                     Text("Shipping")
@@ -81,11 +90,15 @@ struct CheckoutView: View {
                     Text("Total")
                         .font(.title3.bold())
                     Spacer()
-                    Text(CartManager.shared.displayTotalCartPrice)
+                    let baseTotal = CartManager.shared.totalCartValueInUSD
+                    let convertedTotal = baseTotal * currencyManager.exchangeRate
+                    Text("\(String(format: "%.2f", convertedTotal)) \(currencyManager.selectedCurrency)")
                         .font(.title3.bold())
                         .foregroundColor(.blue)
                 }
-            } .padding() .background(Color.gray.opacity(0.1)) .cornerRadius(12) } }
+            } .padding()
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(12) } }
     // MARK: - Payment Method Selection
     private var paymentMethodSection: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -159,9 +172,14 @@ struct CheckoutView: View {
             HStack {
                 Image(systemName: vm.selectedPayment.icon)
                 if vm.selectedPayment == .cashOnDelivery {
-                    Text("Place Order (\(CartManager.shared.displayTotalCartPrice))")
+                    let baseTotal = CartManager.shared.totalCartValueInUSD
+                    let convertedTotal = baseTotal * currencyManager.exchangeRate
+                    Text("Place Order (\(String(format: "%.2f", convertedTotal)) \(currencyManager.selectedCurrency))")
                 } else {
-                    Text("Pay with PayPal (\(CartManager.shared.displayTotalCartPrice))")
+                    let baseTotal = CartManager.shared.totalCartValueInUSD
+                    let convertedTotal = baseTotal * currencyManager.exchangeRate
+                    Text("Pay with PayPal (\(String(format: "%.2f", convertedTotal)) \(currencyManager.selectedCurrency))")
+
                 }
             } .font(.headline)
                 .foregroundColor(.white)
@@ -223,7 +241,7 @@ struct CheckoutView: View {
         .trimmingCharacters(in: .whitespaces)
         
         let request = BTPayPalNativeCheckoutRequest(amount: numericAmount)
-        request.currencyCode = "EGP"
+        request.currencyCode = currencyManager.selectedCurrency
         request.intent = .authorize
         
         payPalClient.tokenize(request) {result,error in
