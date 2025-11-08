@@ -9,8 +9,7 @@ import SwiftUI
 
 
 struct BrandProductsView: View {
-    let collectionID: Int
-    let collectionTitle: String
+    let vendor: String
     @ObservedObject var viewModel: CategoriesProductsViewModel
     @State private var searchText = ""
     @EnvironmentObject var navigator: AppNavigator
@@ -20,10 +19,18 @@ struct BrandProductsView: View {
         GridItem(.flexible(), spacing: 12)
     ]
 
+    init(vendor: String, viewModel: CategoriesProductsViewModel) {
+        self.vendor = vendor
+        self.viewModel = viewModel
+    }
+
     var body: some View {
         VStack(spacing: 0) {
+
+            // Use HomeSearchBar here
             HomeSearchBar(searchText: $searchText)
 
+            // MARK: - Product Grid / Empty State
             ScrollView {
                 if filteredProducts.isEmpty && !viewModel.isLoading {
                     VStack(spacing: 12) {
@@ -31,7 +38,7 @@ struct BrandProductsView: View {
                             .font(.largeTitle)
                             .foregroundColor(.gray)
 
-                        Text("No products found in \(collectionTitle)")
+                        Text("No products found for \(vendor)")
                             .foregroundColor(.gray)
                             .font(.system(size: 14, weight: .medium, design: .rounded))
                     }
@@ -54,13 +61,13 @@ struct BrandProductsView: View {
             }
         }
         .background(Color(.systemGray6))
-        .navigationTitle(collectionTitle)
+        .navigationTitle(vendor)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color.white, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(.light, for: .navigationBar)
         .task {
-            await viewModel.loadProductsByCollectionID(collectionID)
+            await viewModel.loadProducts()
         }
         .overlay {
             if viewModel.isLoading {
@@ -72,6 +79,7 @@ struct BrandProductsView: View {
         }
     }
 
+    // MARK: - Filtered Products
     private var filteredProducts: [ProductModel] {
         if searchText.isEmpty {
             return viewModel.products

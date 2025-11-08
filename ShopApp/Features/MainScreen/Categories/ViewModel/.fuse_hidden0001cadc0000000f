@@ -1,0 +1,619 @@
+////
+////  File.swift
+////  ShopApp
+////
+////  Created by mohamed ezz on 27/10/2025.
+////
+//
+//
+//
+//import Foundation
+//import SwiftUI
+//import SwiftData
+//
+//
+//// MARK: - Product Filter Model
+//struct ProductFilter {
+//var productTypes: Set<String> = []
+//var vendor: String? = nil
+//var optionSelections: [String: String] = [:]
+//var maxPrice: Double? = nil
+//var onlyInStock: Bool = false
+//var onlyAccessories: Bool = false
+//}
+//
+//@MainActor
+//final class CategoriesProductsViewModel: ObservableObject {
+//    private let api = ApiServices()
+//    private let dataHelper: SwiftDataHelper
+//
+//    @Published var categories: [Category] = []
+//    @Published var products: [ProductModel] = []
+//    @Published var favorites: [ProductModel] = []
+//    // ✅ نعرض كل كاتيجوري ومعاه المنتجات بتاعته
+//    @Published var categoryProducts: [(category: Category, products: [ProductModel])] = []
+//    @Published var selectedCategory: Category?
+//    @Published var filter = ProductFilter()
+//    @Published var isLoading = false
+//    @Published var errorMessage: String?
+//    @Published var searchText: String = ""
+//    
+//    private var vendor: String?
+//    
+//    // Singleton
+//    static var shared: CategoriesProductsViewModel!
+//
+//    private init(context: ModelContext) {
+//        self.dataHelper = SwiftDataHelper.shared(context: context)
+//        Task { await initializeData() }
+//    }
+//
+//    static func initializeSingleton(context: ModelContext) {
+//        guard shared == nil else { return }
+//        shared = CategoriesProductsViewModel(context: context)
+//    }
+//
+//    private func initializeData() async {
+//        if let vendor = vendor {
+//            await loadProducts(forVendor: vendor)
+//        } else {
+//            await loadCategories()
+//        }
+//    }
+//
+//    // MARK: - Refresh
+//
+//private let typeGroups: [String: [String]] = [
+//    "shoes": ["SHOES"],
+//    "accessories": ["ACCESSORIES"]
+//]
+//
+//func currentChosenGroups() -> Set<String> {
+//    typeGroups.compactMap { (key, values) in
+//        values.contains { filter.productTypes.contains($0) } ? key : nil
+//    }.reduce(into: Set<String>()) { $0.insert($1) }
+//}
+//
+//func applyGroups(_ groups: Set<String>) {
+//    filter.productTypes = groups
+//        .compactMap { typeGroups[$0] }
+//        .reduce(into: Set<String>()) { $0.formUnion($1) }
+//}
+//
+//// MARK: - Filtered Products
+//var filteredProducts: [ProductModel] {
+//    products.filter { product in
+//        if !filter.productTypes.isEmpty {
+//            let type = product.productType.trimmingCharacters(in: .whitespacesAndNewlines)
+//            if !filter.productTypes.contains(where: { $0.caseInsensitiveCompare(type) == .orderedSame }) {
+//                return false
+//            }
+//        }
+//
+//        if filter.onlyAccessories {
+//            let isAccessory = product.productType.lowercased().contains("accessor")
+//                || product.tags.lowercased().contains("accessor")
+//            if !isAccessory { return false }
+//        }
+//
+//        if let wantedVendor = filter.vendor,
+//           !wantedVendor.isEmpty,
+//           product.vendor.caseInsensitiveCompare(wantedVendor) != .orderedSame {
+//            return false
+//        }
+//
+//        if let limit = filter.maxPrice {
+//            let prices = product.variants.compactMap { Double($0.price) }
+//            if let minPrice = prices.min(), minPrice > limit { return false }
+//        }
+//
+//        if filter.onlyInStock,
+//           !product.variants.contains(where: { $0.inventoryQuantity > 0 }) {
+//            return false
+//        }
+//
+//        for (optionName, chosenValue) in filter.optionSelections {
+//            guard let option = product.options.first(where: { $0.name == optionName }) else {
+//                return false
+//            }
+//            if !option.values.contains(where: { $0.caseInsensitiveCompare(chosenValue) == .orderedSame }) {
+//                return false
+//            }
+//        }
+//
+//        if !searchText.isEmpty {
+//            let keyword = searchText.lowercased()
+//            if !(product.title.lowercased().contains(keyword)
+//                 || product.vendor.lowercased().contains(keyword)
+//                 || product.tags.lowercased().contains(keyword)) {
+//                return false
+//            }
+//        }
+//
+//        return true
+//    }
+//}
+//   
+//
+//    // ✅ دالة جديدة لتحميل كل الأقسام ومعاها المنتجات
+//    func loadAllCategoriesWithProducts() async {
+//        isLoading = true
+//        defer { isLoading = false }
+//
+//        do {
+//            let fetchedCategories = try await api.fetchCategories()
+//            let valid = fetchedCategories.filter { $0.image?.src != nil }
+//
+//            var result: [(Category, [ProductModel])] = []
+//
+//            for cat in valid {
+//                do {
+//                    let products = try await api.fetchProducts(for: cat.id)
+//                    if !products.isEmpty {
+//                        result.append((cat, products))
+//                    }
+//                } catch {
+//                    print("⚠️ Failed to load products for \(cat.title): \(error)")
+//                }
+//            }
+//
+//            await MainActor.run {
+//                self.categoryProducts = result
+//            }
+//
+//        } catch {
+//            errorMessage = "Failed to load categories with products: \(error.localizedDescription)"
+//        }
+//    }
+//
+//
+//// MARK: - Load Categories
+//func loadCategories() async {
+//    guard categories.isEmpty else { return }
+//
+//    isLoading = true; errorMessage = nil
+//    defer { isLoading = false }
+//
+//    do {
+//        let fetched = try await api.fetchCategories()
+//        let valid = fetched.filter { $0.image?.src != nil }
+//
+//        let priority = ["MEN", "WOMEN", "KID", "SALE"]
+//        let sorted = valid.sorted {
+//            (priority.firstIndex(of: $0.title.uppercased()) ?? 999) <
+//            (priority.firstIndex(of: $1.title.uppercased()) ?? 999)
+//        }
+//
+//        let allCategory = Category(id: -1, title: "All", image: nil)
+//        categories = [allCategory] + sorted
+//        selectedCategory = allCategory
+//
+//        await loadProducts(for: allCategory)
+//    } catch {
+//        errorMessage = "Failed to load categories: \(error.localizedDescription)"
+//        products = []
+//    }
+//}
+//
+//// MARK: - Load Products
+//func loadProducts(for category: Category? = nil) async {
+//    let cat = category ?? selectedCategory
+//    guard let cat else { return }
+//
+//    selectedCategory = cat
+//    isLoading = true; errorMessage = nil
+//    defer { isLoading = false }
+//
+//    do {
+//        if cat.id == -1 {
+//            products = try await api.fetchAllProducts(limit: 250)
+//        } else {
+//            products = try await api.fetchProducts(for: cat.id)
+//        }
+//    } catch {
+//        errorMessage = " Failed to load products: \(error.localizedDescription)"
+//        products = []
+//    }
+//}
+//
+//func loadProducts(forVendor vendor: String) async {
+//    isLoading = true; errorMessage = nil
+//    defer { isLoading = false }
+//
+//    do {
+//        products = try await api.fetchProducts(byVendor: vendor)
+//    } catch {
+//        errorMessage = " Failed to load vendor products: \(error.localizedDescription)"
+//        products = []
+//    }
+//}
+//
+//// MARK: - Refresh
+//func refreshData() async {
+//    if let vendor = vendor {
+//        await loadProducts(forVendor: vendor)
+//    } else if let category = selectedCategory {
+//        await loadProducts(for: category)
+//    } else {
+//        await loadCategories()
+//    }
+//    await refreshFavorites()
+//}
+//
+//// MARK: - Favorites
+//func isFavorite(_ product: ProductModel) -> Bool {
+//    dataHelper.isFavorite(product.id)
+//}
+//
+//    @MainActor
+//    func toggleFavorite(_ product: ProductModel) {
+//        dataHelper.toggleFavorite(product: product)
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//            let fetched = self.dataHelper.fetchAllFavorites()
+//            // خُد نسخة منفصلة علشان الـ UI ما يتجمدش
+//            self.favorites = fetched.map { $0.copy() }
+//        }
+//    }
+//
+//
+//    @MainActor
+//    func refreshFavorites() async {
+//        let fetched = dataHelper.fetchAllFavorites()
+//        // نعمل نسخة علشان الـ UI ما يتجمدش بعد الحذف
+//        self.favorites = fetched.map { $0.copy() }
+//    }
+//func removeFavorite(id: Int) {
+//    dataHelper.removeFavorite(id: id)
+//    favorites.removeAll { $0.id == id }
+//}
+//
+//
+//}
+//
+//  CategoriesProductsViewModel.swift
+//  ShopApp
+//
+//  Created by mohamed ezz on 27/10/2025.
+//
+
+import Foundation
+import SwiftUI
+import SwiftData
+
+// MARK: - Product Filter Model
+struct ProductFilter {
+    var productTypes: Set<String> = []
+    var vendor: String? = nil
+    var optionSelections: [String: String] = [:]
+    var maxPrice: Double? = nil
+    var onlyInStock: Bool = false
+    var onlyAccessories: Bool = false
+}
+
+@MainActor
+final class CategoriesProductsViewModel: ObservableObject {
+    private let api = ApiServices()
+    private let dataHelper: SwiftDataHelper
+
+    @Published var categories: [Category] = []
+    @Published var products: [ProductModel] = []
+    @Published var favorites: [ProductModel] = []
+    
+    // ✅ نعرض كل كاتيجوري ومعاه المنتجات بتاعته
+    @Published var categoryProducts: [(category: Category, products: [ProductModel])] = []
+
+    @Published var selectedCategory: Category?
+    @Published var filter = ProductFilter()
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+    @Published var searchText: String = ""
+
+    private var vendor: String?
+    static var shared: CategoriesProductsViewModel!
+
+    private init(context: ModelContext) {
+        self.dataHelper = SwiftDataHelper.shared(context: context)
+        Task { await initializeData() }
+    }
+
+    static func initializeSingleton(context: ModelContext) {
+        guard shared == nil else { return }
+        shared = CategoriesProductsViewModel(context: context)
+    }
+
+    private func initializeData() async {
+        if let vendor = vendor {
+            await loadProducts(forVendor: vendor)
+        } else {
+            await loadAllCategoriesWithProducts()
+        }
+    }
+
+    // MARK: - Group Filters
+    private let typeGroups: [String: [String]] = [
+        "shoes": ["SHOES"],
+        "accessories": ["ACCESSORIES"]
+    ]
+
+    func currentChosenGroups() -> Set<String> {
+        typeGroups.compactMap { (key, values) in
+            values.contains { filter.productTypes.contains($0) } ? key : nil
+        }.reduce(into: Set<String>()) { $0.insert($1) }
+    }
+
+    func applyGroups(_ groups: Set<String>) {
+        filter.productTypes = groups
+            .compactMap { typeGroups[$0] }
+            .reduce(into: Set<String>()) { $0.formUnion($1) }
+    }
+
+    // MARK: - Filtered Products
+    var filteredProducts: [ProductModel] {
+        products.filter { product in
+            if !filter.productTypes.isEmpty {
+                let type = product.productType.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !filter.productTypes.contains(where: { $0.caseInsensitiveCompare(type) == .orderedSame }) {
+                    return false
+                }
+            }
+
+            if filter.onlyAccessories {
+                let isAccessory = product.productType.lowercased().contains("accessor")
+                    || product.tags.lowercased().contains("accessor")
+                if !isAccessory { return false }
+            }
+
+            if let wantedVendor = filter.vendor,
+               !wantedVendor.isEmpty,
+               product.vendor.caseInsensitiveCompare(wantedVendor) != .orderedSame {
+                return false
+            }
+
+            if let limit = filter.maxPrice {
+                let prices = product.variants.compactMap { Double($0.price) }
+                if let minPrice = prices.min(), minPrice > limit { return false }
+            }
+
+            if filter.onlyInStock,
+               !product.variants.contains(where: { $0.inventoryQuantity > 0 }) {
+                return false
+            }
+
+            for (optionName, chosenValue) in filter.optionSelections {
+                guard let option = product.options.first(where: { $0.name == optionName }) else {
+                    return false
+                }
+                if !option.values.contains(where: { $0.caseInsensitiveCompare(chosenValue) == .orderedSame }) {
+                    return false
+                }
+            }
+
+            if !searchText.isEmpty {
+                let keyword = searchText.lowercased()
+                if !(product.title.lowercased().contains(keyword)
+                     || product.vendor.lowercased().contains(keyword)
+                     || product.tags.lowercased().contains(keyword)) {
+                    return false
+                }
+            }
+
+            return true
+        }
+    }
+
+    // ✅ دالة جديدة لتحميل كل الأقسام ومعاها المنتجات
+    func loadAllCategoriesWithProducts() async {
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            let fetchedCategories = try await api.fetchCategories()
+            let valid = fetchedCategories.filter { $0.image?.src != nil }
+
+            var result: [(Category, [ProductModel])] = []
+
+            await withTaskGroup(of: (Category, [ProductModel]?).self) { group in
+                for cat in valid {
+                    group.addTask {
+                        do {
+                            let products = try await self.api.fetchProducts(for: cat.id)
+                            return (cat, products)
+                        } catch {
+                            print("⚠️ Failed to load products for \(cat.title): \(error)")
+                            return (cat, nil)
+                        }
+                    }
+                }
+
+                for await (cat, products) in group {
+                    if let products, !products.isEmpty {
+                        result.append((cat, products))
+                    }
+                }
+            }
+
+            await MainActor.run {
+                self.categoryProducts = result
+            }
+
+        } catch {
+            errorMessage = "Failed to load categories with products: \(error.localizedDescription)"
+        }
+    }
+
+    // MARK: - Load Categories
+    func loadCategories() async {
+        // لو بالفعل في كاتيجوريز، ما تعيدش التحميل
+        guard categories.isEmpty else { return }
+
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+
+        do {
+            // ✅ هتجيب الـ collections من الـ API
+            let fetchedCollections = try await api.fetchCategories()
+
+            // ✅ فلترة أي كوليكشن مالوش عنوان (احتياطي)
+            let validCollections = fetchedCollections.filter { !$0.title.isEmpty }
+
+            // ✅ ترتيب حسب الاسم (اختياري)
+            let sorted = validCollections.sorted { $0.title.lowercased() < $1.title.lowercased() }
+
+            // ✅ إضافة "All" كأول كاتيجوري
+            let allCategory = Category(id: -1, title: "All", image: nil)
+            categories = [allCategory] + sorted
+
+            // ✅ اختار "All" كبداية
+            selectedCategory = allCategory
+
+            // ✅ أول تحميل يكون لكل المنتجات
+            await loadProducts()
+
+        } catch {
+            await MainActor.run {
+                errorMessage = "فشل تحميل الأقسام: \(error.localizedDescription)"
+                products = []
+            }
+        }
+    }
+
+
+    // MARK: - Load Products
+//    func loadProducts(for category: Category? = nil) async {
+//        let cat = category ?? selectedCategory
+//        guard let cat else { return }
+//
+//        selectedCategory = cat
+//        isLoading = true; errorMessage = nil
+//        defer { isLoading = false }
+//
+//        do {
+//            if cat.id == -1 {
+//                products = try await api.fetchAllProducts(limit: 250)
+//            } else {
+//                products = try await api.fetchProducts(for: cat.id)
+//            }
+//        } catch {
+//            errorMessage = " Failed to load products: \(error.localizedDescription)"
+//            products = []
+//        }
+//    }
+    func loadProducts(for category: Category? = nil) async {
+        // خد نسخة ثابتة من الكاتيجوري اللي اتبعتت
+        guard let cat = category ?? selectedCategory else { return }
+
+        // أول حاجة نحدث الـ UI إننا بنحمل
+        await MainActor.run {
+            self.isLoading = true
+            self.errorMessage = nil
+            self.selectedCategory = cat
+        }
+
+        do {
+            let normalizedTitle = cat.title.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+
+            if cat.id == -1 || normalizedTitle == "all" {
+                print("🟢 Fetching all products (category: \(cat.title))")
+                let allProducts = try await api.fetchAllProducts(limit: 250)
+                await MainActor.run {
+                    self.products = allProducts
+                    print("✅ Loaded all products successfully (\(allProducts.count))")
+                }
+            } else {
+                print("🟢 Fetching products for collection \(cat.title) (\(cat.id))")
+                let categoryProducts = try await api.fetchProductsByCollectionID(cat.id)
+                await MainActor.run {
+                    self.products = categoryProducts
+                    print("✅ Loaded \(categoryProducts.count) products for \(cat.title)")
+                }
+            }
+
+        } catch {
+            await MainActor.run {
+                self.errorMessage = "❌ Failed to load products for \(category?.title ?? "Unknown"): \(error.localizedDescription)"
+                self.products = []
+            }
+        }
+
+        // في الآخر نقفل اللودنج
+        await MainActor.run {
+            self.isLoading = false
+        }
+    }
+
+
+    func loadProducts(forVendor vendor: String) async {
+        isLoading = true; errorMessage = nil
+        defer { isLoading = false }
+
+        do {
+            products = try await api.fetchProducts(byVendor: vendor)
+        } catch {
+            errorMessage = " Failed to load vendor products: \(error.localizedDescription)"
+            products = []
+        }
+    }
+
+    // MARK: - Load Products by Collection ID (new)
+    func loadProductsByCollectionID(_ collectionID: Int) async {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+
+        do {
+            // 🔥 نستخدم الدالة الجديدة اللي في ApiServices
+            let fetchedProducts = try await api.fetchProductsByCollectionID(collectionID)
+            
+            await MainActor.run {
+                self.products = fetchedProducts
+                print("✅ Loaded \(fetchedProducts.count) products for collection ID \(collectionID)")
+            }
+        } catch {
+            await MainActor.run {
+                self.errorMessage = "❌ Failed to load products for collection ID \(collectionID): \(error.localizedDescription)"
+                self.products = []
+            }
+        }
+    }
+
+
+
+    // MARK: - Refresh
+    func refreshData() async {
+        if let vendor = vendor {
+            await loadProducts(forVendor: vendor)
+        } else if let category = selectedCategory {
+            await loadProducts(for: category)
+        } else {
+            await loadAllCategoriesWithProducts()
+        }
+        await refreshFavorites()
+    }
+
+    // MARK: - Favorites
+    func isFavorite(_ product: ProductModel) -> Bool {
+        dataHelper.isFavorite(product.id)
+    }
+
+        @MainActor
+        func toggleFavorite(_ product: ProductModel) {
+            dataHelper.toggleFavorite(product: product)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                let fetched = self.dataHelper.fetchAllFavorites()
+                // خُد نسخة منفصلة علشان الـ UI ما يتجمدش
+                self.favorites = fetched.map { $0.copy() }
+            }
+        }
+
+        @MainActor
+        func refreshFavorites() async {
+            let fetched = dataHelper.fetchAllFavorites()
+            // نعمل نسخة علشان الـ UI ما يتجمدش بعد الحذف
+            self.favorites = fetched.map { $0.copy() }
+        }
+    func removeFavorite(id: Int) {
+        dataHelper.removeFavorite(id: id)
+        favorites.removeAll { $0.id == id }
+    }
+}
