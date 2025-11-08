@@ -11,7 +11,11 @@ struct CategoriesView: View {
     @EnvironmentObject var navigator: AppNavigator
     @Environment(\.modelContext) private var context
     @StateObject private var vm: CategoriesProductsViewModel
+
+    // الحالة الداخلية
     @State private var selectedCategory: Category?
+    @State private var showFilterSheet = false
+    @State private var tempGroups: Set<String> = []
 
     private let gridCols = [
         GridItem(.flexible(), spacing: 12),
@@ -26,12 +30,37 @@ struct CategoriesView: View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
+
                     // Header
                     HomeHeaderView()
                         .padding(.top, 8)
                         .background(Color(.systemBackground))
 
                     VStack(alignment: .leading, spacing: 16) {
+
+                        // Search + Filter
+                        HStack(spacing: 8) {
+                            HomeSearchBar(searchText: $vm.searchText)
+
+                            Button {
+                                tempGroups = vm.currentChosenGroups()
+                                showFilterSheet = true
+                            } label: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(Color.black.opacity(0.05))
+                                    Image(systemName: "line.3.horizontal.decrease.circle")
+                                        .font(.system(size: 18, weight: .semibold))
+                                        .foregroundColor(.black.opacity(0.7))
+                                }
+                                .frame(width: 44, height: 44)
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.trailing, 16)
+                        }
+                        .onChange(of: vm.searchText) { _ in
+                            vm.applyActiveFilters()
+                        }
 
                         // CATEGORIES HORIZONTAL CHIPS
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -93,17 +122,33 @@ struct CategoriesView: View {
             .background(Color(.systemGray6))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .navigationBar)
+
+            // أول تحميل
             .task {
                 if vm.categories.isEmpty {
                     await vm.loadCategories()
                 }
             }
+
+            // اختيار أول فئة تلقائيًا عند اكتمال التحميل
             .onChange(of: vm.categories.count) { _ in
                 if selectedCategory == nil,
                    let first = vm.categories.first {
                     selectedCategory = first
                     Task { await vm.loadProducts(for: first) }
                 }
+            }
+
+            // شيت الفلترة بالأيقونات
+            .sheet(isPresented: $showFilterSheet) {
+                IconMultiSelectSheet(
+                    chosenGroups: $tempGroups,
+                    onApply: { groups in
+                        vm.applyGroups(groups)
+                        vm.applyActiveFilters()
+                        showFilterSheet = false
+                    }
+                )
             }
         }
     }

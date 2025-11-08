@@ -67,9 +67,11 @@ final class CategoriesProductsViewModel: ObservableObject {
 
     // MARK: - Type Groups
     private let typeGroups: [String: [String]] = [
-        "shoes": ["SHOES"],
-        "accessories": ["ACCESSORIES"]
+        "shoes":       ["SHOES"],
+        "accessories": ["ACCESSORIES", "BAGS", "BAG"],
+        "tshirts":     ["TSHIRTS", "TSHIRT", "TEES", "T-SHIRTS"]
     ]
+
 
     func currentChosenGroups() -> Set<String> {
         typeGroups.compactMap { (key, values) in
@@ -80,37 +82,81 @@ final class CategoriesProductsViewModel: ObservableObject {
     func applyGroups(_ groups: Set<String>) {
         filter.productTypes = groups
             .compactMap { typeGroups[$0] }
-            .reduce(into: Set<String>()) { $0.formUnion($1) }
+            .reduce(into: Set<String>()) { $0.formUnion($1.map { $0.uppercased() }) }
     }
+
+    func applyActiveFilters() {
+        var result = products
+
+        // فلترة حسب نوع المنتج (لو المستخدم اختار مجموعات)
+        if !filter.productTypes.isEmpty {
+            let allowed = filter.productTypes.map { $0.uppercased() }
+            result = result.filter { p in
+                let t = (p.productType ?? "").uppercased()
+                return allowed.contains(where: { t.contains($0) })
+            }
+        }
+
+        // فلترة البحث
+        let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if !q.isEmpty {
+            result = result.filter { p in
+                let title = p.title.lowercased()
+                let vendor = (p.vendor ?? "").lowercased()
+                let type   = (p.productType ?? "").lowercased()
+
+                // تطبيع الـ tags أياً كان نوعها
+                let tagsAsArray: [String] = {
+                    if let arr = p.tags as? [String] { return arr }
+                    if let str = p.tags as? String { return str.split(separator: ",").map { String($0) } }
+                    return []
+                }().map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+
+                return title.contains(q)
+                    || vendor.contains(q)
+                    || type.contains(q)
+                    || tagsAsArray.contains(where: { $0.contains(q) })
+            }
+        }
+
+        filteredProducts = result
+    }
+
 
     // MARK: - Filtering Helpers
     func filterProducts(by subCategory: String) {
-        guard !products.isEmpty else {
-            print("No products to filter")
-            return
-        }
-
-        print("Filtering by:", subCategory)
-        print("Available product types:", Set(products.compactMap { $0.productType }))
-
+        guard !products.isEmpty else { return }
         guard subCategory != "All" else {
-            if let selected = selectedCategory {
-                filterByCategory(selected)
-            } else {
-                filteredProducts = allProducts
-            }
+            filteredProducts = products
             return
         }
 
         let sub = subCategory.lowercased()
-        filteredProducts = products.filter { product in
-            let type = product.productType.lowercased()
-            let title = product.title.lowercased()
-            return type.contains(sub) || title.contains(sub)
-        }
 
-        print("Filtered count:", filteredProducts.count)
+        filteredProducts = products.filter { p in
+            // نوع المنتج (قد يكون Optional)
+            let type = (p.productType ?? "").lowercased()
+
+            // طبّيع tags إلى [String] lowercase بمرونة
+            let tagsLower: [String] = {
+                // لو هي أصلًا [String]
+                if let arr = p.tags as? [String] {
+                    return arr.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+                }
+                // لو جايالك كسلسلة "women, shoes ,SALE"
+                if let str = p.tags as? String {
+                    return str
+                        .split(separator: ",")
+                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+                }
+                // لو أي نوع آخر (مثلاً [Any] أو nil)
+                return []
+            }()
+
+            return type.contains(sub) || tagsLower.contains(sub)
+        }
     }
+
 
     func loadAllProductTypes() async throws {
         let all = try await api.fetchAllProducts(limit: 250)
@@ -136,9 +182,7 @@ final class CategoriesProductsViewModel: ObservableObject {
     }
 
     func filterByCategory(_ category: Category) {
-        filteredProducts = products.filter { product in
-                product.title.localizedCaseInsensitiveContains(category.title)
-            }
+        filteredProducts = products
     }
 
     // MARK: - Load Categories
@@ -155,6 +199,7 @@ final class CategoriesProductsViewModel: ObservableObject {
     }
 
     // MARK: - Load Products
+    // ViewModel
     func loadProducts(for category: Category? = nil) async {
         let cat = category ?? selectedCategory
         guard let cat else { return }
@@ -168,18 +213,18 @@ final class CategoriesProductsViewModel: ObservableObject {
             if cat.id == -1 {
                 products = try await api.fetchAllProducts(limit: 250)
             } else {
-                products = try await api.fetchProducts(for: cat.id)
+                products = try await api.fetchProducts(for: cat.id) // << التعديل هنا
             }
-            filteredProducts = products
-            if let selected = selectedCategory {
-                filterByCategory(selected)
-            }
+            // لو عندك فلاتر حقيقية (price/vendor/inStock)، نادِ دالة موحدة:
+            // applyActiveFilters()
+            filteredProducts = products   // مؤقتًا لو ماعندكش فلاتر
         } catch {
             errorMessage = "⚠️ Failed to load products: \(error.localizedDescription)"
             products = []
             filteredProducts = []
         }
     }
+
 
     func loadProducts(forVendor vendor: String) async {
         isLoading = true

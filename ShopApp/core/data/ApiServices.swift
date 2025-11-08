@@ -38,19 +38,8 @@ final class ApiServices {
     }
 
     func fetchProducts(for collectionID: Int) async throws -> [ProductModel] {
-        // 1) Fetch collects
-        let collectsURL = "\(baseURL)/collects.json?collection_id=\(collectionID)"
-        struct CollectsResponse: Decodable { let collects: [Collect] }
-        struct Collect: Decodable { let product_id: Int }
-
-        let collectsResponse: CollectsResponse = try await dataHelper.fetchData(from: collectsURL)
-        let productIDs = collectsResponse.collects.map { String($0.product_id) }
-        guard !productIDs.isEmpty else { return [] }
-
-        // 2) Get products by IDs
-        let idsString = productIDs.joined(separator: ",")
-        let productsURL = "\(baseURL)/products.json?ids=\(idsString)"
-        let response: ProductsResponse = try await dataHelper.fetchData(from: productsURL)
+        let url = "\(baseURL)/collections/\(collectionID)/products.json?limit=250"
+        let response: ProductsResponse = try await dataHelper.fetchData(from: url)
         return response.products
     }
 
