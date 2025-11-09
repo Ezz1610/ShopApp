@@ -39,17 +39,24 @@ class CartManager: ObservableObject {
     var displayTotalCartQuantity: Int {
         productsInCart.reduce(0) { $0 + $1.quantity }
     }
+   
     var totalCartValueInUSD: Double {
-        productsInCart.reduce(0) { $0 + (Double($1.product.variants.first?.price ?? "0") ?? 0) * Double($1.quantity) }
+        productsInCart.reduce(0) { sum, item in
+            let price = Double(item.product.variants.first?.price ?? item.product.price) ?? 0
+            return sum + (price * Double(item.quantity))
+        }
     }
-    
     var displayTotalCartPrice: String {
-        let total = productsInCart.reduce(0.0) { $0 + (validPrice(for: $1.product) * Double($1.quantity)) }
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencySymbol = "$"
-        return formatter.string(from: NSNumber(value: total)) ?? "$0.00"
+        let converted = totalCartValueInUSD * CurrencyManager.shared.exchangeRate
+        return String(format: "%.2f %@", converted, CurrencyManager.shared.selectedCurrency)
     }
+//    var displayTotalCartPrice: String {
+//        let total = productsInCart.reduce(0.0) { $0 + (validPrice(for: $1.product) * Double($1.quantity)) }
+//        let formatter = NumberFormatter()
+//        formatter.numberStyle = .currency
+//        formatter.currencySymbol = "$"
+//        return formatter.string(from: NSNumber(value: total)) ?? "$0.00"
+//    }
 
     // MARK: - Core Logic
     func addToCart(product: ProductModel) {

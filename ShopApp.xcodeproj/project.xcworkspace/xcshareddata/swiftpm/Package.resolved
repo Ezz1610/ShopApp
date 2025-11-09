@@ -1,5 +1,5 @@
 {
-  "originHash" : "53230496f1727ea1e51daabf4f933aa0ca570f10354773cc5e11281e99c859d3",
+  "originHash" : "fab741dee17447c9c995c3c9873c56c5759b82f1a2419875bd82c691e25573b5",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -17,15 +17,6 @@
       "state" : {
         "revision" : "3b62f154d00019ae29a71e9738800bb6f18b236d",
         "version" : "10.19.2"
-      }
-    },
-    {
-      "identity" : "braintree_ios",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/braintree/braintree_ios",
-      "state" : {
-        "revision" : "c474dfc728b9e453580dd9ba4e9d1d17f967702c",
-        "version" : "6.0.0"
       }
     },
     {
@@ -107,6 +98,15 @@
       "state" : {
         "revision" : "b7e1104502eca3a213b46303391ca4d3bc8ddec1",
         "version" : "2.30910.0"
+      }
+    },
+    {
+      "identity" : "paypalcheckout-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/paypal/paypalcheckout-ios.git",
+      "state" : {
+        "revision" : "da1b998dcab91011b05df139a6819cc58dd45ccd",
+        "version" : "1.3.0"
       }
     },
     {

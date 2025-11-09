@@ -4,24 +4,21 @@
 //
 //  Created by Soha Elgaly on 08/11/2025.
 //
-
 import SwiftUI
-import BraintreeCore
-import BraintreePayPal
-import BraintreePayPalNativeCheckout
+import PayPalCheckout
+
+// MARK: - Checkout View
 struct CheckoutView: View {
-    @Environment(\.dismiss) var dismiss
+    @SwiftUI.Environment(\.dismiss) var dismiss
     @StateObject var vm = CheckoutViewModel()
     @Bindable var currencyManager = CurrencyManager.shared
     
-    let braintreeTokenizationKey = "sandbox_sh55mkdq_876zjrvwhbwqnjxj"
     var body: some View {
-        
         NavigationStack {
             ScrollView {
                 VStack(spacing: 25) {
                     orderSummarySection
-                    //testModeNotice
+                    testModeNotice
                     paymentMethodSection
                     payButton
                 }
@@ -29,43 +26,54 @@ struct CheckoutView: View {
             }
             .navigationTitle("Checkout")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar
-            { ToolbarItem(placement: .navigationBarLeading)
-                { Button("Cancel")
-                    { dismiss()
-                    } }
-            } .overlay {
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+            .overlay {
                 if vm.showPaymentProcessing {
                     paymentProcessingOverlay
                 }
-            } .alert("Order Placed! 🎉", isPresented: $vm.showSuccessAlert) {
+            }
+            .alert("Order Placed! 🎉", isPresented: $vm.showSuccessAlert) {
                 Button("OK") {
                     CartManager.shared.clearCart()
                     dismiss()
                 }
-                } message: {
-                    Text(vm.paymentMessage)
+            } message: {
+                Text(vm.paymentMessage)
+            }
+            .onAppear {
+                vm.configurePayPalCheckout()
             }
         }
     }
+    
     // MARK: - Order Summary
     private var orderSummarySection: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Order Summary")
                 .font(.title2.bold())
+            
             VStack(spacing: 20) {
                 ForEach(CartManager.shared.productsInCart) { item in
-                    let basePrice = Double( item.product.variants.first?.price ?? item.product.price  ) ?? 0
-                   let converted = basePrice * currencyManager.exchangeRate * Double(item.quantity)
+                    let basePrice = Double(item.product.variants.first?.price ?? item.product.price) ?? 0
+                    let converted = basePrice * currencyManager.exchangeRate * Double(item.quantity)
+                    
                     HStack {
                         Text("\(item.product.title) x\(item.quantity)")
                             .font(.body)
                         Spacer()
                         Text("\(String(format: "%.2f", converted)) \(currencyManager.selectedCurrency)")
-                                   .font(.body.bold())
+                            .font(.body.bold())
                     }
                 }
+                
                 Divider()
+                
                 HStack {
                     Text("Subtotal")
                         .font(.body)
@@ -73,10 +81,8 @@ struct CheckoutView: View {
                     let baseTotal = CartManager.shared.totalCartValueInUSD
                     let convertedTotal = baseTotal * currencyManager.exchangeRate
                     Text("\(String(format: "%.2f", convertedTotal)) \(currencyManager.selectedCurrency)")
-
-//                    Text(CartManager.shared.displayTotalCartPrice)
-//                        .font(.body)
                 }
+                
                 HStack {
                     Text("Shipping")
                         .font(.body)
@@ -85,7 +91,9 @@ struct CheckoutView: View {
                         .font(.body)
                         .foregroundColor(.green)
                 }
+                
                 Divider()
+                
                 HStack {
                     Text("Total")
                         .font(.title3.bold())
@@ -96,14 +104,19 @@ struct CheckoutView: View {
                         .font(.title3.bold())
                         .foregroundColor(.blue)
                 }
-            } .padding()
+            }
+            .padding()
             .background(Color.gray.opacity(0.1))
-            .cornerRadius(12) } }
+            .cornerRadius(12)
+        }
+    }
+    
     // MARK: - Payment Method Selection
     private var paymentMethodSection: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Payment Method")
                 .font(.title2.bold())
+            
             ForEach(CheckoutViewModel.PaymentMethod.allCases, id: \.self) { method in
                 Button {
                     vm.selectedPayment = method
@@ -112,9 +125,11 @@ struct CheckoutView: View {
                         Image(systemName: method.icon)
                             .font(.title2)
                             .frame(width: 30)
+                        
                         VStack(alignment: .leading, spacing: 4) {
                             Text(method.rawValue)
                                 .font(.body.bold())
+                            
                             if method == .cashOnDelivery {
                                 Text("Pay when you receive")
                                     .font(.caption)
@@ -125,7 +140,9 @@ struct CheckoutView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
+                        
                         Spacer()
+                        
                         if vm.selectedPayment == method {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.blue)
@@ -135,35 +152,42 @@ struct CheckoutView: View {
                                 .foregroundColor(.gray)
                                 .font(.title3)
                         }
-                    } .padding()
-                        .background(vm.selectedPayment == method ? Color.blue.opacity(0.1) : Color.gray.opacity(0.1)) .cornerRadius(12)
+                    }
+                    .padding()
+                    .background(vm.selectedPayment == method ? Color.blue.opacity(0.1) : Color.gray.opacity(0.1))
+                    .cornerRadius(12)
                 }
                 .buttonStyle(PlainButtonStyle())
             }
         }
     }
+    
     // MARK: - Test Mode Notice
     private var testModeNotice: some View {
         VStack(alignment: .leading, spacing: 15) {
             HStack {
                 Image(systemName: "info.circle.fill")
                     .foregroundColor(.orange)
-                Text("Pay Attension!")
+                Text("Pay Attention!")
                     .font(.headline)
                     .foregroundColor(.orange)
             }
+            
             VStack(alignment: .leading, spacing: 8) {
                 Text("• Refund or exchange available for only 7 days from delivery date!")
                 Text("• Make sure your information is correct for fast delivery")
                 if vm.selectedPayment == .paypal {
                     Text("• Use PayPal sandbox account to test")
                 }
-            }.font(.caption)
-                .foregroundColor(.secondary)
-        } .padding()
-            .background(Color.orange.opacity(0.1))
-            .cornerRadius(12)
+            }
+            .font(.caption)
+            .foregroundColor(.secondary)
+        }
+        .padding()
+        .background(Color.orange.opacity(0.1))
+        .cornerRadius(12)
     }
+    
     // MARK: - Pay Button
     private var payButton: some View {
         Button {
@@ -179,96 +203,82 @@ struct CheckoutView: View {
                     let baseTotal = CartManager.shared.totalCartValueInUSD
                     let convertedTotal = baseTotal * currencyManager.exchangeRate
                     Text("Pay with PayPal (\(String(format: "%.2f", convertedTotal)) \(currencyManager.selectedCurrency))")
-
                 }
-            } .font(.headline)
-                .foregroundColor(.white)
-                .frame(height: 30)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(vm.selectedPayment == .cashOnDelivery ? AppColors.primary : AppColors.black) .cornerRadius(12)
-        } .padding(.top)
+            }
+            .font(.headline)
+            .foregroundColor(.white)
+            .frame(height: 30)
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(vm.selectedPayment == .cashOnDelivery ? Color.blue : Color.black)
+            .cornerRadius(12)
+        }
+        .padding(.top)
     }
+    
     // MARK: - Payment Processing Overlay
     private var paymentProcessingOverlay: some View {
         ZStack {
             Color.black.opacity(0.4)
                 .ignoresSafeArea()
+            
             VStack(spacing: 20) {
                 ProgressView()
                     .scaleEffect(1.5)
                     .tint(.white)
-                Text(vm.selectedPayment == .paypal ? "Opening PayPal..." : "Processing Order...") .font(.headline)
+                
+                Text(vm.selectedPayment == .paypal ? "Opening PayPal..." : "Processing Order...")
+                    .font(.headline)
                     .foregroundColor(.white)
+                
                 Text("Please wait")
                     .font(.caption)
                     .foregroundColor(.white.opacity(0.8))
-            } .padding(40)
-                .background(Color.gray.opacity(0.9))
-                .cornerRadius(20)
+            }
+            .padding(40)
+            .background(Color.gray.opacity(0.9))
+            .cornerRadius(20)
         }
     }
-    // MARK: - Process Payment private
-    func processPayment() {
+    
+    // MARK: - Process Payment
+    private func processPayment() {
         if vm.selectedPayment == .cashOnDelivery {
             processCashOnDelivery()
         } else {
             processPayPalPayment()
         }
     }
+    
     private func processCashOnDelivery() {
         vm.showPaymentProcessing = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5)
-        {
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             vm.showPaymentProcessing = false
-            vm.paymentMessage = "Your order has been placed successfully!\n\nOrder Total: \(CartManager.shared.displayTotalCartPrice)\n\nPayment Method: Cash on Delivery\n\nYou will pay when you receive your order."
+            
+            let baseTotal = CartManager.shared.totalCartValueInUSD
+            let convertedTotal = baseTotal * currencyManager.exchangeRate
+            let displayTotal = "\(String(format: "%.2f", convertedTotal)) \(currencyManager.selectedCurrency)"
+            
+            vm.paymentMessage = """
+            Your order has been placed successfully!
+            
+            Order Total: \(displayTotal)
+            
+            Payment Method: Cash on Delivery
+            
+            You will pay when you receive your order.
+            """
             vm.showSuccessAlert = true
         }
     }
+    
     private func processPayPalPayment() {
         vm.showPaymentProcessing = true
-        guard let braintreeClient = BTAPIClient(authorization: braintreeTokenizationKey) else {
-            vm.showPaymentProcessing = false
-            vm.paymentMessage = "Failed to initialize Braintree client. Check your token."
-            vm.showSuccessAlert = true
-            return
-        }
-        let payPalClient = BTPayPalNativeCheckoutClient(apiClient: braintreeClient)
-        
-        let numericAmount = CartManager.shared.displayTotalCartPrice
-        
-        .replacingOccurrences(of: "$", with: "")
-        .trimmingCharacters(in: .whitespaces)
-        
-        let request = BTPayPalNativeCheckoutRequest(amount: numericAmount)
-        request.currencyCode = currencyManager.selectedCurrency
-        request.intent = .authorize
-        
-        payPalClient.tokenize(request) {result,error in
-            DispatchQueue.main.async {
-                vm.showPaymentProcessing = false
-                if let error = error {
-                    vm.paymentMessage = "Payment failed: \(error.localizedDescription)"
-                    vm.showSuccessAlert = true
-                    return
-                }
-                guard let result = result
-                else {
-                    vm.paymentMessage = "Payment cancelled."
-                    vm.showSuccessAlert = true
-                    return
-                }
-                print("✅ Nonce: \(result.nonce)")
-                print("✅ Email: \(result.email ?? "N/A")")
-                print("✅ Payer ID: \(result.clientMetadataID ?? "N/A")")
-                vm.paymentMessage = """
-                  Payment Successful!
-                  🎉 Total: \(CartManager.shared.displayTotalCartPrice)
-                  Email: \(result.email ?? "Unknown")
-                  Nonce: \(result.nonce)
-                  """
-                vm.showSuccessAlert = true
-            }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            Checkout.start()
         }
     }
 }
+
+
