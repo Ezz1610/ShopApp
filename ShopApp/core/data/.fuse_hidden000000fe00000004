@@ -35,11 +35,13 @@ final class ApiServices {
         return response.custom_collections
     }
     func fetchProducts(for collectionID: Int) async throws -> [ProductModel] {
+        // ✅ لو All أو ID = -1 نجيب كل المنتجات ونرجع من غير ما نكمل
         if collectionID == -1 {
-            print("collectionID = -1 → Fetching ALL products instead")
+            print("⚠️ collectionID = -1 → Fetching ALL products instead")
             return try await fetchAllProducts(limit: 250)
         }
 
+        // 🔽 لو ID حقيقي، كمل عادي
         let collectsURL = "\(baseURL)/collects.json?collection_id=\(collectionID)"
         struct CollectsResponse: Decodable { let collects: [Collect] }
         struct Collect: Decodable { let product_id: Int }
@@ -67,24 +69,12 @@ final class ApiServices {
         let vendors = Set(response.products.compactMap { $0.vendor })
         return Array(vendors).sorted()
     }
-//        let urlString = "https://\(apiKey):\(password)@\(hostname)/admin/api/\(apiVersion)/products.json?vendor=\(vendor)"
 
     func fetchProducts(byVendor vendor: String) async throws -> [ProductModel] {
-        let fullURL = "\(baseURL)/products.json?limit=250"
-        print("Fetching all products from: \(fullURL)")
-        
+        let encodedVendor = vendor.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? vendor
+        let fullURL = "\(baseURL)/products.json?vendor=\(encodedVendor)"
         let response: ProductsResponse = try await dataHelper.fetchData(from: fullURL)
-        
-        let filteredProducts = response.products.filter { product in
-            product.vendor.caseInsensitiveCompare(vendor) == .orderedSame
-        }
-        
-        filteredProducts.forEach { product in
-            print("Vendor: \(product.vendor)")
-        }
-        
-        print(" Loaded \(filteredProducts.count) products for vendor: \(vendor)")
-        return filteredProducts
+        return response.products
     }
 
     func fetchSmartCollections() async throws -> [SmartCollection] {

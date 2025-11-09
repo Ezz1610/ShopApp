@@ -1,0 +1,73 @@
+//
+//  HomeHeaderSection.swift
+//  ShopApp
+//
+//  Created by Mohammed Hassanien on 23/10/2025.
+//
+
+import SwiftUI
+struct BrandProductsView: View {
+    let vendor: String
+    let collectionTitle: String
+    @ObservedObject var homeVM: HomeViewModel
+    @State private var searchText = ""
+    @State private var products: [ProductModel] = [] // نسخة مستقلة
+    @EnvironmentObject var navigator: AppNavigator
+
+    private let columns = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HomeSearchBar(searchText: $searchText)
+
+            ScrollView {
+                if filteredProducts.isEmpty && !homeVM.isLoading {
+                    VStack(spacing: 12) {
+                        Image(systemName: "shippingbox")
+                            .font(.largeTitle)
+                            .foregroundColor(.gray)
+                        Text("No products found in \(collectionTitle)")
+                            .foregroundColor(.gray)
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                    }
+                    .padding(.top, 100)
+                    .frame(maxWidth: .infinity)
+                } else {
+                    LazyVGrid(columns: columns, spacing: 16) {
+                        ForEach(products) { product in
+                            ProductCardView(product: product, viewModel: CategoriesProductsViewModel.shared)
+                                .frame(maxWidth: .infinity)
+                                .onTapGesture { navigator.goTo(.productDetails(product)) }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
+                    .padding(.bottom, 32)
+                }
+            }
+        }
+        .navigationTitle(collectionTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .task(id: vendor) {
+            let fetchedProducts = await homeVM.loadProducts(forVendor: vendor)
+            self.products = fetchedProducts
+        }
+
+        .overlay {
+            if homeVM.isLoading {
+                ProgressView()
+                    .scaleEffect(1.3)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black.opacity(0.1))
+            }
+        }
+    }
+
+    private var filteredProducts: [ProductModel] {
+        if searchText.isEmpty { products }
+        else { products.filter { $0.title.localizedCaseInsensitiveContains(searchText) } }
+    }
+}

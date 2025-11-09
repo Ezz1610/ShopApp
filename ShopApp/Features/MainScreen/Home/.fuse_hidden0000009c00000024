@@ -47,16 +47,8 @@ struct HomeView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         // Search bar
                         HomeSearchBar(searchText: $categoriesVM.searchText)
-                        ZStack {
-                                                  RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                                      .fill(Color.white)
-                                                      .shadow(color: Color.black.opacity(0.07), radius: 8, x: 0, y: 4)
+                        CouponsView()
 
-                                                  CouponsView()
-                                                      .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                                              }
-                                              .frame(height: 250)
-                                              .padding(.horizontal, 16)
                         // MARK: - Dynamic Content
                         VStack {
                             if !categoriesVM.searchText.isEmpty {
@@ -80,7 +72,9 @@ struct HomeView: View {
 
                                         // MARK: - Brands / Collections
                                         if !homeVM.brands.isEmpty {
-                                
+                                            Text("Brands")
+                                                .font(.headline)
+                                                .padding(.horizontal)
 
                                             BrandCollectionView(
                                                 brands: homeVM.brands,
@@ -88,9 +82,46 @@ struct HomeView: View {
                                             )
                                             .padding(.horizontal, 16)
 
-                                     
+                                            // Products in selected brand
+                                            if !homeVM.collectionProducts.isEmpty {
+                                                Text("Products in Selected Brand")
+                                                    .font(.headline)
+                                                    .padding(.horizontal)
+
+                                                LazyVGrid(columns: productColumns, spacing: 16) {
+                                                    ForEach(homeVM.collectionProducts) { product in
+                                                        ProductCardView(
+                                                            product: product,
+                                                            viewModel: categoriesVM
+                                                        )
+                                                        .onTapGesture {
+                                                            navigator.goTo(.productDetails(product))
+                                                        }
+                                                    }
+                                                }
+                                                .padding(.horizontal, 16)
+                                            }
                                         }
 
+                                        // MARK: - Vendor Products (Optional)
+                                        if !homeVM.vendorProducts.isEmpty {
+                                            Text("Products for Vendor")
+                                                .font(.headline)
+                                                .padding(.horizontal)
+
+                                            LazyVGrid(columns: productColumns, spacing: 16) {
+                                                ForEach(homeVM.vendorProducts) { product in
+                                                    ProductCardView(
+                                                        product: product,
+                                                        viewModel: categoriesVM
+                                                    )
+                                                    .onTapGesture {
+                                                        navigator.goTo(.productDetails(product))
+                                                    }
+                                                }
+                                            }
+                                            .padding(.horizontal, 16)
+                                        }
                                     }
                                 }
                             }

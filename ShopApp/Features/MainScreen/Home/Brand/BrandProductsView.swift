@@ -7,13 +7,13 @@
 
 import SwiftUI
 
+import SwiftUI
 
 struct BrandProductsView: View {
-    let collectionID: Int
-    let collectionTitle: String
-    @ObservedObject var viewModel: CategoriesProductsViewModel
-    @State private var searchText = ""
+    let brand: SmartCollection
+    @ObservedObject var homeVM: HomeViewModel
     @EnvironmentObject var navigator: AppNavigator
+    @State private var searchText = ""
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -25,13 +25,27 @@ struct BrandProductsView: View {
             HomeSearchBar(searchText: $searchText)
 
             ScrollView {
-                if filteredProducts.isEmpty && !viewModel.isLoading {
+                if homeVM.isLoading {
+                    ProgressView("Loading...")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(.top, 100)
+                } else if let error = homeVM.errorMessage {
+                    VStack(spacing: 10) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.largeTitle)
+                            .foregroundColor(.orange)
+                        Text(error)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+                    .padding(.top, 100)
+                } else if filteredProducts.isEmpty {
                     VStack(spacing: 12) {
                         Image(systemName: "shippingbox")
                             .font(.largeTitle)
                             .foregroundColor(.gray)
-
-                        Text("No products found in \(collectionTitle)")
+                        Text("No products found for \(brand.title)")
                             .foregroundColor(.gray)
                             .font(.system(size: 14, weight: .medium, design: .rounded))
                     }
@@ -40,8 +54,7 @@ struct BrandProductsView: View {
                 } else {
                     LazyVGrid(columns: columns, spacing: 16) {
                         ForEach(filteredProducts) { product in
-                            ProductCardView(product: product, viewModel: viewModel)
-                                .frame(maxWidth: .infinity)
+                            ProductCardView(product: product, viewModel: CategoriesProductsViewModel.shared)
                                 .onTapGesture {
                                     navigator.goTo(.productDetails(product))
                                 }
@@ -53,30 +66,27 @@ struct BrandProductsView: View {
                 }
             }
         }
-        .background(Color(.systemGray6))
-        .navigationTitle(collectionTitle)
+        .navigationTitle(brand.title)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Color.white, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarColorScheme(.light, for: .navigationBar)
         .task {
-            await viewModel.loadProductsByCollectionID(collectionID)
+            await loadProducts()
         }
-        .overlay {
-            if viewModel.isLoading {
-                ProgressView()
-                    .scaleEffect(1.3)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.black.opacity(0.1))
-            }
+        .refreshable {
+            await loadProducts()
         }
     }
 
+    // MARK: - Load Products
+    private func loadProducts() async {
+        await homeVM.loadProductsByCollectionTitle(brand)
+    }
+
+    // MARK: - Filtered Products
     private var filteredProducts: [ProductModel] {
         if searchText.isEmpty {
-            return viewModel.products
+            return homeVM.collectionProducts
         } else {
-            return viewModel.products.filter {
+            return homeVM.collectionProducts.filter {
                 $0.title.localizedCaseInsensitiveContains(searchText)
             }
         }

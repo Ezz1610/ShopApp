@@ -4,7 +4,9 @@
 //
 //  Created by Mohammed Hassanien on 25/10/2025.
 //
+
 import SwiftUI
+import SwiftData
 
 struct BrandCollectionView: View {
     let brands: [SmartCollection]
@@ -17,33 +19,23 @@ struct BrandCollectionView: View {
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Brands")
-                .font(.system(size: 18, weight: .semibold, design: .rounded))
-                .foregroundColor(.primary)
-                .padding(.horizontal, 16)
-
-            LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(brands, id: \.id) { brand in
-                    NavigationLink(
-                        destination: BrandProductsView(
-                            brand: brand,
-                            homeVM: homeVM
-                        )
-                    ) {
-                        BrandCardLuxury(brand: brand)
-                    }
-                    .buttonStyle(.plain)
+        LazyVGrid(columns: columns, spacing: 16) {
+            ForEach(brands, id: \.id) { brand in
+                NavigationLink(
+                    destination: BrandProductsView(
+                        vendor: brand.title,
+                        collectionTitle: brand.title,
+                        homeVM: homeVM
+                    )
+                ) {
+                    BrandCardLuxury(brand: brand)
                 }
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 32)
         }
-        .background(Color(.systemGray6))
     }
 }
 
-// MARK: - Brand Card
 private struct BrandCardLuxury: View {
     let brand: SmartCollection
 
@@ -60,8 +52,9 @@ private struct BrandCardLuxury: View {
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: .infinity, maxHeight: 50)
-                        .padding(.vertical, 6)
+                        .padding(.top, 8)
                         .padding(.horizontal, 8)
+                        .padding(.bottom, 4)
                 case .failure:
                     Rectangle()
                         .fill(Color.gray.opacity(0.05))
@@ -70,7 +63,8 @@ private struct BrandCardLuxury: View {
                                 .font(.title3)
                                 .foregroundColor(.gray)
                         )
-                @unknown default: EmptyView()
+                @unknown default:
+                    EmptyView()
                 }
             }
             .frame(height: 60)
@@ -82,7 +76,9 @@ private struct BrandCardLuxury: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, minHeight: 28, alignment: .top)
         }
-        .padding(10)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 10)
+        .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(Color.white)

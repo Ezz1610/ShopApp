@@ -143,17 +143,10 @@ final class CategoriesProductsViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         do {
-            let fetchedCategories = try await apiService.fetchCategories()
-            
-            // 🔹 Add "All" category at the beginning
-            let allCategory = Category(id: -1, title: "All", image: nil)
-            categories = [allCategory] + fetchedCategories
+            categories = try await apiService.fetchCategories()
         } catch {
             errorMessage = error.localizedDescription
-            categories = []
         }
         isLoading = false
     }
-
-
 }

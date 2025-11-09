@@ -40,24 +40,23 @@ final class HomeViewModel: ObservableObject {
             brands = []
         }
     }
-    @MainActor
-    func loadProductsByCollectionTitle(_ collection: SmartCollection) async {
-        isLoading = true
-        errorMessage = nil
-        defer { isLoading = false }
 
+    @MainActor
+    func loadProducts(forVendor vendor: String) async -> [ProductModel] {
+        isLoading = true
+        defer { isLoading = false }
         do {
-            collectionProducts = []
-            // بنستخدم title الخاص بالـ collection كـ vendor name
-            let products = try await api.fetchProducts(byVendor: collection.title)
-            collectionProducts = products
-            print("✅ Loaded \(products.count) products for collection title \(collection.title)")
+            let products = try await api.fetchProducts(byVendor: vendor)
+            vendorProducts = products
+            print("✅ Loaded all products \(vendor) for search")
+            print("✅ Loaded all products \(vendorProducts.count) for search")
+
+            return products // لا نكتب في vendorProducts
         } catch {
-            errorMessage = "❌ Failed to load products for collection \(collection.title): \(error.localizedDescription)"
-            collectionProducts = []
+            errorMessage = error.localizedDescription
+            return []
         }
     }
-
 
 
 
