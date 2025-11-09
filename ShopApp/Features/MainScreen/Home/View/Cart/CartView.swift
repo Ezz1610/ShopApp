@@ -59,12 +59,13 @@ struct CartView: View {
                 Spacer()
             }
             .padding()
-
+            
             // MARK: - Cart Content
             if cartManager.productsInCart.isEmpty {
                 Spacer()
-                Text("Your cart is empty 👀")
-                    .modifier(AppTextStyle.customStyle(fontSize: 30))
+                Image("cart-empty")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
                     .padding()
                 Spacer()
             } else {
@@ -89,18 +90,43 @@ struct CartView: View {
             }
             
             // MARK: - Checkout Button
-            Button(action: { showCheckout = true }) {
-                Text("Proceed to Checkout")
-                    .font(.headline.bold())
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(AppColors.primary)
-                    .cornerRadius(10)
-                    .padding()
-            }
-            .sheet(isPresented: $showCheckout) {
-                CheckoutView()
+                if cartManager.productsInCart.isEmpty {
+                    Button(action: {navigator.goTo(.homeView)}) {
+                        Text("Go Shopping 🛍️")
+                            .font(.headline.bold())
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(AppColors.primary)
+                            .cornerRadius(10)
+                            .padding()
+                    }
+                } else {
+                    VStack(spacing:-25) {
+                    Button(action: { showCheckout = true }) {
+                        Text("Proceed to Checkout")
+                            .font(.headline.bold())
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(AppColors.primary)
+                            .cornerRadius(10)
+                            .padding()
+                    }
+                    .sheet(isPresented: $showCheckout) {
+                        CheckoutView()
+                    }
+                    Button(action: {navigator.goTo(.homeView)}) {
+                        Text("Go Shopping 🛍️")
+                            .font(.headline.bold())
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(AppColors.black)
+                            .cornerRadius(10)
+                            .padding()
+                    }
+                }
             }
         }
         // MARK: - Remove Confirmation Alert

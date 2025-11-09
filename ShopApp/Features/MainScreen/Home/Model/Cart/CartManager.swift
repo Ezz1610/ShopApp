@@ -39,7 +39,10 @@ class CartManager: ObservableObject {
     var displayTotalCartQuantity: Int {
         productsInCart.reduce(0) { $0 + $1.quantity }
     }
-
+    var totalCartValueInUSD: Double {
+        productsInCart.reduce(0) { $0 + (Double($1.product.variants.first?.price ?? "0") ?? 0) * Double($1.quantity) }
+    }
+    
     var displayTotalCartPrice: String {
         let total = productsInCart.reduce(0.0) { $0 + (validPrice(for: $1.product) * Double($1.quantity)) }
         let formatter = NumberFormatter()

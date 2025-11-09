@@ -17,7 +17,7 @@ class SettingsViewModel: ObservableObject {
     @Published var selectedCurrency = "EGP"
     @Published var isDarkMode = false
 
-    let currencies = ["USD", "EGP", "EUR", "SAR"]
+    let currencies = ["USD","EGP", "EUR", "SAR"]
         private var cancellables = Set<AnyCancellable>()
         private let locationManager = LocationManager.shared
         
