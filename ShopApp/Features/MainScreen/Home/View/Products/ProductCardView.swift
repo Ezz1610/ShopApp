@@ -100,7 +100,7 @@ private struct FavoriteButton: View {
 
 private struct ProductInfoSection: View {
     var product: ProductModel
-
+    @Bindable var currencyManager = CurrencyManager.shared
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(product.title)
@@ -110,7 +110,8 @@ private struct ProductInfoSection: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxHeight: 38, alignment: .top)
 
-            Text(String(format: "$%.2f", product.validPrice))
+            let convertedPrice = product.validPrice * currencyManager.exchangeRate
+            Text("\(currencyManager.getCurrencySymbol())\(String(format: "%.2f", convertedPrice))")
                 .font(.system(size: 13, weight: .regular, design: .rounded))
                 .foregroundColor(.secondary)
         }

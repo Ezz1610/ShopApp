@@ -32,9 +32,6 @@ class CurrencyManager {
         "JPY": "¥"
     ]
     
-    
-
-    
     func updateCurrency(to currency: String) {
         selectedCurrency = currency
         fetchExchangeRate(for: currency)

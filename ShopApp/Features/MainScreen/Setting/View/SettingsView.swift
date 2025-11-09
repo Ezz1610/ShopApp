@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import _SwiftData_SwiftUI
 
 struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewModel()
@@ -250,6 +251,7 @@ struct SettingsView: View {
 struct CurrencySelectionView: View {
     @Bindable var currencyManager = CurrencyManager.shared
     @Environment(\.dismiss) var dismiss
+
     var body: some View {
         List {
             ForEach(currencyManager.supportedCurrencies, id: \.self) { currency in
@@ -366,21 +368,28 @@ struct CurrencySelectionView: View {
 
 // MARK: - Addresses List View
 struct AddressesListView: View {
-    @StateObject private var viewModel = AddressesViewModel()
+    @ObservedObject var viewModel = AddressesViewModel.shared
     @State private var showAddAddress = false
+    @Environment(\.modelContext) private var modelContext
+    @Query private var addresses: [Address]
     
     var body: some View {
         ZStack {
-            if viewModel.addresses.isEmpty {
+            if addresses.isEmpty {
                 emptyAddressesView
             } else {
                 List {
-                    ForEach(viewModel.addresses) { address in
-                        AddressRowView(address: address, isDefault: address.id == viewModel.defaultAddressId) {
+                    ForEach(addresses) { address in
+                        AddressRowView(
+                            address: address,
+                            isDefault: address.id == viewModel.defaultAddressId
+                        ) {
                             viewModel.setDefaultAddress(address.id)
                         }
                     }
-                    .onDelete(perform: viewModel.deleteAddress)
+                    .onDelete { offsets in
+                        deleteAddresses(at: offsets)
+                    }
                 }
             }
         }
@@ -396,7 +405,18 @@ struct AddressesListView: View {
             }
         }
         .sheet(isPresented: $showAddAddress) {
-            AddAddressView(viewModel: viewModel)
+            AddAddressView()
+        }
+        .onAppear {
+            viewModel.setModelContext(modelContext)
+            viewModel.refreshAddresses()
+        }
+    }
+    
+    private func deleteAddresses(at offsets: IndexSet) {
+        for index in offsets {
+            let address = addresses[index]
+            viewModel.deleteAddress(address)
         }
     }
     
@@ -492,8 +512,8 @@ struct AddressRowView: View {
 
 // MARK: - Add Address View
 struct AddAddressView: View {
-    @ObservedObject var viewModel: AddressesViewModel
     @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var modelContext
     
     @State private var name = ""
     @State private var street = ""
@@ -536,17 +556,7 @@ struct AddAddressView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        let address = Address(
-                            name: name,
-                            street: street,
-                            city: city,
-                            state: state,
-                            zipCode: zipCode,
-                            country: country,
-                            phone: phone.isEmpty ? nil : phone
-                        )
-                        viewModel.addAddress(address, setAsDefault: setAsDefault)
-                        dismiss()
+                        saveAddress()
                     }
                     .disabled(!isFormValid)
                 }
@@ -557,8 +567,37 @@ struct AddAddressView: View {
     private var isFormValid: Bool {
         !name.isEmpty && !street.isEmpty && !city.isEmpty && !state.isEmpty && !zipCode.isEmpty && !country.isEmpty
     }
+    
+    private func saveAddress() {
+        let address = Address(
+            name: name,
+            street: street,
+            city: city,
+            state: state,
+            zipCode: zipCode,
+            country: country,
+            phone: phone.isEmpty ? nil : phone
+        )
+        
+        // Insert into SwiftData context
+        modelContext.insert(address)
+        
+        // Save context
+        do {
+            try modelContext.save()
+            
+            // Set as default if needed
+            AddressesViewModel.shared.setModelContext(modelContext)
+            if setAsDefault {
+                AddressesViewModel.shared.setDefaultAddress(address.id)
+            }
+            
+            dismiss()
+        } catch {
+            print("Error saving address: \(error.localizedDescription)")
+        }
+    }
 }
-
 // MARK: - Orders List View
 struct OrdersListView: View {
     // TODO: Add your OrdersViewModel here

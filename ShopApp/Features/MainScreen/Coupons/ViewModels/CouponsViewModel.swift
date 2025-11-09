@@ -44,7 +44,7 @@ final class CouponsViewModel: ObservableObject {
     
     func copyCode(_ ad: AdItem) {
         UIPasteboard.general.string = ad.couponCode
-        message = "copied code \(ad.couponCode) successfully!"
+        message = "Copied successfully!"
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.message = nil

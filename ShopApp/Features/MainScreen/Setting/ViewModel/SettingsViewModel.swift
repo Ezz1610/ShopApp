@@ -27,32 +27,5 @@ class SettingsViewModel: ObservableObject {
 }
 
 
-import UIKit
 
 
-class AddressesViewModel: ObservableObject {
-    @Published var addresses: [Address] = []
-    @Published var defaultAddressId: UUID?
-    
-    func addAddress(_ address: Address, setAsDefault: Bool) {
-        addresses.append(address)
-        if setAsDefault || addresses.count == 1 {
-            defaultAddressId = address.id
-        }
-    }
-    
-    func setDefaultAddress(_ id: UUID) {
-        defaultAddressId = id
-    }
-    
-    func deleteAddress(at offsets: IndexSet) {
-        addresses.remove(atOffsets: offsets)
-        if let firstId = offsets.first, addresses[firstId].id == defaultAddressId {
-            defaultAddressId = addresses.first?.id
-        }
-    }
-    
-    func getDefaultAddress() -> Address? {
-        addresses.first { $0.id == defaultAddressId }
-    }
-}
