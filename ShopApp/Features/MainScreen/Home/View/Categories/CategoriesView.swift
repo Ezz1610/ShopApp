@@ -12,7 +12,7 @@ import SwiftData
 @MainActor
 struct CategoriesView: View {
     @EnvironmentObject var navigator: AppNavigator
-    @StateObject private var viewModel: CategoriesProductsViewModel
+    @StateObject private var viewModel: HomeViewModel
     @State private var selectedCategoryID: Int? = nil
 
     private let productColumns = [
@@ -21,8 +21,8 @@ struct CategoriesView: View {
     ]
 
     init(context: ModelContext) {
-        CategoriesProductsViewModel.initializeSingleton(context: context)
-        _viewModel = StateObject(wrappedValue: CategoriesProductsViewModel.shared)
+        HomeViewModel.initializeSingleton(context: context)
+        _viewModel = StateObject(wrappedValue: HomeViewModel.shared)
     }
 
     var body: some View {

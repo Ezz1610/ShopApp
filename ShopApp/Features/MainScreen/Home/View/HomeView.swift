@@ -8,23 +8,13 @@
 //  ShopApp
 //
 
-//
-//  HomeView.swift
-//  ShopApp
-//
-//
-//  HomeView.swift
-//  ShopApp
-//
-//  Created by Mohammed Hassanien on 23/10/2025.
-//
+
 
 import SwiftUI
 import SwiftData
 
 struct HomeView: View {
-    @StateObject private var homeVM = HomeViewModel()
-    @StateObject private var categoriesVM: CategoriesProductsViewModel
+    @StateObject private var homeVM: HomeViewModel
     @EnvironmentObject var navigator: AppNavigator
 
     private let productColumns = [
@@ -33,8 +23,8 @@ struct HomeView: View {
     ]
 
     init(context: ModelContext) {
-        CategoriesProductsViewModel.initializeSingleton(context: context)
-        _categoriesVM = StateObject(wrappedValue: CategoriesProductsViewModel.shared!)
+        HomeViewModel.initializeSingleton(context: context)
+        _homeVM = StateObject(wrappedValue: HomeViewModel.shared!)
     }
 
     var body: some View {
@@ -46,7 +36,7 @@ struct HomeView: View {
 
                     VStack(alignment: .leading, spacing: 20) {
                         // Search bar
-                        HomeSearchBar(searchText: $categoriesVM.searchText)
+                        HomeSearchBar(searchText: $homeVM.searchText)
                         ZStack {
                                                   RoundedRectangle(cornerRadius: 16, style: .continuous)
                                                       .fill(Color.white)
@@ -59,11 +49,11 @@ struct HomeView: View {
                                               .padding(.horizontal, 16)
                         // MARK: - Dynamic Content
                         VStack {
-                            if !categoriesVM.searchText.isEmpty {
+                            if !homeVM.searchText.isEmpty {
                                 // Search results
                                 SearchResultsView(
-                                    searchText: $categoriesVM.searchText,
-                                    categoriesVM: categoriesVM
+                                    searchText: $homeVM.searchText,
+                                    categoriesVM: homeVM
                                 )
                             } else {
                                 // Loading state
@@ -113,7 +103,7 @@ struct HomeView: View {
 
 struct SearchResultsView: View {
     @Binding var searchText: String
-    @ObservedObject var categoriesVM: CategoriesProductsViewModel
+    @ObservedObject var categoriesVM: HomeViewModel
     @EnvironmentObject var navigator: AppNavigator
 
     private let columns = [

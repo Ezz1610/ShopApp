@@ -11,10 +11,6 @@ import SwiftUI
 import SwiftData
 
 
-import Foundation
-import SwiftUI
-import SwiftData
-
 // MARK: - Product Filter Model
 struct ProductFilter {
     var productTypes: Set<String> = []
@@ -25,13 +21,14 @@ struct ProductFilter {
 }
 
 @MainActor
-final class CategoriesProductsViewModel: ObservableObject {
+final class HomeViewModel: ObservableObject {
     private let dataHelper: SwiftDataHelper
-    private let apiService = ApiServices()  // 🟢 ربط الـ API هنا
+    private let apiService = ApiServices()
 
+    // MARK: - Published Properties
     @Published var categories: [Category] = []
-    @Published var allProducts: [ProductModel] = [] // النسخة الكاملة من المنتجات
-    @Published var products: [ProductModel] = []    // النسخة المعروضة
+    @Published var allProducts: [ProductModel] = [] // كل المنتجات
+    @Published var products: [ProductModel] = []    // المنتجات المعروضة حاليًا
     @Published var favorites: [ProductModel] = []
 
     @Published var selectedCategory: Category?
@@ -40,7 +37,12 @@ final class CategoriesProductsViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var searchText: String = ""
 
-    static var shared: CategoriesProductsViewModel!
+    // MARK: - Singleton
+    static var shared: HomeViewModel!
+
+    // MARK: - Brands / Collections
+    @Published var brands: [SmartCollection] = []
+    @Published var collectionProducts: [ProductModel] = []
 
     private init(context: ModelContext) {
         self.dataHelper = SwiftDataHelper.shared(context: context)
@@ -49,6 +51,39 @@ final class CategoriesProductsViewModel: ObservableObject {
     static func initializeSingleton(context: ModelContext) {
         guard shared == nil else { return }
         shared = CategoriesProductsViewModel(context: context)
+    }
+
+    // MARK: - Load Brands / SmartCollections
+    func loadBrands() async {
+        guard !isLoading else { return }
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+
+        do {
+            let fetchedBrands = try await apiService.fetchSmartCollections()
+            brands = fetchedBrands
+        } catch {
+            errorMessage = error.localizedDescription
+            brands = []
+        }
+    }
+
+    // MARK: - Load Products by Brand / Collection Title
+    func loadProductsByCollectionTitle(_ collection: SmartCollection) async {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+
+        do {
+            collectionProducts = []
+            let products = try await apiService.fetchProducts(byVendor: collection.title)
+            collectionProducts = products
+            print("✅ Loaded \(products.count) products for collection title \(collection.title)")
+        } catch {
+            errorMessage = "❌ Failed to load products for collection \(collection.title): \(error.localizedDescription)"
+            collectionProducts = []
+        }
     }
 
     // MARK: - Filtered Products
@@ -92,12 +127,11 @@ final class CategoriesProductsViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Favorites
+    // MARK: - Favorites Handling
     func isFavorite(_ product: ProductModel) -> Bool {
         dataHelper.isFavorite(product.id)
     }
 
-    @MainActor
     func toggleFavorite(_ product: ProductModel) {
         dataHelper.toggleFavorite(product: product)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -105,7 +139,6 @@ final class CategoriesProductsViewModel: ObservableObject {
         }
     }
 
-    @MainActor
     func refreshFavorites() async {
         self.favorites = dataHelper.fetchAllFavorites().map { $0.copy() }
     }
@@ -115,12 +148,22 @@ final class CategoriesProductsViewModel: ObservableObject {
         favorites.removeAll { $0.id == id }
     }
 
+    // MARK: - NEW: Add Brand Product to Favorites
+    func toggleBrandProductFavorite(_ product: ProductModel) {
+        dataHelper.toggleFavorite(product: product)
+        favorites = dataHelper.fetchAllFavorites().map { $0.copy() }
+    }
+
+    func isBrandProductFavorite(_ product: ProductModel) -> Bool {
+        return dataHelper.isFavorite(product.id)
+    }
+
     // MARK: - API & Local Filtering
     func loadProducts() async {
         isLoading = true
         errorMessage = nil
         do {
-            let fetched = try await apiService.fetchAllProducts(limit: 250) // 🟢 هنا جلب كل المنتجات من API
+            let fetched = try await apiService.fetchAllProducts(limit: 250)
             self.allProducts = fetched
             self.products = fetched
         } catch {
@@ -144,8 +187,7 @@ final class CategoriesProductsViewModel: ObservableObject {
         errorMessage = nil
         do {
             let fetchedCategories = try await apiService.fetchCategories()
-            
-            // 🔹 Add "All" category at the beginning
+
             let allCategory = Category(id: -1, title: "All", image: nil)
             categories = [allCategory] + fetchedCategories
         } catch {
@@ -154,6 +196,4 @@ final class CategoriesProductsViewModel: ObservableObject {
         }
         isLoading = false
     }
-
-
 }

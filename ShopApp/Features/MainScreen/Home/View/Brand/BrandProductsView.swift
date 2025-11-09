@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-import SwiftUI
+
 
 struct BrandProductsView: View {
     let brand: SmartCollection
@@ -54,10 +54,29 @@ struct BrandProductsView: View {
                 } else {
                     LazyVGrid(columns: columns, spacing: 16) {
                         ForEach(filteredProducts) { product in
-                            ProductCardView(product: product, viewModel: CategoriesProductsViewModel.shared)
+                            ZStack(alignment: .topTrailing) {
+                                // 🟢 كارت المنتج
+                                ProductCardView(
+                                    product: product,
+                                    viewModel: HomeViewModel.shared
+                                )
                                 .onTapGesture {
                                     navigator.goTo(.productDetails(product))
                                 }
+//
+//                                // ❤️ زرار المفضلة فوق الكارت
+//                                Button {
+//                                    homeVM.toggleBrandProductFavorite(product)
+//                                } label: {
+//                                    Image(systemName: homeVM.isBrandProductFavorite(product) ? "heart.fill" : "heart")
+//                                        .foregroundColor(.red)
+//                                        .padding(8)
+//                                        .background(Color.white.opacity(0.8))
+//                                        .clipShape(Circle())
+//                                        .shadow(radius: 2)
+//                                }
+//                                .padding(8)
+                            }
                         }
                     }
                     .padding(.horizontal, 16)

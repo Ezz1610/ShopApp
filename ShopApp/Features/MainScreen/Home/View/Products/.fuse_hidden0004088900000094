@@ -45,10 +45,15 @@ struct ProductCardView: View {
                 
                 // Favorite Button
                 Button {
-                    if let safeProduct = viewModel.products.first(where: { $0.id == product.id }) {
+                    if let safeProduct =
+                        viewModel.products.first(where: { $0.id == product.id }) ??
+                        viewModel.collectionProducts.first(where: { $0.id == product.id }) ??
+                        viewModel.vendorProducts.first(where: { $0.id == product.id }) {
                         viewModel.toggleFavorite(safeProduct)
                     }
-                } label: {
+                }
+
+            label: {
                     Circle()
                         .fill(.white)
                         .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)

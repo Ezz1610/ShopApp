@@ -50,9 +50,8 @@ struct MainTabView: View {
             SettingsView()
                 .tabItem {
                     VStack {
-                        Image(systemName: selectedTab == 2 ? "gearshape.fill" : "gearshape")
-                              .font(.system(size: 18, weight: .semibold))
-                              .foregroundColor(selectedTab == 2 ? .blue : .black)
+                        Image(systemName: selectedTab == 2 ? "setting.fill" : "setting")
+                            .font(.system(size: 18, weight: .semibold))
                         Text("Settings")
                             .font(.system(size: 11, weight: .medium))
                     }

@@ -1,0 +1,134 @@
+
+//
+//  Catogries .swift
+//  ShopApp
+//
+//  Created by Mohammed Hassanien on 24/10/2025.
+//
+import SwiftUI
+import SwiftData
+
+
+@MainActor
+struct CategoriesView: View {
+    @EnvironmentObject var navigator: AppNavigator
+    @StateObject private var viewModel: HomeViewModel
+    @State private var selectedCategoryID: Int? = nil
+
+    private let productColumns = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
+
+    init(context: ModelContext) {
+        CategoriesProductsViewModel.initializeSingleton(context: context)
+        _viewModel = StateObject(wrappedValue: CategoriesProductsViewModel.shared)
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                // Header
+                HomeHeaderView()
+                    .padding(.top, 8)
+                    .background(Color(.systemBackground))
+
+                // Search Bar
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
+                    TextField("Search products...", text: $viewModel.searchText)
+                        .textInputAutocapitalization(.never)
+                        .disableAutocorrection(true)
+                }
+                .padding(10)
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(10)
+                .padding(.horizontal)
+                .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
+
+                // Categories Tabs
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(viewModel.categories, id: \.id) { category in
+                            Button {
+                                withAnimation(.easeInOut) {
+                                    selectedCategoryID = category.id
+                                }
+                                Task {
+                                    if category.id == -1 || category.title.lowercased() == "all" {
+                                        await viewModel.loadProducts()
+                                    } else {
+                                        viewModel.updateProductsForCollection(category)
+                                    }
+                                }
+                            } label: {
+                                Text(category.title)
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        Capsule()
+                                            .fill(selectedCategoryID == category.id ? .black : .white)
+                                            .overlay(
+                                                Capsule()
+                                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                            )
+                                    )
+                                    .foregroundColor(selectedCategoryID == category.id ? .white : .primary)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                }
+
+                Divider().padding(.horizontal, 8)
+
+                // Products Section
+                ScrollView {
+                    if viewModel.isLoading {
+                        ProgressView("جار تحميل المنتجات...")
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 50)
+                    } else if let error = viewModel.errorMessage {
+                        Text("❌ حصل خطأ: \(error)")
+                            .foregroundColor(.red)
+                            .padding()
+                    } else if viewModel.filteredProducts.isEmpty {
+                        Text("لا توجد منتجات حالياً")
+                            .foregroundColor(.gray)
+                            .padding(.top, 50)
+                    } else {
+                        LazyVGrid(columns: productColumns, spacing: 16) {
+                            ForEach(viewModel.filteredProducts, id: \.id) { product in
+                                ProductCardView(product: product, viewModel: viewModel)
+                                    .onTapGesture {
+                                        navigator.goTo(.productDetails(product))
+                                    }
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.top, 16)
+                    }
+                }
+            }
+            .background(Color(.systemGray6))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
+            .task {
+                if viewModel.categories.isEmpty {
+                    await viewModel.loadCategories()
+                }
+
+                if selectedCategoryID == nil {
+                    selectedCategoryID = -1   // Preselect "All"
+                    await viewModel.loadProducts()  // Load all products
+                }
+
+                await viewModel.refreshFavorites()
+            }
+        }
+    }
+}
