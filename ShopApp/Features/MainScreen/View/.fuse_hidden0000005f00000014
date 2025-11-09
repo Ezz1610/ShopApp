@@ -1,0 +1,64 @@
+//
+//  SwiftUIView.swift
+//  ShopApp
+//
+//  Created by Mohammed Hassanien on 24/10/2025.
+//
+import SwiftUI
+import SwiftData
+
+struct MainTabView: View {
+    @Environment(\.modelContext) private var context
+    @State private var selectedTab: Int = 0
+
+    init() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor.systemBackground
+        appearance.shadowColor = UIColor.black.withAlphaComponent(0.1)
+
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+        UITabBar.appearance().unselectedItemTintColor = UIColor.systemGray3
+    }
+
+    var body: some View {
+        TabView(selection: $selectedTab) {
+
+            HomeView(context: context)
+                .tabItem {
+                    VStack {
+                        Image(systemName: selectedTab == 0 ? "house.fill" : "house")
+                            .font(.system(size: 18, weight: .semibold))
+                        Text("Home")
+                            .font(.system(size: 11, weight: .medium))
+                    }
+                }
+                .tag(0)
+
+            CategoriesView(context: context) 
+                .tabItem {
+                    VStack {
+                        Image(systemName: selectedTab == 1 ? "square.grid.2x2.fill" : "square.grid.2x2")
+                            .font(.system(size: 18, weight: .semibold))
+                        Text("Categories")
+                            .font(.system(size: 11, weight: .medium))
+                    }
+                }
+                .tag(1)
+            
+            SettingsView()
+                .tabItem {
+                    VStack {
+                        Image(systemName: selectedTab == 2 ? "gearshape.fill" : "gearshape")
+                              .font(.system(size: 18, weight: .semibold))
+                              .foregroundColor(selectedTab == 2 ? .blue : .black)
+                        Text("Settings")
+                            .font(.system(size: 11, weight: .medium))
+                    }
+                }
+                .tag(2)
+        }
+        .tint(.green)
+    }
+}

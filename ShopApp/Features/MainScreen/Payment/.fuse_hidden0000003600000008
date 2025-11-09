@@ -14,7 +14,7 @@ struct CheckoutView: View {
     @StateObject var vm = CheckoutViewModel()
     @Bindable var currencyManager = CurrencyManager.shared
     
-    let braintreeTokenizationKey = "sandbox_sh55mkdq_876zjrvwhbwqnjxj"
+    let braintreeTokenizationKey = ""
     var body: some View {
         
         NavigationStack {
@@ -55,7 +55,7 @@ struct CheckoutView: View {
                 .font(.title2.bold())
             VStack(spacing: 20) {
                 ForEach(CartManager.shared.productsInCart) { item in
-                    let basePrice = Double( item.product.variants.first?.price ?? item.product.price  ) ?? 0
+                    let basePrice = Double(item.product.variants.first?.price ?? "0") ?? 0
                    let converted = basePrice * currencyManager.exchangeRate * Double(item.quantity)
                     HStack {
                         Text("\(item.product.title) x\(item.quantity)")
@@ -263,7 +263,7 @@ struct CheckoutView: View {
                 print("✅ Payer ID: \(result.clientMetadataID ?? "N/A")")
                 vm.paymentMessage = """
                   Payment Successful!
-                  🎉 Total: \(CartManager.shared.displayTotalCartPrice)
+                  🎉 Total: \(CartManager.shared.displayTotalCartPrice) 
                   Email: \(result.email ?? "Unknown")
                   Nonce: \(result.nonce)
                   """
@@ -271,4 +271,7 @@ struct CheckoutView: View {
             }
         }
     }
+}
+#Preview {
+    CheckoutView()
 }

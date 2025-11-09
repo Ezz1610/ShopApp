@@ -73,7 +73,7 @@ final class ProductModel: Identifiable, Codable {
         tags: String = "",
         status: String = "",
         adminGraphqlAPIID: String = "",
-        price: String = "0.0",
+        price: String = "",
         productImage: String = "",
         variants: [Variant] = [],
         options: [ProductOption] = [],
@@ -125,7 +125,7 @@ final class ProductModel: Identifiable, Codable {
         image = try c.decodeIfPresent(ProductImage.self, forKey: .image)
         
         // السعر والصورة
-        price = try c.decodeIfPresent(String.self, forKey: .price) ?? variants.first?.price ?? "0.0"
+        price = try c.decodeIfPresent(String.self, forKey: .price) ?? variants.first?.price ?? ""
         productImage = try c.decodeIfPresent(String.self, forKey: .productImage) ?? images.first?.src ?? ""
     }
 
