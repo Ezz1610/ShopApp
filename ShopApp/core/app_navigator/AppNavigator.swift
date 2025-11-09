@@ -8,7 +8,7 @@ import Foundation
 import SwiftUI
 
 final class AppNavigator: ObservableObject {
-    @Published private(set) var screenStack: [Screen] = [.login]
+    @Published private(set) var screenStack: [Screen] = [.mainTabView]
     
 
     enum Screen: Equatable {

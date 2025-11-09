@@ -3,13 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		1085ACAA2EC0C10A00344DB0 /* PayPalCheckout in Frameworks */ = {isa = PBXBuildFile; productRef = 1085ACA92EC0C10A00344DB0 /* PayPalCheckout */; };
 		C30B89442EC0D4FC00B190B8 /* PaymentModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B89432EC0D4FC00B190B8 /* PaymentModel.swift */; };
-		C30B894D2EC0DE7F00B190B8 /* CurrencyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B894C2EC0DE7E00B190B8 /* CurrencyManager.swift */; };
 		C30DEAEC2EB1F48B00E48392 /* CartManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30DEAE62EB1F48A00E48392 /* CartManager.swift */; };
 		C30DEAED2EB1F48B00E48392 /* ProductInCart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30DEAE72EB1F48A00E48392 /* ProductInCart.swift */; };
 		C30DEAEE2EB1F48B00E48392 /* CartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30DEAE92EB1F48A00E48392 /* CartView.swift */; };
@@ -102,7 +101,6 @@
 
 /* Begin PBXFileReference section */
 		C30B89432EC0D4FC00B190B8 /* PaymentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentModel.swift; sourceTree = "<group>"; };
-		C30B894C2EC0DE7E00B190B8 /* CurrencyManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyManager.swift; sourceTree = "<group>"; };
 		C30DEAE62EB1F48A00E48392 /* CartManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartManager.swift; sourceTree = "<group>"; };
 		C30DEAE72EB1F48A00E48392 /* ProductInCart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductInCart.swift; sourceTree = "<group>"; };
 		C30DEAE92EB1F48A00E48392 /* CartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartView.swift; sourceTree = "<group>"; };
@@ -175,6 +173,12 @@
 		C3EF8A062EA8745500645178 /* FirebaseHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		1085ACB22EC11DC100344DB0 /* View */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = View; sourceTree = "<group>"; };
+		1085ACB32EC11DD100344DB0 /* Model */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Model; sourceTree = "<group>"; };
+		1085ACB42EC11DE600344DB0 /* ViewModel */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ViewModel; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		C315B9CF2EA572A7001FDCD4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -206,6 +210,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1085ACB12EC11DB100344DB0 /* CurrencyConvertor */ = {
+			isa = PBXGroup;
+			children = (
+				1085ACB42EC11DE600344DB0 /* ViewModel */,
+				1085ACB32EC11DD100344DB0 /* Model */,
+				1085ACB22EC11DC100344DB0 /* View */,
+			);
+			path = CurrencyConvertor;
+			sourceTree = "<group>";
+		};
 		C30C68122EC0B0F900FC35B7 /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -307,7 +321,6 @@
 		C311AAD72EB8514F00C2AD80 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				C30B894C2EC0DE7E00B190B8 /* CurrencyManager.swift */,
 				C311AAD62EB8514F00C2AD80 /* SettingsModel.swift */,
 			);
 			path = Model;
@@ -552,6 +565,7 @@
 		C340C09B2EAF522F00A7056B /* MainScreen */ = {
 			isa = PBXGroup;
 			children = (
+				1085ACB12EC11DB100344DB0 /* CurrencyConvertor */,
 				C36A93B02EAA59BC00E7C5EF /* Coupons */,
 				C311AADD2EB8514F00C2AD80 /* Setting */,
 				C35C05D32EB4D40400980A63 /* Payment */,
@@ -634,6 +648,11 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				1085ACB22EC11DC100344DB0 /* View */,
+				1085ACB32EC11DD100344DB0 /* Model */,
+				1085ACB42EC11DE600344DB0 /* ViewModel */,
 			);
 			name = ShopApp;
 			packageProductDependencies = (
@@ -786,7 +805,6 @@
 				C33596032EA7E00400FBB43D /* Numeric.swift in Sources */,
 				C33596052EA7E00400FBB43D /* LocationHelper.swift in Sources */,
 				C33595F62EA7DDCB00FBB43D /* StarRatingView.swift in Sources */,
-				C30B894D2EC0DE7F00B190B8 /* CurrencyManager.swift in Sources */,
 				C328D4D82EAADCBD00EC2C39 /* ProductsResponse.swift in Sources */,
 				C31676092EAFC364000F7354 /* ProductDetailsView.swift in Sources */,
 				C340C09C2EAF522F00A7056B /* CategoriesView.swift in Sources */,

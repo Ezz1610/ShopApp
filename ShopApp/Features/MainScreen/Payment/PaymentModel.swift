@@ -131,11 +131,10 @@ class CheckoutViewModel: ObservableObject {
         private func getCurrencyCode() -> CurrencyCode {
             switch CurrencyManager.shared.selectedCurrency {
             case "USD": return .usd
-            case "EUR": return .eur
-            case "GBP": return .gbp
-            case "CAD": return .cad
+            case "EGP": return .eur
+            case "SAR": return .gbp
+            case "EUR": return .cad
             case "AUD": return .aud
-            case "JPY": return .jpy
             default: return .usd
             }
         }
