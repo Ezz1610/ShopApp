@@ -6,7 +6,7 @@
 //
 import SwiftUI
 import PayPalCheckout
-
+import Firebase
 // MARK: - Checkout View
 struct CheckoutView: View {
     @SwiftUI.Environment(\.dismiss) var dismiss
@@ -251,8 +251,8 @@ struct CheckoutView: View {
     }
     
     private func processCashOnDelivery() {
-        vm.showPaymentProcessing = true
-        
+        vm.showSuccessAlert = true
+     
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             vm.showPaymentProcessing = false
             
@@ -270,15 +270,78 @@ struct CheckoutView: View {
             You will pay when you receive your order.
             """
             vm.showSuccessAlert = true
+            Task {
+                do { try await createShopifyOrder() }
+                catch { print(" Shopify order creation failed: \(error.localizedDescription)") }
+            }
+
         }
     }
     
     private func processPayPalPayment() {
-        vm.showPaymentProcessing = true
+        vm.showSuccessAlert = true
+        Task {
+            do { try await createShopifyOrder() }
+            catch { print(" Shopify order creation failed: \(error.localizedDescription)") }
+        }
+
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             Checkout.start()
         }
     }
+    private func createShopifyOrder() async throws {
+                print("Creating Shopify order...")
+
+                let userEmail = Auth.auth().currentUser?.email ?? ""
+
+                let url = URL(string: "\(AppConstant.baseUrl)/orders.json")!
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                request.setValue(AppConstant.shopifyAccessToken, forHTTPHeaderField: "X-Shopify-Access-Token")
+
+                let lineItems: [[String: Any]] = CartManager.shared.productsInCart.map { cartItem in
+                    let priceStr = cartItem.product.variants.first?.price ?? cartItem.product.price
+                    return [
+                        "title": cartItem.product.title,
+                        "quantity": cartItem.quantity,
+                        "price": priceStr
+                    ]
+                }
+
+                let body: [String: Any] = [
+                    "order": [
+                        "email": userEmail,
+                        "send_receipt": true,
+                        "send_fulfillment_receipt": true,
+                        "financial_status": "paid",
+                        "payment_gateway_names": ["PayPal"],
+                        "line_items": lineItems,
+                        "shipping_address": [
+                            "address1": "address",
+                            "first_name": "Prodify",
+                            "last_name": "User",
+                            "country": "Egypt"
+                        ]
+                    ]
+                ]
+
+                request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+                let (data, response) = try await URLSession.shared.data(for: request)
+                guard let http = response as? HTTPURLResponse else {
+                    throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+                }
+
+                if http.statusCode == 201 {
+                    print(" Shopify order created successfully")
+                } else {
+                    let msg = String(data: data, encoding: .utf8) ?? "Unknown error"
+                    print(" Shopify order creation failed: \(msg)")
+                    throw NSError(domain: "", code: http.statusCode, userInfo: [NSLocalizedDescriptionKey: msg])
+                }
+            }
 }
 
 

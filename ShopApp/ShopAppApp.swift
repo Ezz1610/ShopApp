@@ -12,7 +12,8 @@ import SwiftData
 
 @main
 struct ShopAppApp: App {
-    @StateObject private var navigator = AppNavigator() // Singleton instance for navigator
+    @StateObject private var navigator = AppNavigator() 
+    @StateObject private var orderVM = OrderViewModel()
 
     // Model container
     var sharedModelContainer: ModelContainer = {
@@ -43,6 +44,7 @@ struct ShopAppApp: App {
                 .environmentObject(navigator)
                 .environmentObject(CartManager.shared)
                 .modelContainer(sharedModelContainer)
+                .environmentObject(orderVM)
         }
     }
 }

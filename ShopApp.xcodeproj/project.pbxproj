@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		1085ACAA2EC0C10A00344DB0 /* PayPalCheckout in Frameworks */ = {isa = PBXBuildFile; productRef = 1085ACA92EC0C10A00344DB0 /* PayPalCheckout */; };
+		6370803F2EC116A500FBB88C /* OrderStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6370803E2EC116A500FBB88C /* OrderStatus.swift */; };
+		637080432EC116C900FBB88C /* OrderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637080422EC116C900FBB88C /* OrderViewModel.swift */; };
+		6370804B2EC1280F00FBB88C /* OrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6370804A2EC1280F00FBB88C /* OrderView.swift */; };
 		C30B89442EC0D4FC00B190B8 /* PaymentModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B89432EC0D4FC00B190B8 /* PaymentModel.swift */; };
 		C30B894D2EC0DE7F00B190B8 /* CurrencyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B894C2EC0DE7E00B190B8 /* CurrencyManager.swift */; };
 		C30DEAEC2EB1F48B00E48392 /* CartManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30DEAE62EB1F48A00E48392 /* CartManager.swift */; };
@@ -101,6 +104,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6370803E2EC116A500FBB88C /* OrderStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderStatus.swift; sourceTree = "<group>"; };
+		637080422EC116C900FBB88C /* OrderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderViewModel.swift; sourceTree = "<group>"; };
+		6370804A2EC1280F00FBB88C /* OrderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderView.swift; sourceTree = "<group>"; };
 		C30B89432EC0D4FC00B190B8 /* PaymentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentModel.swift; sourceTree = "<group>"; };
 		C30B894C2EC0DE7E00B190B8 /* CurrencyManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyManager.swift; sourceTree = "<group>"; };
 		C30DEAE62EB1F48A00E48392 /* CartManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartManager.swift; sourceTree = "<group>"; };
@@ -206,6 +212,40 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6370803D2EC1168200FBB88C /* Order */ = {
+			isa = PBXGroup;
+			children = (
+				63E8F6FD2EC1565E0058991C /* DataModel */,
+				63E8F6FC2EC156500058991C /* ViewModel */,
+				63E8F6FA2EC156240058991C /* View */,
+			);
+			path = Order;
+			sourceTree = "<group>";
+		};
+		63E8F6FA2EC156240058991C /* View */ = {
+			isa = PBXGroup;
+			children = (
+				6370804A2EC1280F00FBB88C /* OrderView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		63E8F6FC2EC156500058991C /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				637080422EC116C900FBB88C /* OrderViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		63E8F6FD2EC1565E0058991C /* DataModel */ = {
+			isa = PBXGroup;
+			children = (
+				6370803E2EC116A500FBB88C /* OrderStatus.swift */,
+			);
+			path = DataModel;
+			sourceTree = "<group>";
+		};
 		C30C68122EC0B0F900FC35B7 /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -552,6 +592,7 @@
 		C340C09B2EAF522F00A7056B /* MainScreen */ = {
 			isa = PBXGroup;
 			children = (
+				6370803D2EC1168200FBB88C /* Order */,
 				C36A93B02EAA59BC00E7C5EF /* Coupons */,
 				C311AADD2EB8514F00C2AD80 /* Setting */,
 				C35C05D32EB4D40400980A63 /* Payment */,
@@ -771,11 +812,13 @@
 				C31033112EAB9FF000170E82 /* ProductImage.swift in Sources */,
 				C30DEAEC2EB1F48B00E48392 /* CartManager.swift in Sources */,
 				C33596022EA7E00400FBB43D /* CustomTextStyle.swift in Sources */,
+				637080432EC116C900FBB88C /* OrderViewModel.swift in Sources */,
 				C30B89442EC0D4FC00B190B8 /* PaymentModel.swift in Sources */,
 				C33596002EA7E00400FBB43D /* AppConstant.swift in Sources */,
 				C33547A12EA820840076D72C /* RegisterViewModel.swift in Sources */,
 				C331ECAC2EAD84E600B71CAA /* SwiftDataHelper.swift in Sources */,
 				C340C0AC2EAF522F00A7056B /* MainTabView.swift in Sources */,
+				6370803F2EC116A500FBB88C /* OrderStatus.swift in Sources */,
 				C33596182EA7F1A700FBB43D /* RootView.swift in Sources */,
 				C31033132EABA03100170E82 /* ProductOption.swift in Sources */,
 				C30E8F8B2EB7F1B10016B6F9 /* FavoritesView.swift in Sources */,
@@ -818,6 +861,7 @@
 				C33595ED2EA7DDAD00FBB43D /* FetchDataProtocol.swift in Sources */,
 				C311AADF2EB8515000C2AD80 /* SettingsView.swift in Sources */,
 				C35C05D42EB4D40400980A63 /* CheckoutView.swift in Sources */,
+				6370804B2EC1280F00FBB88C /* OrderView.swift in Sources */,
 				C33596152EA7EF3800FBB43D /* RegisterScreen.swift in Sources */,
 				C36097FA2EA9D20000225EA2 /* CustomViewAlert.swift in Sources */,
 				C31218FC2EAB6B9C008456E4 /* ApiServices.swift in Sources */,

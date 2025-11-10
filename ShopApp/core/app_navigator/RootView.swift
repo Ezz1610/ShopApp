@@ -14,7 +14,7 @@ import SwiftUI
 struct RootView: View {
     @EnvironmentObject var navigator: AppNavigator
     @Environment(\.modelContext) private var context
-
+    
     var body: some View {
         NavigationStack {
             switch navigator.currentScreen {

@@ -33,7 +33,7 @@ struct MainTabView: View {
                    case 1:
                        CategoriesView(context: context)
                    case 2:
-                       SettingsView()
+                       CheckoutView()
                    default:
                        HomeView(context: context)
                    }
