@@ -12,7 +12,7 @@ struct ProductDetailsView: View {
     @State private var isAdded = false
     let product: ProductModel
     @Environment(\.dismiss) private var dismiss  // For back action
-
+    @Bindable var currencyManager = CurrencyManager.shared
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -38,8 +38,10 @@ struct ProductDetailsView: View {
                     .padding(.horizontal)
 
                 // MARK: - Product Price
-                if let price = product.variants.first?.price {
-                    Text("$\(price)")
+                if let priceString = product.variants.first?.price,
+                    let price = Double(priceString) {
+                    let convertedPrice = price * currencyManager.exchangeRate
+                    Text("\(currencyManager.getCurrencySymbol())\(String(format: "%.2f", convertedPrice))")
                         .font(.title3.bold())
                         .foregroundColor(.accentColor)
                         .padding(.horizontal)
@@ -77,7 +79,7 @@ struct ProductDetailsView: View {
                     cartManager.addToCart(product: product)
                     cartManager.addToCartAlert = true
                     isAdded = true
-                       DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                       DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                            isAdded = false
                        }
                 }) {
@@ -89,7 +91,7 @@ struct ProductDetailsView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.accentColor)
+                        .background(AppColors.black)
                         .foregroundColor(.white)
                         .cornerRadius(12)
                 }

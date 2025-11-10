@@ -13,7 +13,7 @@ struct CartView: View {
     @EnvironmentObject var cartManager: CartManager 
     @EnvironmentObject var navigator: AppNavigator
     @State private var showCheckout = false
-
+    @Bindable var currencyManager = CurrencyManager.shared
     fileprivate func cartRow(productInCart: ProductInCart) -> some View {
         let product = productInCart.product
         let price = cartManager.validPrice(for: product)
@@ -30,7 +30,7 @@ struct CartView: View {
                 Text(product.title)
                     .modifier(AppTextStyle.mediumStyle())
                 
-                Text(String(format: "$%.2f", price))
+                Text(String(currencyManager.formatPrice(price)))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 

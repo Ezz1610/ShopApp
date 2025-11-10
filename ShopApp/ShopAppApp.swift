@@ -20,7 +20,8 @@ struct ShopAppApp: App {
             ProductModel.self,
             Variant.self,
             ProductImage.self,
-            ProductOption.self
+            ProductOption.self,
+            Address.self
         ])
         
         let config = ModelConfiguration(

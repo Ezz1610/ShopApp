@@ -19,7 +19,7 @@ final class RemoteDataHelper: FetchDataProtocol {
     private var defaultHeaders: [String: String] {
         [
             "Content-Type": "application/json",
-//         "X-Shopify-Access-Token": ""
+  //       "X-Shopify-Access-Token": ""
         ]
     }
     
@@ -53,4 +53,5 @@ final class RemoteDataHelper: FetchDataProtocol {
         
         return try JSONDecoder().decode(T.self, from: data)
     }
+
 }
