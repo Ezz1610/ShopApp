@@ -31,7 +31,7 @@ struct SettingsView: View {
             .alert("Log Out", isPresented: $showLogoutAlert) {
                 Button("Cancel", role: .cancel) {}
                 Button("Log Out", role: .destructive) {
-                    viewModel.logout(navigator: navigator)
+                    viewModel.logout()
                 }
             } message: {
                 Text("Are you sure you want to log out?")
@@ -125,7 +125,7 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Addresses")
                             .font(.body)
-                        if let defaultAddress = viewModel.defaultAddress {
+                        if let defaultAddress = $viewModel.defaultAddress {
                             Text(defaultAddress)
                                 .font(.caption)
                                 .foregroundColor(.secondary)

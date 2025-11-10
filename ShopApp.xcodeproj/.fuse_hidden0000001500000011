@@ -88,6 +88,7 @@
 		C3F438502EC1BA3E00300BBE /* CartManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F438492EC1BA3E00300BBE /* CartManager.swift */; };
 		C3F438512EC1BA3E00300BBE /* ProductInCart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F4384A2EC1BA3E00300BBE /* ProductInCart.swift */; };
 		C3F438522EC1BA3E00300BBE /* CartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F4384C2EC1BA3E00300BBE /* CartView.swift */; };
+		C3F438532EC1BA3E00300BBE /* .fuse_hidden0000006900000011 in Resources */ = {isa = PBXBuildFile; fileRef = C3F4384E2EC1BA3E00300BBE /* .fuse_hidden0000006900000011 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -187,6 +188,7 @@
 		C3F438492EC1BA3E00300BBE /* CartManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartManager.swift; sourceTree = "<group>"; };
 		C3F4384A2EC1BA3E00300BBE /* ProductInCart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductInCart.swift; sourceTree = "<group>"; };
 		C3F4384C2EC1BA3E00300BBE /* CartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartView.swift; sourceTree = "<group>"; };
+		C3F4384E2EC1BA3E00300BBE /* .fuse_hidden0000006900000011 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .fuse_hidden0000006900000011; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -685,6 +687,7 @@
 			children = (
 				C3F4384B2EC1BA3E00300BBE /* Model */,
 				C3F4384D2EC1BA3E00300BBE /* View */,
+				C3F4384E2EC1BA3E00300BBE /* .fuse_hidden0000006900000011 */,
 			);
 			path = Cart;
 			sourceTree = "<group>";
@@ -807,6 +810,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C33595E22EA7DBD600FBB43D /* Preview Assets.xcassets in Resources */,
+				C3F438532EC1BA3E00300BBE /* .fuse_hidden0000006900000011 in Resources */,
 				C315BA2C2EA573B5001FDCD4 /* Assets.xcassets in Resources */,
 				C33547A32EA839350076D72C /* GoogleService-Info.plist in Resources */,
 			);

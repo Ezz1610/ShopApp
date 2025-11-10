@@ -108,7 +108,7 @@ struct ProductDetailsView: View {
         .toolbar {
                  ToolbarItem(placement: .navigationBarLeading) {
                      Button(action: {
-                         navigator.goBack() // Go back
+                         AppNavigator().goBack() // Go back
                      }) {
                          HStack {
                              Image(systemName: "chevron.left")
