@@ -91,7 +91,7 @@ struct CartView: View {
             
             // MARK: - Checkout Button
                 if cartManager.productsInCart.isEmpty {
-                    Button(action: {navigator.goTo(.homeView)}) {
+                    Button(action: {navigator.goTo(.homeView, replaceLast: false)}) {
                         Text("Go Shopping 🛍️")
                             .font(.headline.bold())
                             .foregroundColor(.white)
@@ -116,7 +116,7 @@ struct CartView: View {
                     .sheet(isPresented: $showCheckout) {
                         CheckoutView()
                     }
-                    Button(action: {navigator.goTo(.homeView)}) {
+                        Button(action: {navigator.goTo(.homeView, replaceLast: false)}) {
                         Text("Go Shopping 🛍️")
                             .font(.headline.bold())
                             .foregroundColor(.white)

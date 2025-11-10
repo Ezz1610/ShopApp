@@ -57,14 +57,19 @@ final class HomeViewModel: ObservableObject {
     func loadBrands() async {
         guard !isLoading else { return }
         isLoading = true
-        errorMessage = nil
+       // errorMessage = nil
         defer { isLoading = false }
 
         do {
-            let fetchedBrands = try await apiService.fetchSmartCollections()
-            brands = fetchedBrands
+            //let fetchedBrands = try await apiService.fetchSmartCollections()
+            if brands.isEmpty {
+                let fetchedBrands = try await apiService.fetchSmartCollections()
+                brands = fetchedBrands
+            }
+          
         } catch {
             errorMessage = error.localizedDescription
+            print("errorrrrrr 1 \(errorMessage)")
             brands = []
         }
     }
@@ -72,7 +77,7 @@ final class HomeViewModel: ObservableObject {
     // MARK: - Load Products by Brand / Collection Title
     func loadProductsByCollectionTitle(_ collection: SmartCollection) async {
         isLoading = true
-        errorMessage = nil
+     //   errorMessage = nil
         defer { isLoading = false }
 
         do {
@@ -82,6 +87,7 @@ final class HomeViewModel: ObservableObject {
             print("✅ Loaded \(products.count) products for collection title \(collection.title)")
         } catch {
             errorMessage = "❌ Failed to load products for collection \(collection.title): \(error.localizedDescription)"
+            print("errorrrrrr 2 \(errorMessage)")
             collectionProducts = []
         }
     }
@@ -161,13 +167,14 @@ final class HomeViewModel: ObservableObject {
     // MARK: - API & Local Filtering
     func loadProducts() async {
         isLoading = true
-        errorMessage = nil
+      //  errorMessage = nil
         do {
             let fetched = try await apiService.fetchAllProducts(limit: 250)
             self.allProducts = fetched
             self.products = fetched
         } catch {
             self.errorMessage = error.localizedDescription
+            print("errorrrrrr 3 \(errorMessage)")
         }
         isLoading = false
     }
@@ -184,7 +191,7 @@ final class HomeViewModel: ObservableObject {
     // MARK: - Categories
     func loadCategories() async {
         isLoading = true
-        errorMessage = nil
+      //  errorMessage = nil
         do {
             let fetchedCategories = try await apiService.fetchCategories()
 
@@ -192,6 +199,7 @@ final class HomeViewModel: ObservableObject {
             categories = [allCategory] + fetchedCategories
         } catch {
             errorMessage = error.localizedDescription
+            print("errorrrrrr 4 \(errorMessage)")
             categories = []
         }
         isLoading = false

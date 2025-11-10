@@ -82,7 +82,7 @@ struct MainTabView: View {
                    }
                           .padding(.horizontal, 25)
                .padding(.vertical, 12)
-               .background(.ultraThinMaterial.opacity(0.8))
+               .background(.ultraThickMaterial.opacity(0.8))
                .clipShape(Capsule())
                .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 5)
                .padding(.horizontal, 40)
@@ -105,10 +105,10 @@ struct MainTabView: View {
                VStack(spacing: 4) {
                    Image(systemName: icon)
                        .font(.system(size: 18, weight: .semibold))
-                       .foregroundColor(selected ? color : .gray)
+                       .foregroundColor(selected ? color : .black)
                    Text(title)
                        .font(.system(size: 11, weight: .medium))
-                       .foregroundColor(selected ? color : .gray)
+                       .foregroundColor(selected ? color : .black)
                }
                .padding(.vertical, 6)
                .frame(maxWidth: .infinity)

@@ -46,7 +46,7 @@ struct LoginScreen: View {
             VStack(spacing: 12) {
                 loginButton
                 Button("Don't have an account? click here to create one.") {
-                    navigator.goTo(.register)
+                    navigator.goTo(.register, replaceLast: false)
                 }
                 .font(.footnote)
                 .padding(.top, 8)
@@ -62,7 +62,7 @@ struct LoginScreen: View {
         Task {
             let success = await viewModel.login()
             if success {
-                navigator.goTo(.mainTabView)
+                navigator.goTo(.mainTabView, replaceLast: false)
             }
         }
     }

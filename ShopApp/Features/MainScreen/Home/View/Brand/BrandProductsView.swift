@@ -21,6 +21,7 @@ struct BrandProductsView: View {
     ]
 
     var body: some View {
+        
         VStack(spacing: 0) {
             HomeSearchBar(searchText: $searchText)
 
@@ -61,7 +62,7 @@ struct BrandProductsView: View {
                                     viewModel: HomeViewModel.shared
                                 )
                                 .onTapGesture {
-                                    navigator.goTo(.productDetails(product))
+                                    navigator.goTo(.productDetails(product), replaceLast: false)
                                 }
 
                             }
@@ -75,19 +76,10 @@ struct BrandProductsView: View {
         }
         .navigationTitle(brand.title)
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    navigator.goBack()
-                }) {
-                    HStack {
-                        Image(systemName: "chevron.left")
-                        Text("Home")
-                    }
-                }
-            }
-        }
+        .navigationBarBackButtonHidden(false)
+//        .background(Color(.systemGray6))
+//        .navigationBarTitleDisplayMode(.inline)
+//        .toolbar(.hidden, for: .navigationBar)
 
         .task {
             await loadProducts()

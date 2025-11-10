@@ -23,6 +23,7 @@ final class AppNavigator: ObservableObject {
         case cartView
         case favoritesView
         case productDetails(ProductModel)
+        case ordersView
         
         static func == (lhs: Screen, rhs: Screen) -> Bool {
             switch (lhs, rhs) {
@@ -32,7 +33,8 @@ final class AppNavigator: ObservableObject {
                  (.mainTabView, .mainTabView),
                  (.homeView, .homeView),
                  (.cartView, .cartView),
-                 (.favoritesView, .favoritesView):
+                 (.favoritesView, .favoritesView),
+                (.ordersView, .ordersView):
                 return true
                 
             case (.productDetails(let a), .productDetails(let b)):
@@ -50,19 +52,43 @@ final class AppNavigator: ObservableObject {
     }
     
     // الانتقال لشاشة جديدة
-    func goTo(_ screen: Screen) {
+    func goTo(_ screen: Screen, replaceLast: Bool) {
         withAnimation(.easeInOut) {
-            screenStack.append(screen)
+            if replaceLast, !screenStack.isEmpty {
+                screenStack[screenStack.count - 1] = screen
+            } else {
+                screenStack.append(screen)
+            }
         }
     }
-    
+//    func goTo(_ screen: Screen) {
+//        withAnimation(.easeInOut) {
+//            screenStack.append(screen)
+//        }
+//    }
+//    
     // رجوع شاشة واحدة
-    func goBack() {
-        guard screenStack.count > 1 else { return }
-        withAnimation(.easeInOut) {
-            screenStack.removeLast()
+    @Published private var isNavigatingBack = false
+
+        func goBack() {
+            guard !isNavigatingBack else { return }
+            guard screenStack.count > 1 else { return }
+
+            isNavigatingBack = true
+            withAnimation(.easeInOut) {
+                screenStack.removeLast()
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.isNavigatingBack = false
+            }
         }
-    }
+//    func goBack() {
+//        guard screenStack.count > 1 else { return }
+//        withAnimation(.easeInOut) {
+//            screenStack.removeLast()
+//        }
+//    }
     
     // رجوع لأول شاشة في الستاك (root)
     func popToRoot() {
