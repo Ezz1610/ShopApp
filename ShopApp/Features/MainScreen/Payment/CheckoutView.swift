@@ -33,69 +33,73 @@ struct CheckoutView: View {
         }
         return addresses.first
     }
+    @SwiftUI.State private var showAddAddress = false
+    @ObservedObject var viewModel = AddressesViewModel.shared
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 25) {
-                    // Shipping Address Section
-                    shippingAddressSection
-                    
-                    // Coupon Section
-                    couponSection
-                    
-                    // Order Summary Section
-                    orderSummarySection
-                    
-                    // Test Mode Notice
-                    testModeNotice
-                    
-                    // Payment Method Section
-                    paymentMethodSection
-                    
-                    // Pay Button
-                    payButton
-                }
-                .padding()
+        ScrollView {
+            VStack(spacing: 25) {
+                // Shipping Address Section
+                shippingAddressSection
+                
+                // Coupon Section
+                couponSection
+                
+                // Order Summary Section
+                orderSummarySection
+                
+                // Test Mode Notice
+                testModeNotice
+                
+                // Payment Method Section
+                paymentMethodSection
+                
+                // Pay Button
+                payButton
             }
-            .navigationTitle("Checkout")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-            }
-            .overlay {
-                if vm.showPaymentProcessing {
-                    paymentProcessingOverlay
-                }
-            }
-            .alert("Order Placed! 🎉", isPresented: $vm.showSuccessAlert) {
-                Button("View Orders") {
-                    CartManager.shared.clearCart()
-                    appliedCoupon = nil
-                    navigator.goTo(.ordersView, replaceLast: false)
-                    dismiss()
-                }
-                Button("Done") {
-                    CartManager.shared.clearCart()
-                    appliedCoupon = nil
-                    dismiss()
-                }
-            } message: {
-                Text(vm.paymentMessage)
-            }
-            .alert("Invalid Coupon", isPresented: $showCouponError) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(couponErrorMessage)
-            }
-            .onAppear {
-                vm.configurePayPalCheckout()
-            }
-            
+            .padding()
         }
+        .navigationTitle("Checkout")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Cancel") {
+                
+                    navigator.goTo(.cartView, replaceLast: false)
+                    dismiss()
+                }
+            }
+        }
+        .overlay {
+            if vm.showPaymentProcessing {
+                paymentProcessingOverlay
+            }
+        }
+        .alert("Order Placed! 🎉", isPresented: $vm.showSuccessAlert) {
+            Button("View Orders") {
+                CartManager.shared.clearCart()
+                appliedCoupon = nil
+                navigator.goTo(.ordersView, replaceLast: false)
+                dismiss()
+            }
+            Button("Done") {
+                CartManager.shared.clearCart()
+                appliedCoupon = nil
+                dismiss()
+            }
+        } message: {
+            Text(vm.paymentMessage)
+        }
+        .alert("Invalid Coupon", isPresented: $showCouponError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(couponErrorMessage)
+        }
+        .onAppear {
+            vm.configurePayPalCheckout()
+        }
+        
+    }
     }
     
     // MARK: - Coupon Section
@@ -186,7 +190,7 @@ struct CheckoutView: View {
                         .foregroundColor(.secondary)
                     
                     HStack(spacing: 8) {
-                        CouponHintBadge(code: "WELCOME20%", color: .purple)
+                        CouponHintBadge(code: "50OFF", color: .purple)
                         CouponHintBadge(code: "SAVE10%", color: .orange)
                         CouponHintBadge(code: "-50LE", color: .pink)
                     }
@@ -198,23 +202,25 @@ struct CheckoutView: View {
     
     // MARK: - Shipping Address Section
     private var shippingAddressSection: some View {
+        
         VStack(alignment: .leading, spacing: 15) {
             HStack {
-                Text("Shipping Address")
-                    .font(.title2.bold())
-                Spacer()
-                NavigationLink {
-                    AddressesListView()
-                } label: {
-                    HStack(spacing: 4) {
-                    Text(addresses.isEmpty ? "Add" : "Change")
-                            .font(.subheadline.bold())
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                    }
-                    .foregroundColor(.blue)
-                }
-            }
+                       Text("Shipping Address")
+                           .font(.title2.bold())
+                       Spacer()
+                       
+                       Button {
+                           showAddAddress = true
+                       } label: {
+                           HStack(spacing: 4) {
+                               Text(addresses.isEmpty ? "Add" : "Change")
+                                   .font(.subheadline.bold())
+                               Image(systemName: "chevron.right")
+                                   .font(.caption)
+                           }
+                           .foregroundColor(.black)
+                       }
+                   }
             
             if let address = defaultAddress {
                 // Address Card
@@ -318,6 +324,14 @@ struct CheckoutView: View {
                 }
             }
         }
+        .sheet(isPresented: $showAddAddress) {
+               AddAddressView(num: 0)
+           }
+           // 👇 and keep your view model setup logic
+           .onAppear {
+               viewModel.setModelContext(modelContext)
+               viewModel.refreshAddresses()
+           }
     }
     
     // MARK: - Order Summary
@@ -461,7 +475,7 @@ struct CheckoutView: View {
                         // Icon
                         ZStack {
                             Circle()
-                                .fill(vm.selectedPayment == method ? Color.blue.opacity(0.1) : Color.gray.opacity(0.1))
+                                .fill(vm.selectedPayment == method ? Color.black.opacity(0.1) : Color.gray.opacity(0.1))
                                 .frame(width: 50, height: 50)
                             
                             Image(systemName: method.icon)
@@ -500,11 +514,11 @@ struct CheckoutView: View {
                         }
                     }
                     .padding()
-                    .background(vm.selectedPayment == method ? Color.blue.opacity(0.05) : Color.clear)
+                    .background(vm.selectedPayment == method ? Color.black.opacity(0.05) : Color.clear)
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(vm.selectedPayment == method ? Color.blue : Color.gray.opacity(0.2), lineWidth: vm.selectedPayment == method ? 2 : 1)
+                            .stroke(vm.selectedPayment == method ? Color.black : Color.gray.opacity(0.2), lineWidth: vm.selectedPayment == method ? 2 : 1)
                     )
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -598,7 +612,7 @@ struct CheckoutView: View {
             .frame(height: 56)
             .background(
                 LinearGradient(
-                    colors: vm.selectedPayment == .cashOnDelivery ? [Color.blue, Color.blue.opacity(0.8)] : [Color.black, Color.gray.opacity(0.9)],
+                    colors: vm.selectedPayment == .cashOnDelivery ? [AppColors.primary, AppColors.primary.opacity(0.8)] : [Color.black, Color.gray.opacity(0.9)],
                     startPoint: .leading,
                     endPoint: .trailing
                 )
@@ -702,7 +716,7 @@ struct CheckoutView: View {
         let code = couponCode.uppercased().trimmingCharacters(in: .whitespaces)
         
         switch code {
-        case "WELCOME50%":
+        case "50OFF":
             appliedCoupon = AppliedCoupon(
                 code: code,
                 type: .percentage(50),
@@ -722,12 +736,12 @@ struct CheckoutView: View {
             appliedCoupon = AppliedCoupon(
                 code: code,
                 type: .fixedAmount(50),
-                description: "50 LE off your order"
+                description: " -50 on your order"
             )
             couponCode = ""
             
         default:
-            couponErrorMessage = "Invalid coupon code. Please try: WELCOME20%, SAVE10%, or -50LE"
+            couponErrorMessage = "Invalid coupon code. Please try again"
             showCouponError = true
         }
     }

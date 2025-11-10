@@ -49,8 +49,8 @@ struct SettingsView: View {
         Section {
             HStack(spacing: 15) {
                 Image(systemName: "person.crop.circle.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(.blue)
+                    .font(.system(size: 70))
+                    .foregroundColor(AppColors.primary)
                 
                 VStack(alignment: .leading, spacing: 5) {
                     // ✅ Keep username and email as-is
@@ -111,7 +111,7 @@ struct SettingsView: View {
                     HStack(spacing: 4) {
                         Text(currencyManager.getCurrencySymbol())
                             .font(.headline)
-                            .foregroundColor(.blue)
+                            .foregroundColor(.green)
                         
 //                        Image(systemName: "chevron.right")
 //                            .font(.caption)
@@ -277,7 +277,7 @@ struct CurrencySelectionView: View {
                             .frame(width: 50, height: 50)
                             .background(
                                 Circle()
-                                    .fill(currencyManager.selectedCurrency == currency ? Color.blue.opacity(0.1) : Color.gray.opacity(0.1))
+                                    .fill(currencyManager.selectedCurrency == currency ? Color.black.opacity(0.1) : Color.gray.opacity(0.1))
                             )
                         
                         VStack(alignment: .leading, spacing: 4) {
@@ -295,7 +295,7 @@ struct CurrencySelectionView: View {
                         if currencyManager.selectedCurrency == currency {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.title2)
-                                .foregroundColor(.blue)
+                                .foregroundColor(.black)
                         }
                     }
                     .padding(.vertical, 8)
@@ -394,7 +394,7 @@ struct AddressesListView: View {
                     Image(systemName: "chevron.left")
                     Text("Settings")
                 }
-                .foregroundColor(.blue)
+                .foregroundColor(.black)
             }
 
             Spacer()
@@ -409,7 +409,7 @@ struct AddressesListView: View {
                 showAddAddress = true
             } label: {
                 Image(systemName: "plus")
-                    .foregroundColor(.blue)
+                    .foregroundColor(.black)
                     .font(.title3)
             }
         }
@@ -445,7 +445,7 @@ struct AddressesListView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    navigator.goTo(.mainTabView(selectedTab: 2),replaceLast : true)
+                        navigator.goTo(.mainTabView(selectedTab: 2),replaceLast : true)
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "chevron.left")
@@ -465,7 +465,8 @@ struct AddressesListView: View {
         }
         // ✅ الـ sheet لازم يكون برا الـ toolbar
         .sheet(isPresented: $showAddAddress) {
-            AddAddressView()
+            
+            AddAddressView(num: 0)
         }
         // ✅ الـ onAppear لازم يكون برا الـ toolbar برضو
         .onAppear {
@@ -508,7 +509,7 @@ struct AddressesListView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: 200)
                     .padding()
-                    .background(Color.blue)
+                    .background(AppColors.primary)
                     .cornerRadius(12)
             }
             .alert("You must login to access this feature", isPresented: $showGuestAlert) {
@@ -542,7 +543,7 @@ struct AddressRowView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.blue)
+                        .background(AppColors.primary)
                         .cornerRadius(6)
                 }
             }
@@ -573,7 +574,7 @@ struct AddressRowView: View {
                 } label: {
                     Text("Set as Default")
                         .font(.caption.bold())
-                        .foregroundColor(.blue)
+                        .foregroundColor(AppColors.primary)
                 }
             }
         }
@@ -587,7 +588,7 @@ struct AddressRowView: View {
 struct AddAddressView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var modelContext
-    
+    var num: Int = 1
     @State private var name = ""
     @State private var street = ""
     @State private var city = ""
@@ -596,7 +597,7 @@ struct AddAddressView: View {
     @State private var country = ""
     @State private var phone = ""
     @State private var setAsDefault = false
-    
+    @EnvironmentObject var navigator: AppNavigator
     @State private var nearbyCities: [City] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -665,11 +666,20 @@ struct AddAddressView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") { dismiss() }
+                        Button("Cancel") {
+                            if num == 0 {
+                                dismiss()
+                            } else {
+                                navigator.goTo(.checkoutView, replaceLast: false)
+                            }
+                           
+                        }
                     }
                     
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Save") { saveAddress() }
+                        Button("Save") {
+                            saveAddress()
+                        }
                             .disabled(!isFormValid)
                     }
                 }
@@ -805,7 +815,7 @@ struct AddAddressView: View {
                     Link(destination: URL(string: "mailto:support@yourshopify.com")!) {
                         HStack {
                             Image(systemName: "envelope.fill")
-                                .foregroundColor(.blue)
+                                .foregroundColor(.green)
                             Text("support@yourshopify.com")
                         }
                     }
@@ -850,7 +860,7 @@ struct AddAddressView: View {
                 VStack(spacing: 30) {
                     Image(systemName: "cart.fill")
                         .font(.system(size: 80))
-                        .foregroundColor(.blue)
+                        .foregroundColor(.black)
                         .padding(.top, 40)
                     
                     VStack(spacing: 15) {

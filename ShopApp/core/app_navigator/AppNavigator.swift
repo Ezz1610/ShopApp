@@ -26,7 +26,9 @@ final class AppNavigator: ObservableObject {
         case productDetails(ProductModel, NavigateFrom)
         case ordersView
         case addressesView
-
+        case addAddress
+        case listAddresses
+        case checkoutView
         static func == (lhs: Screen, rhs: Screen) -> Bool {
             switch (lhs, rhs) {
             case (.splash, .splash),
@@ -35,7 +37,7 @@ final class AppNavigator: ObservableObject {
                  (.homeView, .homeView),
                  (.cartView, .cartView),
                  (.favoritesView, .favoritesView),
-                 (.ordersView, .ordersView):
+                (.ordersView, .ordersView):
                 return true
 
             case (.mainTabView(let a), .mainTabView(let b)):

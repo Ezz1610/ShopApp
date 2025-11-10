@@ -48,7 +48,7 @@ struct CartView: View {
         VStack {
             // MARK: - Header
             HStack {
-                Button(action: { navigator.goBack() }) {
+                Button(action: { navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: true) }) {
                     Image(systemName: "chevron.backward")
                         .font(.title2)
                         .foregroundColor(.primary)
@@ -91,7 +91,7 @@ struct CartView: View {
             
             // MARK: - Checkout Button
                 if cartManager.productsInCart.isEmpty {
-                    Button(action: {navigator.goTo(.homeView, replaceLast: false)}) {
+                    Button(action: {navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: true)}) {
                         Text("Go Shopping 🛍️")
                             .font(.headline.bold())
                             .foregroundColor(.white)
@@ -116,7 +116,8 @@ struct CartView: View {
                     .sheet(isPresented: $showCheckout) {
                         CheckoutView()
                     }
-                        Button(action: {navigator.goTo(.homeView, replaceLast: false)}) {
+                       
+                        Button(action: { navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: true)}) {
                         Text("Go Shopping 🛍️")
                             .font(.headline.bold())
                             .foregroundColor(.white)

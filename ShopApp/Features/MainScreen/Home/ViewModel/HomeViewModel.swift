@@ -91,7 +91,41 @@ final class HomeViewModel: ObservableObject {
             collectionProducts = []
         }
     }
+    // MARK: - ADDED (Groups) - تعريف مجموعات الأنواع للأزرار
+        /// مفاتيح الشيت -> أنواع المنتج الفعلية (كما تأتي من الـ API)
+        private let typeGroups: [String: [String]] = [
+            "shoes":       ["SHOES"],
+            "accessories": ["ACCESSORIES", "BAGS", "BAG"],
+             "tshirts":  ["TSHIRTS", "TSHIRT", "TEES", "T-SHIRTS"]
+        ]
 
+        // MARK: - ADDED (Groups) - استخراج المجموعات المختارة حاليًا من الفلتر
+        func currentChosenGroups() -> Set<String> {
+            var result = Set<String>()
+            for (key, values) in typeGroups {
+                // إذا كان أي نوع من أنواع هذه المجموعة موجودًا بالفعل في الفلتر
+                if values.contains(where: { v in
+                    filter.productTypes.contains { $0.caseInsensitiveCompare(v) == .orderedSame }
+                }) {
+                    result.insert(key)
+                }
+            }
+            return result
+        }
+
+        // MARK: - ADDED (Groups) - تطبيق المجموعات القادمة من الشيت على الفلتر
+        func applyGroups(_ groups: Set<String>) {
+            var mapped = Set<String>()
+            for g in groups {
+                if let arr = typeGroups[g] {
+                    for t in arr {
+                        mapped.insert(t.uppercased())
+                    }
+                }
+            }
+            filter.productTypes = mapped
+            // لا حاجة لاستدعاء شيء إضافي: filteredProducts محسوبة وستتحدث تلقائيًا
+        }
     // MARK: - Filtered Products
     var filteredProducts: [ProductModel] {
         products.filter { product in

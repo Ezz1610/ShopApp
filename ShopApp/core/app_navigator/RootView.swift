@@ -62,6 +62,12 @@ struct RootView: View {
 
                     case .ordersView:
                         OrderView()
+                    case .addAddress:
+                        AddAddressView()
+                    case .listAddresses:
+                        AddressesListView()
+                    case .checkoutView:
+                        CheckoutView()
                     }
                 }
                 .animation(.easeInOut, value: navigator.currentScreen)
