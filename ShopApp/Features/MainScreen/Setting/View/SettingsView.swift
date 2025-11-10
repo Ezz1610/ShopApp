@@ -11,6 +11,8 @@ import _SwiftData_SwiftUI
 struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewModel()
     @Bindable var currencyManager = CurrencyManager.shared
+    @EnvironmentObject var navigator: AppNavigator
+
     @State private var showLogoutAlert = false
     
     var body: some View {
@@ -123,7 +125,7 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Addresses")
                             .font(.body)
-                        if let defaultAddress = viewModel.defaultAddress {
+                        if let defaultAddress = $viewModel.defaultAddress {
                             Text(defaultAddress)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
@@ -227,23 +229,15 @@ struct SettingsView: View {
     // MARK: - Logout Section
     private var logoutSection: some View {
         Section {
-            Button {
-                showLogoutAlert = true
-            } label: {
-                HStack(spacing: 15) {
-                    Image(systemName: "rectangle.portrait.and.arrow.right")
-                        .font(.title2)
-                        .foregroundColor(.red)
-                        .frame(width: 32)
-                    
-                    Text("Log Out")
-                        .font(.body)
-                        .foregroundColor(.red)
-                    
-                    Spacer()
-                }
-            }
-        }
+                     Button(role: .destructive) {
+                                        viewModel.logout(navigator: navigator)
+                                    } label: {
+                                        HStack {
+                                            Image(systemName: "arrow.backward.circle.fill")
+                                            Text("Logout")
+                                        }
+                                    }
+                                }
     }
 }
 
@@ -776,8 +770,4 @@ struct InfoRow: View {
 }
 
 
-// MARK: - Preview
-#Preview {
-    SettingsView()
-}
 
