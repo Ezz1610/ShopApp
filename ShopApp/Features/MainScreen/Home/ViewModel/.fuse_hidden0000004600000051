@@ -139,7 +139,6 @@ final class HomeViewModel: ObservableObject {
     }
 
     func toggleFavorite(_ product: ProductModel) {
-        
         dataHelper.toggleFavorite(product: product)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.favorites = self.dataHelper.fetchAllFavorites().map { $0.copy() }

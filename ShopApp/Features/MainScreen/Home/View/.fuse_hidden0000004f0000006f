@@ -26,6 +26,7 @@ struct HomeView: View {
         HomeViewModel.initializeSingleton(context: context)
         _homeVM = StateObject(wrappedValue: HomeViewModel.shared!)
     }
+
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {

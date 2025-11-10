@@ -9,6 +9,7 @@ import SwiftUI
 struct BrandCollectionView: View {
     let brands: [SmartCollection]
     @ObservedObject var homeVM: HomeViewModel
+    @EnvironmentObject var navigator: AppNavigator
 
     private let columns: [GridItem] = [
         GridItem(.flexible(), spacing: 12),
@@ -18,6 +19,7 @@ struct BrandCollectionView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+        
             Text("Brands")
                 .font(.system(size: 18, weight: .semibold, design: .rounded))
                 .foregroundColor(.primary)
@@ -25,12 +27,10 @@ struct BrandCollectionView: View {
 
             LazyVGrid(columns: columns, spacing: 16) {
                 ForEach(brands, id: \.id) { brand in
-                    NavigationLink(
-                        destination: BrandProductsView(
-                            brand: brand,
-                            homeVM: homeVM
-                        )
-                    ) {
+                    Button {
+                        // ✅ Navigate using AppNavigator
+                        navigator.goTo(.brandProducts(brand: brand , homeVM: homeVM))
+                    } label: {
                         BrandCardLuxury(brand: brand)
                     }
                     .buttonStyle(.plain)
@@ -70,7 +70,8 @@ private struct BrandCardLuxury: View {
                                 .font(.title3)
                                 .foregroundColor(.gray)
                         )
-                @unknown default: EmptyView()
+                @unknown default:
+                    EmptyView()
                 }
             }
             .frame(height: 60)

@@ -37,7 +37,7 @@ final class AppViewModel: ObservableObject {
         if let user = Auth.auth().currentUser {
             print("User logged in: \(user.uid)")
             isLoggedIn = true
-            navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: false)
+            navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: true)
         } else {
             print("User not logged in")
             isLoggedIn = false
@@ -48,7 +48,7 @@ final class AppViewModel: ObservableObject {
     /// Called after user logs in successfully
     func handleLoginSuccess() {
         isLoggedIn = true
-        navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: false)
+        navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: true)
     }
     
     /// Called after user logs out

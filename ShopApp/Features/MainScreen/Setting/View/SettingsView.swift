@@ -17,7 +17,6 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationStack {
-            
             List {
             
                 userProfileSection
@@ -29,16 +28,21 @@ struct SettingsView: View {
             }
             
             .listStyle(InsetGroupedListStyle())
-            .navigationTitle("Settings")
-            .alert("Log Out", isPresented: $showLogoutAlert) {
-                Button("Cancel", role: .cancel) {}
-                Button("Log Out", role: .destructive) {
-                    viewModel.logout(navigator: navigator)
-                }
-            } message: {
-                Text("Are you sure you want to log out?")
-            }
-        }
+               .scrollIndicators(.hidden)
+               .navigationTitle("Settings")
+               .alert("Log Out", isPresented: $showLogoutAlert) {
+                   Button("Cancel", role: .cancel) {}
+                   Button("Log Out", role: .destructive) {
+                       viewModel.logout(navigator: navigator)
+                   }
+               } message: {
+                   Text("Are you sure you want to log out?")
+               }
+               // 👇 FIX: Add space above your custom tab bar
+               .safeAreaInset(edge: .bottom) {
+                   Color.clear.frame(height: 100) // Adjust height to match your tab bar
+               }
+           }
     }
     
     // MARK: - User Profile Section

@@ -50,6 +50,16 @@ struct HelperFunctions {
     static func stringToDouble(_ value: String, defaultValue: Double = 0.0) -> Double {
         return Double(value) ?? defaultValue
     }
+    static  func navigateFromToString(_ from: NavigateFrom) -> String {
+        switch from {
+        case .fromHome:
+            return "Home"
+        case .fromCategory:
+            return "Categories"
+        case .fromFavorites:
+            return "Favorites"
+        }
+    }
 
 
 }

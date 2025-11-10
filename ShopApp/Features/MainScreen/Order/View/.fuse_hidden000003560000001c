@@ -9,14 +9,11 @@ import SwiftUI
 import FirebaseAuth
 
 struct OrderView: View {
-    @EnvironmentObject private var navigator: AppNavigator
-
     @StateObject var vm = OrderViewModel()
     @State private var currentEmail = ""
     @State private var refreshID = UUID()
     var body: some View {
             Group {
-                header
                 if vm.isLoading {
                     ProgressView("Loading orders...")
                 } else if let error = vm.errorMessage {
@@ -67,28 +64,11 @@ struct OrderView: View {
                     }
                 }
             }
+            .navigationTitle("My Orders")
             .task {
                 await reloadOrders()
             }
         
-    }
-    
-
-    private var header: some View {
-        HStack {
-            Button(action: {
-                navigator.goTo(.mainTabView(selectedTab: 2), replaceLast: true)
-            }) {
-                HStack(spacing: 6) { Image(systemName: "chevron.left"); Text("Settings") }
-                    .foregroundColor(.blue)
-            }
-            Spacer()
-            Text("My Orders").font(.title2.bold())
-            Spacer()
-            Spacer().frame(width: 60)
-        }
-        .padding()
-        .background(Color(.systemGray6))
     }
 
     // MARK: - Reload helper

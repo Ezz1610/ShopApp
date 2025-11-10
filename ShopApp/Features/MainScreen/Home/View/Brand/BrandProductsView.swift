@@ -23,6 +23,7 @@ struct BrandProductsView: View {
     var body: some View {
         
         VStack(spacing: 0) {
+
             HomeSearchBar(searchText: $searchText)
 
             ScrollView {
@@ -56,13 +57,12 @@ struct BrandProductsView: View {
                     LazyVGrid(columns: columns, spacing: 16) {
                         ForEach(filteredProducts) { product in
                             ZStack(alignment: .topTrailing) {
-                                // 🟢 كارت المنتج
                                 ProductCardView(
                                     product: product,
                                     viewModel: HomeViewModel.shared
                                 )
                                 .onTapGesture {
-                                    navigator.goTo(.productDetails(product), replaceLast: false)
+                                    navigator.goTo(.productDetails(product , NavigateFrom.fromHome), replaceLast: false)
                                 }
 
                             }
@@ -75,11 +75,22 @@ struct BrandProductsView: View {
             }
         }
         .navigationTitle(brand.title)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(false)
-//        .background(Color(.systemGray6))
-//        .navigationBarTitleDisplayMode(.inline)
-//        .toolbar(.hidden, for: .navigationBar)
+         .navigationBarTitleDisplayMode(.inline)
+         .navigationBarBackButtonHidden(true) 
+         .toolbar {
+             ToolbarItem(placement: .navigationBarLeading) {
+                 Button(action: {
+                     navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: true)
+                 }) {
+                     HStack(spacing: 4) {
+                         Image(systemName: "chevron.left")
+                             .font(.system(size: 17, weight: .semibold))
+                         Text("Home")
+                             .font(.system(size: 16))
+                     }
+                 }
+             }
+         }
 
         .task {
             await loadProducts()

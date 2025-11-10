@@ -106,11 +106,11 @@ struct MainTabView: View {
            Button(action: action) {
                VStack(spacing: 4) {
                    Image(systemName: icon)
-                                  .font(.system(size: 18, weight: .semibold))
-                                  .foregroundColor(selected ? color : .black)
-                              Text(title)
-                                  .font(.system(size: 11, weight: .medium))
-                                  .foregroundColor(selected ? color : .black)
+                       .font(.system(size: 18, weight: .semibold))
+                       .foregroundColor(selected ? color : .gray)
+                   Text(title)
+                       .font(.system(size: 11, weight: .medium))
+                       .foregroundColor(selected ? color : .gray)
                }
                .padding(.vertical, 6)
                .frame(maxWidth: .infinity)

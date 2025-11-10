@@ -4,14 +4,18 @@
 //
 //  Created by mohamed ezz on 21/10/2025.
 //
-
+//
+//  LoginScreen.swift
+//  ShopApp
+//
+//  Created by mohamed ezz on 21/10/2025.
+//
 
 import SwiftUI
 
 
 struct LoginScreen: View {
     @EnvironmentObject var navigator: AppNavigator
-//    @StateObject var appVM: AppViewModel
     @StateObject private var viewModel = LoginViewModel()
 
     var body: some View {
@@ -41,22 +45,11 @@ struct LoginScreen: View {
 
             VStack(spacing: 12) {
                 loginButton
-                
                 Button("Don't have an account? click here to create one.") {
                     navigator.goTo(.register, replaceLast: false)
                 }
                 .font(.footnote)
                 .padding(.top, 8)
-
-                // ===== Add Continue as Guest button =====
-//                Button("Continue as Guest") {
-//                    appVM.isGuest = true
-//                    appVM.isLoggedIn = false
-//                    navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: true)
-//                }
-//                .font(.footnote)
-//                .padding(.top, 8)
-//                .foregroundColor(.blue)
             }
             .padding(.horizontal)
 
@@ -108,6 +101,4 @@ struct LoginScreen: View {
             enabled: viewModel.canLogin
         )
     }
-    
-    
 }
