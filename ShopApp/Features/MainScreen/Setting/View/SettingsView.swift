@@ -51,7 +51,7 @@ struct SettingsView: View {
             HStack(spacing: 15) {
                 Image(systemName: "person.crop.circle.fill")
                     .font(.system(size: 60))
-                    .foregroundColor(.blue)
+                    .foregroundColor(AppColors.primary)
                 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(viewModel.username)
@@ -104,7 +104,7 @@ struct SettingsView: View {
                     HStack(spacing: 4) {
                         Text(currencyManager.getCurrencySymbol())
                             .font(.headline)
-                            .foregroundColor(.blue)
+                            .foregroundColor(AppColors.primary)
                         Image(systemName: "chevron.right")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -137,7 +137,7 @@ struct SettingsView: View {
                                 .foregroundColor(.secondary)
                                 .lineLimit(1)
                         } else {
-                            Text("No default address")
+                            Text("Add your addresses")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -196,7 +196,7 @@ struct SettingsView: View {
                 HStack(spacing: 15) {
                     Image(systemName: "bubble.left.and.bubble.right.fill")
                         .font(.title2)
-                        .foregroundColor(.blue)
+                        .foregroundColor(AppColors.primary)
                         .frame(width: 32)
                     
                     Text("Contact Us")
@@ -268,7 +268,7 @@ struct CurrencySelectionView: View {
                             .frame(width: 50, height: 50)
                             .background(
                                 Circle()
-                                    .fill(currencyManager.selectedCurrency == currency ? Color.blue.opacity(0.1) : Color.gray.opacity(0.1))
+                                    .fill(currencyManager.selectedCurrency == currency ? AppColors.primary.opacity(0.1) : Color.gray.opacity(0.1))
                             )
                         
                         VStack(alignment: .leading, spacing: 4) {
@@ -286,7 +286,7 @@ struct CurrencySelectionView: View {
                         if currencyManager.selectedCurrency == currency {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.title2)
-                                .foregroundColor(.blue)
+                                .foregroundColor(.black)
                         }
                     }
                     .padding(.vertical, 8)
@@ -452,16 +452,16 @@ struct AddressesListView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: 200)
                     .padding()
-                    .background(Color.blue)
+                    .background(Color.black)
                     .cornerRadius(12)
             }
             .alert("You must login to access this feature", isPresented: $showGuestAlert) {
                 Button("Login") {
                     navigator.goTo(.login, replaceLast: true)
-                }
+                }.foregroundColor(.black)
                 Button("Continue as Guest", role: .cancel) {
                     // Guest يكمل بدون أي عملية
-                }
+                }.foregroundColor(.black)
             }
         }
         .padding()
@@ -488,7 +488,7 @@ struct AddressRowView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.blue)
+                        .background(Color.black)
                         .cornerRadius(6)
                 }
             }
@@ -519,7 +519,7 @@ struct AddressRowView: View {
                 } label: {
                     Text("Set as Default")
                         .font(.caption.bold())
-                        .foregroundColor(.blue)
+                        .foregroundColor(.black)
                 }
             }
         }
@@ -546,8 +546,21 @@ struct AddAddressView: View {
             Form {
                 Section("Contact Information") {
                     TextField("Full Name", text: $name)
-                    TextField("Phone Number", text: $phone)
-                        .keyboardType(.phonePad)
+                    VStack(alignment: .leading, spacing: 2) {
+                        TextField("Phone Number", text: $phone)
+                                    .keyboardType(.phonePad)
+                                    .onChange(of: phone) { _ in
+                                        // Optional: remove non-digit characters
+                                        phone = phone.filter { $0.isNumber }
+                                    }
+                                
+                                // Inline validation message
+                                if !isEgyptPhoneValid && !phone.isEmpty {
+                                    Text("Please enter a valid Egyptian phone number")
+                                        .foregroundColor(.red)
+                                        .font(.caption)
+                                }
+                            }
                 }
                 
                 Section("Address") {
@@ -580,7 +593,11 @@ struct AddAddressView: View {
             }
         }
     }
-    
+    // MARK: - Egyptian Phone Validation
+    var isEgyptPhoneValid: Bool {
+        let egyptPhoneRegex = "^(010|011|012|015)[0-9]{8}$"
+        return NSPredicate(format: "SELF MATCHES %@", egyptPhoneRegex).evaluate(with: phone)
+    }
     private var isFormValid: Bool {
         !name.isEmpty && !street.isEmpty && !city.isEmpty && !state.isEmpty && !zipCode.isEmpty && !country.isEmpty
     }
@@ -690,7 +707,7 @@ struct ContactUsView: View {
                 Link(destination: URL(string: "mailto:support@yourshopify.com")!) {
                     HStack {
                         Image(systemName: "envelope.fill")
-                            .foregroundColor(.blue)
+                            .foregroundColor(AppColors.primary)
                         Text("support@yourshopify.com")
                     }
                 }
@@ -735,7 +752,7 @@ struct AboutUsView: View {
             VStack(spacing: 30) {
                 Image(systemName: "cart.fill")
                     .font(.system(size: 80))
-                    .foregroundColor(.blue)
+                    .foregroundColor(.black)
                     .padding(.top, 40)
                 
                 VStack(spacing: 15) {
@@ -778,7 +795,7 @@ struct InfoRow: View {
         HStack(alignment: .top, spacing: 15) {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundColor(.blue)
+                .foregroundColor(.black)
                 .frame(width: 30)
             
             VStack(alignment: .leading, spacing: 5) {

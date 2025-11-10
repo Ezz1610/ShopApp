@@ -151,7 +151,7 @@ struct CheckoutView: View {
                 // Coupon Input
                 HStack(spacing: 12) {
                     Image(systemName: "tag.fill")
-                        .foregroundColor(.blue)
+                        .foregroundColor(.black)
                         .font(.title3)
                     
                     TextField("Enter promo code", text: $couponCode)
@@ -166,7 +166,7 @@ struct CheckoutView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 20)
                             .padding(.vertical, 10)
-                            .background(couponCode.isEmpty ? Color.gray : Color.blue)
+                            .background(couponCode.isEmpty ? Color.gray : AppColors.primary)
                             .cornerRadius(8)
                     }
                     .disabled(couponCode.isEmpty)
@@ -222,7 +222,7 @@ struct CheckoutView: View {
                     HStack {
                         Image(systemName: "location.fill")
                             .font(.title3)
-                            .foregroundColor(.blue)
+                            .foregroundColor(AppColors.primary)
                         
                         Text(defaultAddress!.name)
                             .font(.headline)
@@ -276,11 +276,11 @@ struct CheckoutView: View {
                     }
                 }
                 .padding()
-                .background(Color.blue.opacity(0.05))
+                .background(Color.black.opacity(0.05))
                 .cornerRadius(12)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                        .stroke(Color.black.opacity(0.3), lineWidth: 1)
                 )
             } else {
                 // No Address Card
@@ -306,7 +306,7 @@ struct CheckoutView: View {
                         
                         Image(systemName: "plus.circle.fill")
                             .font(.title2)
-                            .foregroundColor(.blue)
+                            .foregroundColor(AppColors.primary)
                     }
                     .padding()
                     .background(Color.orange.opacity(0.1))
@@ -412,7 +412,7 @@ struct CheckoutView: View {
                         let finalTotal = calculateFinalTotal()
                         Text("\(currencyManager.getCurrencySymbol())\(String(format: "%.2f", finalTotal))")
                             .font(.title3.bold())
-                            .foregroundColor(.blue)
+                            .foregroundColor(AppColors.primary)
                     }
                     .padding(.top, 4)
                     
@@ -466,7 +466,7 @@ struct CheckoutView: View {
                             
                             Image(systemName: method.icon)
                                 .font(.title3)
-                                .foregroundColor(vm.selectedPayment == method ? .blue : .gray)
+                                .foregroundColor(vm.selectedPayment == method ? .black : .gray)
                         }
                         
                         // Text
@@ -491,7 +491,7 @@ struct CheckoutView: View {
                         // Selection Indicator
                         if vm.selectedPayment == method {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.blue)
+                                .foregroundColor(.black)
                                 .font(.title2)
                         } else {
                             Image(systemName: "circle")

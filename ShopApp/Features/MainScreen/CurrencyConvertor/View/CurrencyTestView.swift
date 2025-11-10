@@ -29,7 +29,7 @@ struct CurrencySettingsView: View {
                             
                             if currencyManager.selectedCurrency == currency {
                                 Image(systemName: "checkmark")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.black)
                             }
                         }
                     }
