@@ -14,11 +14,8 @@ import SwiftUI
 struct RootView: View {
     @EnvironmentObject var navigator: AppNavigator
     @Environment(\.modelContext) private var context
-    @StateObject private var appVM: AppViewModel
+    @StateObject private var appVM = AppViewModel.shared
 
-    init(navigator: AppNavigator) {
-        _appVM = StateObject(wrappedValue: AppViewModel(navigator: navigator))
-    }
 
     var body: some View {
         ZStack {

@@ -13,27 +13,30 @@ import FirebaseAuth
 
 @MainActor
 final class AppViewModel: ObservableObject {
+    static let shared = AppViewModel()
+
     @Published var isLoading = true
-    @Published var isLoggedIn = false 
-    
-    private let navigator: AppNavigator
-    
-    init(navigator: AppNavigator) {
+    @Published var isLoggedIn = false
+    @Published var isGuest = false
+
+    // Navigator سيتم تمريره من بره
+    var navigator: AppNavigator!
+
+    private init() {}
+
+    func setNavigator(_ navigator: AppNavigator) {
         self.navigator = navigator
         Task {
             await checkLoginStatus()
         }
     }
-    
-    /// Check user login state and handle navigation
+
     func checkLoginStatus() async {
         isLoading = true
         defer { isLoading = false }
-        
-        // Simulate splash delay (e.g., for logo animation)
-        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second delay
-        
-        // Firebase authentication check
+
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
+
         if let user = Auth.auth().currentUser {
             print("User logged in: \(user.uid)")
             isLoggedIn = true
@@ -44,16 +47,16 @@ final class AppViewModel: ObservableObject {
             navigator.goTo(.login, replaceLast: false)
         }
     }
-    
-    /// Called after user logs in successfully
+
     func handleLoginSuccess() {
         isLoggedIn = true
+        isGuest = false
         navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: false)
     }
-    
-    /// Called after user logs out
+
     func handleLogout() {
         isLoggedIn = false
+        isGuest = false
         navigator.goTo(.login, replaceLast: false)
     }
 }

@@ -49,14 +49,14 @@ struct LoginScreen: View {
                 .padding(.top, 8)
 
                 // ===== Add Continue as Guest button =====
-//                Button("Continue as Guest") {
-//                    appVM.isGuest = true
-//                    appVM.isLoggedIn = false
-//                    navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: true)
-//                }
-//                .font(.footnote)
-//                .padding(.top, 8)
-//                .foregroundColor(.blue)
+                Button("Continue as Guest") {
+                    AppViewModel.shared.isGuest = true
+                    AppViewModel.shared.isLoggedIn = false
+                    navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: true)
+                }
+                .font(.footnote)
+                .padding(.top, 8)
+                .foregroundColor(.blue)
             }
             .padding(.horizontal)
 

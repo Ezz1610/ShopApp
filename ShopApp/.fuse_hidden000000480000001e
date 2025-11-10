@@ -40,16 +40,10 @@ struct ShopAppApp: App {
     var body: some Scene {
         WindowGroup {
             
-            RootView()
+            RootView(navigator: navigator)
                 .environmentObject(navigator)
                 .environmentObject(CartManager.shared)
-                .environmentObject(AppViewModel.shared)
                 .modelContainer(sharedModelContainer)
-
-                .onAppear {
-                    AppViewModel.shared.setNavigator(navigator) // ربط مباشر هنا
-                    
-                }
         }
     }
 }
