@@ -374,7 +374,9 @@ struct AddressesListView: View {
     @State private var showAddAddress = false
     @Environment(\.modelContext) private var modelContext
     @Query private var addresses: [Address]
-    
+    @State private var showGuestAlert = false
+    @EnvironmentObject var navigator: AppNavigator
+
     var body: some View {
         ZStack {
             if addresses.isEmpty {
@@ -437,8 +439,13 @@ struct AddressesListView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
             
+       
             Button {
-                showAddAddress = true
+                if AppViewModel.shared.isGuest {
+                    showGuestAlert = true
+                } else {
+                    showAddAddress = true
+                }
             } label: {
                 Text("Add Address")
                     .font(.headline)
@@ -447,6 +454,14 @@ struct AddressesListView: View {
                     .padding()
                     .background(Color.blue)
                     .cornerRadius(12)
+            }
+            .alert("You must login to access this feature", isPresented: $showGuestAlert) {
+                Button("Login") {
+                    navigator.goTo(.login, replaceLast: true)
+                }
+                Button("Continue as Guest", role: .cancel) {
+                    // Guest يكمل بدون أي عملية
+                }
             }
         }
         .padding()

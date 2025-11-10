@@ -72,10 +72,17 @@ private struct ProductImageSection: View {
 private struct FavoriteButton: View {
     var product: ProductModel
     @ObservedObject var viewModel: HomeViewModel
+    @State private var showGuestAlert = false
+    @EnvironmentObject var navigator: AppNavigator
 
     var body: some View {
+    
         Button {
-            toggleFavoriteSafely()
+            if AppViewModel.shared.isGuest {
+                showGuestAlert = true
+            } else {
+                toggleFavoriteSafely()
+            }
         } label: {
             Circle()
                 .fill(.white)
@@ -88,6 +95,15 @@ private struct FavoriteButton: View {
                 )
         }
         .animation(.easeInOut(duration: 0.2), value: viewModel.favorites)
+        .alert("You must login to access this feature", isPresented: $showGuestAlert) {
+            Button("Login") {
+                navigator.goTo(.login, replaceLast: true)
+            }
+            Button("Continue as Guest", role: .cancel) {
+                // يكمل كـ Guest بدون أي عملية
+            }
+        }
+
     }
 
     private func toggleFavoriteSafely() {

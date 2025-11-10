@@ -7,8 +7,10 @@
 import SwiftUI
 
 struct HomeHeaderView: View {
-    @EnvironmentObject var cartManager: CartManager 
+    @EnvironmentObject var cartManager: CartManager
     @EnvironmentObject var navigator: AppNavigator
+    @State private var showGuestAlert = false
+
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -42,8 +44,13 @@ struct HomeHeaderView: View {
 
             HStack(spacing: 12) {
                 // Favorites
+
                 Button {
-                    navigator.goTo(.favoritesView, replaceLast: false)
+                    if AppViewModel.shared.isGuest {
+                        showGuestAlert = true
+                    } else {
+                        navigator.goTo(.favoritesView, replaceLast: false)
+                    }
                 } label: {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(Color.black.opacity(0.05))
@@ -54,10 +61,24 @@ struct HomeHeaderView: View {
                                 .foregroundColor(.primary)
                         )
                 }
+                .alert("You must login to access this feature", isPresented: $showGuestAlert) {
+                    Button("Login") {
+                        navigator.goTo(.login, replaceLast: true)
+                    }
+                    Button("Continue as Guest", role: .cancel) {
+                        // يكمل كـ Guest بدون حاجة تعملها
+                    }
+                }
+
 
                 // Cart
+         
                 Button {
-                    navigator.goTo(.cartView, replaceLast: false)
+                    if AppViewModel.shared.isGuest {
+                        showGuestAlert = true
+                    } else {
+                        navigator.goTo(.cartView, replaceLast: false)
+                    }
                 } label: {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(Color.black.opacity(0.05))
@@ -82,6 +103,15 @@ struct HomeHeaderView: View {
                             }
                         )
                 }
+                .alert("You must login to access this feature", isPresented: $showGuestAlert) {
+                    Button("Login") {
+                        navigator.goTo(.login, replaceLast: true)
+                    }
+                    Button("Continue as Guest", role: .cancel) {
+                        // يكمل كـ Guest بدون أي عملية
+                    }
+                }
+
             }
         }
         .padding(.horizontal, 16)
