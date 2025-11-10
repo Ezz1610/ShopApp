@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		63EB7AA22EC2335C0001493A /* MockURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63EB7AA12EC2335C0001493A /* MockURLProtocol.swift */; };
+		63EB7AA82EC234310001493A /* ApiServicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63EB7AA72EC234310001493A /* ApiServicesTests.swift */; };
 		C30B89442EC0D4FC00B190B8 /* PaymentModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B89432EC0D4FC00B190B8 /* PaymentModel.swift */; };
 		C30B894F2EC0EFD300B190B8 /* LoginViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B894E2EC0EFD300B190B8 /* LoginViewModelTests.swift */; };
 		C30E8F8B2EB7F1B10016B6F9 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30E8F8A2EB7F1B10016B6F9 /* FavoritesView.swift */; };
@@ -111,6 +113,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		63EB7AA12EC2335C0001493A /* MockURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLProtocol.swift; sourceTree = "<group>"; };
+		63EB7AA72EC234310001493A /* ApiServicesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiServicesTests.swift; sourceTree = "<group>"; };
 		C30B89432EC0D4FC00B190B8 /* PaymentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentModel.swift; sourceTree = "<group>"; };
 		C30B894E2EC0EFD300B190B8 /* LoginViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModelTests.swift; sourceTree = "<group>"; };
 		C30E8F8A2EB7F1B10016B6F9 /* FavoritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
@@ -422,6 +426,7 @@
 			children = (
 				C315B9E62EA572AA001FDCD4 /* ShopAppTests.swift */,
 				C30B894E2EC0EFD300B190B8 /* LoginViewModelTests.swift */,
+				63EB7AA72EC234310001493A /* ApiServicesTests.swift */,
 			);
 			path = ShopAppTests;
 			sourceTree = "<group>";
@@ -542,6 +547,8 @@
 				C335960A2EA7E1C100FBB43D /* RemoteDataHelper.swift */,
 				C31218FB2EAB6B9C008456E4 /* ApiServices.swift */,
 				C331ECAB2EAD84E600B71CAA /* SwiftDataHelper.swift */,
+				C3F438402EC1B86000300BBE /* CurrencyConvertor */,
+				63EB7AA12EC2335C0001493A /* MockURLProtocol.swift */,
 			);
 			path = data;
 			sourceTree = "<group>";
@@ -593,7 +600,6 @@
 			isa = PBXGroup;
 			children = (
 				C30E92392EC219C8003EC610 /* Order */,
-				C3F438402EC1B86000300BBE /* CurrencyConvertor */,
 				C36A93B02EAA59BC00E7C5EF /* Coupons */,
 				C311AADD2EB8514F00C2AD80 /* Setting */,
 				C35C05D32EB4D40400980A63 /* Payment */,
@@ -900,6 +906,7 @@
 				C33595FF2EA7E00400FBB43D /* ApiUrls.swift in Sources */,
 				C33596042EA7E00400FBB43D /* HelperFuctions.swift in Sources */,
 				C311AADE2EB8515000C2AD80 /* SettingsModel.swift in Sources */,
+				63EB7AA22EC2335C0001493A /* MockURLProtocol.swift in Sources */,
 				C335479F2EA81FA40076D72C /* LoginResponse.swift in Sources */,
 				C3F438432EC1B86000300BBE /* CurrencyTestView.swift in Sources */,
 				C36A93B42EAA59BC00E7C5EF /* CouponsViewModel.swift in Sources */,
@@ -946,6 +953,7 @@
 			files = (
 				C30B894F2EC0EFD300B190B8 /* LoginViewModelTests.swift in Sources */,
 				C315B9E72EA572AA001FDCD4 /* ShopAppTests.swift in Sources */,
+				63EB7AA82EC234310001493A /* ApiServicesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
