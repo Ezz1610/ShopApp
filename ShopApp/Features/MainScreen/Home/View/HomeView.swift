@@ -133,7 +133,7 @@ struct SearchResultsView: View {
                             viewModel: categoriesVM
                         )
                         .onTapGesture {
-                            navigator.goTo(.productDetails(product))
+                            navigator.goTo(.productDetails(product), replaceLast: false)
                         }
                     }
                 }

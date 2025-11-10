@@ -43,7 +43,7 @@ struct HomeHeaderView: View {
             HStack(spacing: 12) {
                 // Favorites
                 Button {
-                    navigator.goTo(.favoritesView)
+                    navigator.goTo(.favoritesView, replaceLast: false)
                 } label: {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(Color.black.opacity(0.05))
@@ -57,7 +57,7 @@ struct HomeHeaderView: View {
 
                 // Cart
                 Button {
-                    navigator.goTo(.cartView)
+                    navigator.goTo(.cartView, replaceLast: false)
                 } label: {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(Color.black.opacity(0.05))

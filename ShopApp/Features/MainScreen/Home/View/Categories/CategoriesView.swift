@@ -26,7 +26,7 @@ struct CategoriesView: View {
     }
 
     var body: some View {
-        NavigationStack {
+       
             VStack(spacing: 0) {
                 // Header
                 HomeHeaderView()
@@ -89,15 +89,15 @@ struct CategoriesView: View {
                 // Products Section
                 ScrollView {
                     if viewModel.isLoading {
-                        ProgressView("جار تحميل المنتجات...")
+                        ProgressView("Products are loading...")
                             .frame(maxWidth: .infinity)
                             .padding(.top, 50)
                     } else if let error = viewModel.errorMessage {
-                        Text("❌ حصل خطأ: \(error)")
+                        Text(" Error : \(error)")
                             .foregroundColor(.red)
                             .padding()
                     } else if viewModel.filteredProducts.isEmpty {
-                        Text("لا توجد منتجات حالياً")
+                           Text("Products are not available now")
                             .foregroundColor(.gray)
                             .padding(.top, 50)
                     } else {
@@ -105,7 +105,7 @@ struct CategoriesView: View {
                             ForEach(viewModel.filteredProducts, id: \.id) { product in
                                 ProductCardView(product: product, viewModel: viewModel)
                                     .onTapGesture {
-                                        navigator.goTo(.productDetails(product))
+                                        navigator.goTo(.productDetails(product), replaceLast: false)
                                     }
                             }
                         }
@@ -129,6 +129,6 @@ struct CategoriesView: View {
 
                 await viewModel.refreshFavorites()
             }
-        }
+        
     }
 }

@@ -36,7 +36,7 @@ struct RegisterScreen: View {
                     onDismiss: {
                         viewModel.showAlert = false
                         if viewModel.alertTitle == "Success" {
-                            navigator.goTo(.login)
+                            navigator.goTo(.login, replaceLast: false)
                         }
                     }
                 )

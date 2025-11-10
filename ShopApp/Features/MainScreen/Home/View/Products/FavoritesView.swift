@@ -32,7 +32,7 @@ struct FavoritesView: View {
                         ForEach(localFavorites, id: \.id) { product in
                             ProductCardView(product: product, viewModel: viewModel)
                                 .frame(maxWidth: .infinity)
-                                .onTapGesture { navigator.goTo(.productDetails(product)) }
+                                .onTapGesture { navigator.goTo(.productDetails(product), replaceLast: false) }
                         }
                     }
                     .padding()

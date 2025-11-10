@@ -17,6 +17,7 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationStack {
+            
             List {
             
                 userProfileSection
@@ -26,6 +27,7 @@ struct SettingsView: View {
                 supportSection
                 logoutSection
             }
+            
             .listStyle(InsetGroupedListStyle())
             .navigationTitle("Settings")
             .alert("Log Out", isPresented: $showLogoutAlert) {
@@ -152,9 +154,6 @@ struct SettingsView: View {
     // MARK: - Orders Section
     private var ordersSection: some View {
         Section {
-            NavigationLink {
-                OrdersListView()
-            } label: {
                 HStack(spacing: 15) {
                     Image(systemName: "shippingbox.circle.fill")
                         .font(.title2)
@@ -174,8 +173,13 @@ struct SettingsView: View {
                     Image(systemName: "chevron.right")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                }
+                
             }
+                .contentShape(Rectangle()) // ⬅️ makes the entire area tappable
+                .onTapGesture {
+                    navigator.goTo(.ordersView, replaceLast: false) // ⬅️ handle your action here
+                }
+            
         }
     }
     

@@ -54,7 +54,7 @@ struct ProductDetailsView: View {
 
                 // MARK: - Product Options
                 if !product.options.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 8) {
                         ForEach(product.options) { option in
                             Text(option.name)
                                 .font(.headline)
@@ -102,20 +102,19 @@ struct ProductDetailsView: View {
             
 
         }
-        .navigationTitle("Details")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
+        //.navigationTitle("Product Details")
         .toolbar {
-                 ToolbarItem(placement: .navigationBarLeading) {
-                     Button(action: {
-                         navigator.goBack() // Go back
-                     }) {
-                         HStack {
-                             Image(systemName: "chevron.left")
-                             Text("Home") // Your custom title
-                         }
-                     }
-                 }
-             }
+                    // MARK: - Custom Back Button
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: {
+                            navigator.goBack()
+                        }) {
+                            HStack {
+                                Image(systemName: "chevron.left")
+                                Text("Categories")
+                            }
+                        }
+                    }
+                }
     }
 }

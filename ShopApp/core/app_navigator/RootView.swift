@@ -53,6 +53,8 @@ struct RootView: View {
                             .environmentObject(CartManager.shared)
                     case .splash:
                        SplashScreenView()
+                    case .ordersView:
+                        OrderView()
                     }
                 }
                 .animation(.easeInOut, value: navigator.currentScreen)
