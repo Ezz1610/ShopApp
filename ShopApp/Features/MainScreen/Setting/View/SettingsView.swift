@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewModel()
+    @EnvironmentObject var navigator: AppNavigator
     @Bindable var currencyManager = CurrencyManager.shared
     var body: some View {
         NavigationView {
@@ -59,6 +60,16 @@ struct SettingsView: View {
                         Label("About Us", systemImage: "info.circle")
                     }
                 }
+                Section {
+                    Button(role: .destructive) {
+                                       viewModel.logout(navigator: navigator)
+                                   } label: {
+                                       HStack {
+                                           Image(systemName: "arrow.backward.circle.fill")
+                                           Text("Logout")
+                                       }
+                                   }
+                               }
                 
             
             }

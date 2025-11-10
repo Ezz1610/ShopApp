@@ -1,0 +1,59 @@
+//
+//  AppViewModel.swift
+//  ShopApp
+//
+//  Created by mohamed ezz on 09/11/2025.
+//
+
+
+
+import Foundation
+import SwiftUI
+import FirebaseAuth
+
+@MainActor
+final class AppViewModel: ObservableObject {
+    @Published var isLoading = true
+    @Published var isLoggedIn = false 
+    
+    private let navigator: AppNavigator
+    
+    init(navigator: AppNavigator) {
+        self.navigator = navigator
+        Task {
+            await checkLoginStatus()
+        }
+    }
+    
+    /// Check user login state and handle navigation
+    func checkLoginStatus() async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        // Simulate splash delay (e.g., for logo animation)
+        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second delay
+        
+        // Firebase authentication check
+        if let user = Auth.auth().currentUser {
+            print("User logged in: \(user.uid)")
+            isLoggedIn = true
+            navigator.goTo(.mainTabView)
+        } else {
+            print("User not logged in")
+            isLoggedIn = false
+            navigator.goTo(.login)
+        }
+    }
+    
+    /// Called after user logs in successfully
+    func handleLoginSuccess() {
+        isLoggedIn = true
+        navigator.goTo(.mainTabView)
+    }
+    
+    /// Called after user logs out
+    func handleLogout() {
+        isLoggedIn = false
+        navigator.goTo(.login)
+    }
+}

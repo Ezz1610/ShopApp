@@ -38,7 +38,7 @@ struct CheckoutView: View {
                 if vm.showPaymentProcessing {
                     paymentProcessingOverlay
                 }
-            } .alert("Order Placed! 🎉", isPresented: $vm.showSuccessAlert) {
+            } .alert("Order Placed! ", isPresented: $vm.showSuccessAlert) {
                 Button("OK") {
                     CartManager.shared.clearCart()
                     dismiss()
@@ -169,6 +169,7 @@ struct CheckoutView: View {
         Button {
             processPayment()
         } label: {
+        
             HStack {
                 Image(systemName: vm.selectedPayment.icon)
                 if vm.selectedPayment == .cashOnDelivery {

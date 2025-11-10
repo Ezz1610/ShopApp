@@ -42,41 +42,45 @@ struct MainTabView: View {
                .background(Color(.systemBackground).ignoresSafeArea())
                
                // MARK: - Custom Capsule Tab Bar
-               HStack(spacing: 40) {
-                   TabBarButton(
-                       icon: selectedTab == 0 ? "house.fill" : "house",
-                       title: "Home",
-                       selected: selectedTab == 0,
-                       color: .green
-                   ) {
-                       withAnimation(.spring()) {
-                           selectedTab = 0
+               HStack {
+                       TabBarButton(
+                           icon: selectedTab == 0 ? "house.fill" : "house",
+                           title: "Home",
+                           selected: selectedTab == 0,
+                           color: selectedTab == 0 ? .green : .black
+                       ) {
+                           withAnimation(.spring()) {
+                               selectedTab = 0
+                           }
+                       }
+
+                       Spacer()
+
+                       TabBarButton(
+                           icon: selectedTab == 1 ? "square.grid.2x2.fill" : "square.grid.2x2",
+                           title: "Categories",
+                           selected: selectedTab == 1,
+                           color: selectedTab == 1 ? .green : .black
+                       ) {
+                           withAnimation(.spring()) {
+                               selectedTab = 1
+                           }
+                       }
+
+                       Spacer()
+
+                       TabBarButton(
+                           icon: selectedTab == 2 ? "gearshape.fill" : "gearshape",
+                           title: "Settings",
+                           selected: selectedTab == 2,
+                           color: selectedTab == 2 ? .green : .black
+                       ) {
+                           withAnimation(.spring()) {
+                               selectedTab = 2
+                           }
                        }
                    }
-                   
-                   TabBarButton(
-                       icon: selectedTab == 1 ? "square.grid.2x2.fill" : "square.grid.2x2",
-                       title: "Categories",
-                       selected: selectedTab == 1,
-                       color: .green
-                   ) {
-                       withAnimation(.spring()) {
-                           selectedTab = 1
-                       }
-                   }
-                   
-                   TabBarButton(
-                       icon: selectedTab == 2 ? "gearshape.fill" : "gearshape",
-                       title: "Settings",
-                       selected: selectedTab == 2,
-                       color: .green
-                   ) {
-                       withAnimation(.spring()) {
-                           selectedTab = 2
-                       }
-                   }
-               }
-               .padding(.horizontal, 25)
+                          .padding(.horizontal, 25)
                .padding(.vertical, 12)
                .background(.ultraThinMaterial.opacity(0.8))
                .clipShape(Capsule())

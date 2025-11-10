@@ -7,18 +7,32 @@
 import Foundation
 import SwiftUI
 
-final class AppNavigator: ObservableObject {
-    @Published private(set) var screenStack: [Screen] = [.mainTabView]
 
+@MainActor
+final class AppNavigator: ObservableObject {
+    // بدل ما نبدأ بـ mainTabView مباشرة، نبدأ فاضي، والسكرين بيتحدد بعد السبلاتش
+    @Published private(set) var screenStack: [Screen] = []
+    
+    // Enum فيه كل الشاشات بتاعة الأب
     enum Screen: Equatable {
-        static func == (lhs: AppNavigator.Screen, rhs: AppNavigator.Screen) -> Bool {
+        case splash
+        case login
+        case register
+        case mainTabView
+        case homeView
+        case cartView
+        case favoritesView
+        case productDetails(ProductModel)
+        
+        static func == (lhs: Screen, rhs: Screen) -> Bool {
             switch (lhs, rhs) {
-            case (.login, .login),
-                (.register, .register),
-              //  (.testHome, .testHome),
-                (.homeView, .homeView):
-              //  (.productsView, .productsView):
-                // (.favoritesView, .favoritesView):
+            case (.splash, .splash),
+                 (.login, .login),
+                 (.register, .register),
+                 (.mainTabView, .mainTabView),
+                 (.homeView, .homeView),
+                 (.cartView, .cartView),
+                 (.favoritesView, .favoritesView):
                 return true
                 
             case (.productDetails(let a), .productDetails(let b)):
@@ -28,32 +42,40 @@ final class AppNavigator: ObservableObject {
                 return false
             }
         }
-
-        case login
-        case register
-        case mainTabView
-        case homeView
-        case cartView
-       // case testHome
-        //case productsView
-        case favoritesView
-        case productDetails(ProductModel)
     }
-
+    
+    // الشاشة الحالية
     var currentScreen: Screen {
-        screenStack.last ?? .login
+        screenStack.last ?? .splash
     }
-
+    
+    // الانتقال لشاشة جديدة
     func goTo(_ screen: Screen) {
-        screenStack.append(screen)
+        withAnimation(.easeInOut) {
+            screenStack.append(screen)
+        }
     }
-
+    
+    // رجوع شاشة واحدة
     func goBack() {
         guard screenStack.count > 1 else { return }
-        screenStack.removeLast()
+        withAnimation(.easeInOut) {
+            screenStack.removeLast()
+        }
     }
-
+    
+    // رجوع لأول شاشة في الستاك (root)
     func popToRoot() {
-        screenStack = [screenStack.first].compactMap { $0 }
+        guard let first = screenStack.first else { return }
+        withAnimation(.easeInOut) {
+            screenStack = [first]
+        }
+    }
+    
+    // إعادة توجيه (مثلاً لو عايز تنقل المستخدم من login لـ main بعد ما يعمل login)
+    func replaceStack(with screen: Screen) {
+        withAnimation(.easeInOut) {
+            screenStack = [screen]
+        }
     }
 }

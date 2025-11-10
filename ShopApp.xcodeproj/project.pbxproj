@@ -12,6 +12,7 @@
 		C30B89492EC0DD1B00B190B8 /* BraintreePayPal in Frameworks */ = {isa = PBXBuildFile; productRef = C30B89482EC0DD1B00B190B8 /* BraintreePayPal */; };
 		C30B894B2EC0DD4E00B190B8 /* BraintreePayPalNativeCheckout in Frameworks */ = {isa = PBXBuildFile; productRef = C30B894A2EC0DD4E00B190B8 /* BraintreePayPalNativeCheckout */; };
 		C30B894D2EC0DE7F00B190B8 /* CurrencyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B894C2EC0DE7E00B190B8 /* CurrencyManager.swift */; };
+		C30B894F2EC0EFD300B190B8 /* LoginViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B894E2EC0EFD300B190B8 /* LoginViewModelTests.swift */; };
 		C30DEAEC2EB1F48B00E48392 /* CartManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30DEAE62EB1F48A00E48392 /* CartManager.swift */; };
 		C30DEAED2EB1F48B00E48392 /* ProductInCart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30DEAE72EB1F48A00E48392 /* ProductInCart.swift */; };
 		C30DEAEE2EB1F48B00E48392 /* CartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30DEAE92EB1F48A00E48392 /* CartView.swift */; };
@@ -83,6 +84,8 @@
 		C3EF8A072EA8745500645178 /* FirebaseHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EF8A062EA8745500645178 /* FirebaseHelper.swift */; };
 		C3F014A22EA9AEF9007DB0C0 /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C3F014A12EA9AEF9007DB0C0 /* FirebaseAnalyticsSwift */; };
 		C3F014A42EA9AF11007DB0C0 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = C3F014A32EA9AF11007DB0C0 /* FirebaseAnalytics */; };
+		C3F4380A2EC186CF00300BBE /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F438092EC186CE00300BBE /* AppViewModel.swift */; };
+		C3F4380C2EC1874800300BBE /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F4380B2EC1874800300BBE /* SplashScreen.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +108,7 @@
 /* Begin PBXFileReference section */
 		C30B89432EC0D4FC00B190B8 /* PaymentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentModel.swift; sourceTree = "<group>"; };
 		C30B894C2EC0DE7E00B190B8 /* CurrencyManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyManager.swift; sourceTree = "<group>"; };
+		C30B894E2EC0EFD300B190B8 /* LoginViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModelTests.swift; sourceTree = "<group>"; };
 		C30DEAE62EB1F48A00E48392 /* CartManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartManager.swift; sourceTree = "<group>"; };
 		C30DEAE72EB1F48A00E48392 /* ProductInCart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductInCart.swift; sourceTree = "<group>"; };
 		C30DEAE92EB1F48A00E48392 /* CartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartView.swift; sourceTree = "<group>"; };
@@ -175,6 +179,8 @@
 		C36A93AC2EAA59BC00E7C5EF /* CouponsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CouponsViewModel.swift; sourceTree = "<group>"; };
 		C36A93AE2EAA59BC00E7C5EF /* CouponsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CouponsView.swift; sourceTree = "<group>"; };
 		C3EF8A062EA8745500645178 /* FirebaseHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseHelper.swift; sourceTree = "<group>"; };
+		C3F438092EC186CE00300BBE /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		C3F4380B2EC1874800300BBE /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -263,8 +269,8 @@
 		C3119DC12EAF6B1500EC4F08 /* Home */ = {
 			isa = PBXGroup;
 			children = (
-				C30C68132EC0B1CE00FC35B7 /* Model */,
 				C30C68122EC0B0F900FC35B7 /* View */,
+				C30C68132EC0B1CE00FC35B7 /* Model */,
 				C340C09A2EAF522F00A7056B /* ViewModel */,
 			);
 			path = Home;
@@ -349,6 +355,7 @@
 			children = (
 				C340C09B2EAF522F00A7056B /* MainScreen */,
 				C3131F402EA7CFD400F46CCA /* Auth */,
+				C3F4380B2EC1874800300BBE /* SplashScreen.swift */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -388,6 +395,7 @@
 			isa = PBXGroup;
 			children = (
 				C315B9E62EA572AA001FDCD4 /* ShopAppTests.swift */,
+				C30B894E2EC0EFD300B190B8 /* LoginViewModelTests.swift */,
 			);
 			path = ShopAppTests;
 			sourceTree = "<group>";
@@ -447,6 +455,7 @@
 		C315BA442EA573D1001FDCD4 /* core */ = {
 			isa = PBXGroup;
 			children = (
+				C3F438082EC186B400300BBE /* AppViewModel */,
 				C3EF8A052EA8743E00645178 /* Firebase */,
 				C33596162EA7F19200FBB43D /* app_navigator */,
 				C335960D2EA7E6AC00FBB43D /* extension */,
@@ -624,6 +633,14 @@
 			path = Firebase;
 			sourceTree = "<group>";
 		};
+		C3F438082EC186B400300BBE /* AppViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				C3F438092EC186CE00300BBE /* AppViewModel.swift */,
+			);
+			path = AppViewModel;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -772,6 +789,7 @@
 			files = (
 				C315BA2E2EA573B5001FDCD4 /* ShopAppApp.swift in Sources */,
 				C3131F442EA7D19200F46CCA /* customButton.swift in Sources */,
+				C3F4380A2EC186CF00300BBE /* AppViewModel.swift in Sources */,
 				C335960F2EA7E6CE00FBB43D /* color_extension.swift in Sources */,
 				C3131F462EA7D1DA00F46CCA /* LoginScreen.swift in Sources */,
 				C31033112EAB9FF000170E82 /* ProductImage.swift in Sources */,
@@ -825,6 +843,7 @@
 				C311AADF2EB8515000C2AD80 /* SettingsView.swift in Sources */,
 				C35C05D42EB4D40400980A63 /* CheckoutView.swift in Sources */,
 				C33596152EA7EF3800FBB43D /* RegisterScreen.swift in Sources */,
+				C3F4380C2EC1874800300BBE /* SplashScreen.swift in Sources */,
 				C36097FA2EA9D20000225EA2 /* CustomViewAlert.swift in Sources */,
 				C31218FC2EAB6B9C008456E4 /* ApiServices.swift in Sources */,
 				C3EF8A072EA8745500645178 /* FirebaseHelper.swift in Sources */,
@@ -839,6 +858,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C30B894F2EC0EFD300B190B8 /* LoginViewModelTests.swift in Sources */,
 				C315B9E72EA572AA001FDCD4 /* ShopAppTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -992,6 +1012,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1024,6 +1045,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

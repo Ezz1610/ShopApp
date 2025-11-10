@@ -39,7 +39,7 @@ struct ShopAppApp: App {
     var body: some Scene {
         WindowGroup {
             
-            RootView(navigator: navigator)
+            RootView()
                 .environmentObject(navigator)
                 .environmentObject(CartManager.shared)
                 .modelContainer(sharedModelContainer)

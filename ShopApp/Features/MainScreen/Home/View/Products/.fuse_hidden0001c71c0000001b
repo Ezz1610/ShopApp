@@ -102,18 +102,18 @@ struct ProductDetailsView: View {
         }
         .navigationTitle("Details")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
         .toolbar {
-                 ToolbarItem(placement: .navigationBarLeading) {
-                     Button(action: {
-                         AppNavigator().goBack() // Go back
-                     }) {
-                         HStack {
-                             Image(systemName: "chevron.left")
-                             Text("Home") // Your custom title
-                         }
-                     }
-                 }
-             }
+            // MARK: - Custom Back Button
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    navigator.goBack()
+                }) {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+            }
+        }
     }
 }
