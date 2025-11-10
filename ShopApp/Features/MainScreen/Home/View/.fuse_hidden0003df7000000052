@@ -92,14 +92,12 @@ struct HomeView: View {
             .task {
                 // Load Brands and optionally vendor products
                 await homeVM.loadBrands()
-                await homeVM.loadProducts() 
-                // Optional, load all products if needed
+//                await homeVM.loadAllProducts() // Optional, load all products if needed
 //                await homeVM.loadProducts(forVendor: "VendorName") // Optional
             }
         }
     }
 }
-
 
 struct SearchResultsView: View {
     @Binding var searchText: String
@@ -113,19 +111,18 @@ struct SearchResultsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            if filteredProducts.isEmpty && !categoriesVM.isLoading {
-                VStack(spacing: 12) {
-                    Image(systemName: "magnifyingglass")
-                        .font(.largeTitle)
-                        .foregroundColor(.gray)
-
-                    Text("مفيش نتائج بحث لـ \"\(searchText)\"")
-                        .foregroundColor(.gray)
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+            if filteredProducts.isEmpty {
+                // مفيش نتائج → نعرض الـ Brands
+                if !categoriesVM.brands.isEmpty {
+                    BrandCollectionView(
+                        brands: categoriesVM.brands,
+                        homeVM: categoriesVM
+                    )
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 60)
             } else {
+                // لو فيه منتجات → نعرضها
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(filteredProducts) { product in
                         ProductCardView(
