@@ -139,13 +139,14 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Addresses")
                             .font(.body)
+                            .foregroundColor(.black)
                         if let defaultAddress = viewModel.defaultAddress {
                             Text(defaultAddress)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .lineLimit(1)
                         } else {
-                            Text("No default address")
+                            Text("Add your addresses")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -204,7 +205,7 @@ struct SettingsView: View {
                 HStack(spacing: 15) {
                     Image(systemName: "bubble.left.and.bubble.right.fill")
                         .font(.title2)
-                        .foregroundColor(.blue)
+                        .foregroundColor(AppColors.primary)
                         .frame(width: 32)
                     
                     Text("Contact Us")
@@ -586,7 +587,7 @@ struct AddressRowView: View {
 struct AddAddressView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var modelContext
-
+    
     @State private var name = ""
     @State private var street = ""
     @State private var city = ""
@@ -595,299 +596,316 @@ struct AddAddressView: View {
     @State private var country = ""
     @State private var phone = ""
     @State private var setAsDefault = false
-
+    
     @State private var nearbyCities: [City] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
-
+    
     var body: some View {
         NavigationStack {
             Form {
                 Section("Contact Information") {
                     TextField("Full Name", text: $name)
-                    TextField("Phone Number", text: $phone)
-                        .keyboardType(.phonePad)
+                    VStack(alignment: .leading, spacing: 2) {
+                        TextField("Phone Number", text: $phone)
+                            .keyboardType(.phonePad)
+                            .onChange(of: phone) { _ in
+                                // Optional: remove non-digit characters
+                                phone = phone.filter { $0.isNumber }
+                            }
+                        
+                        // Inline validation message
+                        if !isEgyptPhoneValid && !phone.isEmpty {
+                            Text("Please enter a valid Egyptian phone number")
+                                .foregroundColor(.red)
+                                .font(.caption)
+                        }
+                    }
                 }
-
-                Section("Address") {
-                    TextField("Street Address", text: $street)
-
-                    if isLoading {
-                        ProgressView("Loading nearby cities...")
-                    } else if !nearbyCities.isEmpty {
-                        Menu {
-                            ForEach(nearbyCities) { cityItem in
-                                Button(cityItem.name) {
-                                    city = cityItem.name
+                    
+                    Section("Address") {
+                        TextField("Street Address", text: $street)
+                        
+                        if isLoading {
+                            ProgressView("Loading nearby cities...")
+                        } else if !nearbyCities.isEmpty {
+                            Menu {
+                                ForEach(nearbyCities) { cityItem in
+                                    Button(cityItem.name) {
+                                        city = cityItem.name
+                                    }
+                                }
+                            } label: {
+                                HStack {
+                                    Text(city.isEmpty ? "Select City" : city)
+                                        .foregroundColor(city.isEmpty ? .gray : .primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.down")
+                                        .foregroundColor(.gray)
                                 }
                             }
-                        } label: {
-                            HStack {
-                                Text(city.isEmpty ? "Select City" : city)
-                                    .foregroundColor(city.isEmpty ? .gray : .primary)
-                                Spacer()
-                                Image(systemName: "chevron.down")
-                                    .foregroundColor(.gray)
-                            }
+                        } else if let error = errorMessage {
+                            Text(error)
+                                .foregroundColor(.red)
+                                .font(.caption)
+                        } else {
+                            TextField("City", text: $city)
                         }
-                    } else if let error = errorMessage {
-                        Text(error)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                    } else {
-                        TextField("City", text: $city)
+                        
+                        TextField("State/Province", text: $state)
+                        TextField("ZIP/Postal Code", text: $zipCode)
+                        TextField("Country", text: $country)
                     }
-
-                    TextField("State/Province", text: $state)
-                    TextField("ZIP/Postal Code", text: $zipCode)
-                    TextField("Country", text: $country)
-                }
-
-                Section {
-                    Toggle("Set as default address", isOn: $setAsDefault)
-                }
-            }
-            .navigationTitle("Add Address")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { saveAddress() }
-                        .disabled(!isFormValid)
-                }
-            }
-            .task {
-                await loadNearbyCities()
-            }
-        }
-    }
-
-    // MARK: - Form Validation
-    private var isFormValid: Bool {
-        !name.isEmpty && !street.isEmpty && !city.isEmpty && !state.isEmpty && !zipCode.isEmpty && !country.isEmpty
-    }
-
-    // MARK: - Save Address
-    private func saveAddress() {
-        let address = Address(
-            name: name,
-            street: street,
-            city: city,
-            state: state,
-            zipCode: zipCode,
-            country: country,
-            phone: phone.isEmpty ? nil : phone
-        )
-
-        modelContext.insert(address)
-
-        do {
-            try modelContext.save()
-
-            // Set as default if needed
-            AddressesViewModel.shared.setModelContext(modelContext)
-            if setAsDefault {
-                AddressesViewModel.shared.setDefaultAddress(address.id)
-            }
-
-            dismiss()
-        } catch {
-            print("Error saving address: \(error.localizedDescription)")
-        }
-    }
-
-    // MARK: - Load Nearby Cities
-    private func loadNearbyCities() async {
-        isLoading = true
-        do {
-            let cities = try await LocationHelper.shared.getNearbyCities(limit: 10)
-            nearbyCities = cities
-            print("vvvvvvvvvvvvvvvvv \(nearbyCities.count)")
-        } catch {
-            errorMessage = "Failed to load cities: \(error.localizedDescription)"
-        }
-        isLoading = false
-    }
-}
-// MARK: - Orders List View
-struct OrdersListView: View {
-    // TODO: Add your OrdersViewModel here
-    // @StateObject private var viewModel = OrdersViewModel()
-    
-    var body: some View {
-        ZStack {
-            // TODO: Replace this with actual orders list
-            VStack(spacing: 20) {
-                Image(systemName: "shippingbox.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(.gray)
-                
-                Text("Orders")
-                    .font(.title2.bold())
-                
-                Text("Your order history will appear here")
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                
-                // TODO: Add your orders list implementation here
-                // Example structure:
-                // List {
-                //     ForEach(viewModel.orders) { order in
-                //         OrderRowView(order: order)
-                //     }
-                // }
-            }
-            .padding()
-        }
-        .navigationTitle("Orders")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-// MARK: - Contact Us View
-struct ContactUsView: View {
-    @State private var name = ""
-    @State private var email = ""
-    @State private var message = ""
-    @State private var showSuccessAlert = false
-    
-    var body: some View {
-        Form {
-            Section("Your Information") {
-                TextField("Name", text: $name)
-                TextField("Email", text: $email)
-                    .keyboardType(.emailAddress)
-                    .textInputAutocapitalization(.never)
-            }
-            
-            Section("Message") {
-                TextEditor(text: $message)
-                    .frame(minHeight: 150)
-            }
-            
-            Section {
-                Button {
-                    sendMessage()
-                } label: {
-                    HStack {
-                        Spacer()
-                        Text("Send Message")
-                            .font(.headline)
-                        Spacer()
-                    }
-                }
-                .disabled(!isFormValid)
-            }
-            
-            Section("Other Ways to Reach Us") {
-                Link(destination: URL(string: "mailto:support@yourshopify.com")!) {
-                    HStack {
-                        Image(systemName: "envelope.fill")
-                            .foregroundColor(.blue)
-                        Text("support@yourshopify.com")
-                    }
-                }
-                
-                Link(destination: URL(string: "tel:+1234567890")!) {
-                    HStack {
-                        Image(systemName: "phone.fill")
-                            .foregroundColor(.green)
-                        Text("+20 (134) 567-890")
-                    }
-                }
-            }
-        }
-        .navigationTitle("Contact Us")
-        .navigationBarTitleDisplayMode(.inline)
-        .alert("Message Sent!", isPresented: $showSuccessAlert) {
-            Button("OK") {
-                name = ""
-                email = ""
-                message = ""
-            }
-        } message: {
-            Text("We'll get back to you as soon as possible.")
-        }
-    }
-    
-    private var isFormValid: Bool {
-        !name.isEmpty && !email.isEmpty && !message.isEmpty && email.contains("@")
-    }
-    
-    private func sendMessage() {
-        print("Sending message from: \(name) (\(email))")
-        print("Message: \(message)")
-        showSuccessAlert = true
-    }
-}
-
-// MARK: - About Us View
-struct AboutUsView: View {
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 30) {
-                Image(systemName: "cart.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(.blue)
-                    .padding(.top, 40)
-                
-                VStack(spacing: 15) {
-                    Text("About Our Store")
-                        .font(.title.bold())
                     
-                    Text("Welcome to our Shopify shopping app!")
-                        .font(.title3)
+                    Section {
+                        Toggle("Set as default address", isOn: $setAsDefault)
+                    }
+                }
+                .navigationTitle("Add Address")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { dismiss() }
+                    }
+                    
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") { saveAddress() }
+                            .disabled(!isFormValid)
+                    }
+                }
+                .task {
+                    await loadNearbyCities()
+                }
+            }
+        }
+        var isEgyptPhoneValid: Bool {
+            // Egyptian mobile numbers: 010, 011, 012, 015 + 8 digits
+            let egyptPhoneRegex = "^(010|011|012|015)[0-9]{8}$"
+            return NSPredicate(format: "SELF MATCHES %@", egyptPhoneRegex).evaluate(with: phone)
+        }
+        // MARK: - Form Validation
+        private var isFormValid: Bool {
+            !name.isEmpty && !street.isEmpty && !city.isEmpty && !state.isEmpty && !zipCode.isEmpty && !country.isEmpty
+        }
+        
+        // MARK: - Save Address
+        private func saveAddress() {
+            let address = Address(
+                name: name,
+                street: street,
+                city: city,
+                state: state,
+                zipCode: zipCode,
+                country: country,
+                phone: phone.isEmpty ? nil : phone
+            )
+            
+            modelContext.insert(address)
+            
+            do {
+                try modelContext.save()
+                
+                // Set as default if needed
+                AddressesViewModel.shared.setModelContext(modelContext)
+                if setAsDefault {
+                    AddressesViewModel.shared.setDefaultAddress(address.id)
+                }
+                
+                dismiss()
+            } catch {
+                print("Error saving address: \(error.localizedDescription)")
+            }
+        }
+        
+        // MARK: - Load Nearby Cities
+        private func loadNearbyCities() async {
+            isLoading = true
+            do {
+                let cities = try await LocationHelper.shared.getNearbyCities(limit: 10)
+                nearbyCities = cities
+                print("vvvvvvvvvvvvvvvvv \(nearbyCities.count)")
+            } catch {
+                errorMessage = "Failed to load cities: \(error.localizedDescription)"
+            }
+            isLoading = false
+        }
+    }
+    // MARK: - Orders List View
+    struct OrdersListView: View {
+        // TODO: Add your OrdersViewModel here
+        // @StateObject private var viewModel = OrdersViewModel()
+        
+        var body: some View {
+            ZStack {
+                // TODO: Replace this with actual orders list
+                VStack(spacing: 20) {
+                    Image(systemName: "shippingbox.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
+                    
+                    Text("Orders")
+                        .font(.title2.bold())
+                    
+                    Text("Your order history will appear here")
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                    
+                    // TODO: Add your orders list implementation here
+                    // Example structure:
+                    // List {
+                    //     ForEach(viewModel.orders) { order in
+                    //         OrderRowView(order: order)
+                    //     }
+                    // }
+                }
+                .padding()
+            }
+            .navigationTitle("Orders")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+    
+    // MARK: - Contact Us View
+    struct ContactUsView: View {
+        @State private var name = ""
+        @State private var email = ""
+        @State private var message = ""
+        @State private var showSuccessAlert = false
+        
+        var body: some View {
+            Form {
+                Section("Your Information") {
+                    TextField("Name", text: $name)
+                    TextField("Email", text: $email)
+                        .keyboardType(.emailAddress)
+                        .textInputAutocapitalization(.never)
+                }
+                
+                Section("Message") {
+                    TextEditor(text: $message)
+                        .frame(minHeight: 150)
+                }
+                
+                Section {
+                    Button {
+                        sendMessage()
+                    } label: {
+                        HStack {
+                            Spacer()
+                            Text("Send Message")
+                                .font(.headline)
+                            Spacer()
+                        }
+                    }
+                    .disabled(!isFormValid)
+                }
+                
+                Section("Other Ways to Reach Us") {
+                    Link(destination: URL(string: "mailto:support@yourshopify.com")!) {
+                        HStack {
+                            Image(systemName: "envelope.fill")
+                                .foregroundColor(.blue)
+                            Text("support@yourshopify.com")
+                        }
+                    }
+                    
+                    Link(destination: URL(string: "tel:+1234567890")!) {
+                        HStack {
+                            Image(systemName: "phone.fill")
+                                .foregroundColor(.green)
+                            Text("+20 (134) 567-890")
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Contact Us")
+            .navigationBarTitleDisplayMode(.inline)
+            .alert("Message Sent!", isPresented: $showSuccessAlert) {
+                Button("OK") {
+                    name = ""
+                    email = ""
+                    message = ""
+                }
+            } message: {
+                Text("We'll get back to you as soon as possible.")
+            }
+        }
+        
+        private var isFormValid: Bool {
+            !name.isEmpty && !email.isEmpty && !message.isEmpty && email.contains("@")
+        }
+        
+        private func sendMessage() {
+            print("Sending message from: \(name) (\(email))")
+            print("Message: \(message)")
+            showSuccessAlert = true
+        }
+    }
+    
+    // MARK: - About Us View
+    struct AboutUsView: View {
+        var body: some View {
+            ScrollView {
+                VStack(spacing: 30) {
+                    Image(systemName: "cart.fill")
+                        .font(.system(size: 80))
+                        .foregroundColor(.blue)
+                        .padding(.top, 40)
+                    
+                    VStack(spacing: 15) {
+                        Text("About Our Store")
+                            .font(.title.bold())
+                        
+                        Text("Welcome to our Shopify shopping app!")
+                            .font(.title3)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 20) {
+                        InfoRow(icon: "sparkles", title: "Our Mission", description: "To provide you with the best shopping experience, offering quality products at great prices.")
+                        
+                        InfoRow(icon: "heart.fill", title: "Why Choose Us", description: "We carefully curate our products and ensure fast, reliable delivery to your doorstep.")
+                        
+                        InfoRow(icon: "shield.fill", title: "Secure Shopping", description: "Your security is our priority. All transactions are encrypted and protected.")
+                    }
+                    .padding(.horizontal)
+                    
+                    Spacer(minLength: 40)
+                    
+                    Text("Version 1.0.0")
+                        .font(.caption)
                         .foregroundColor(.secondary)
                 }
-                
-                VStack(alignment: .leading, spacing: 20) {
-                    InfoRow(icon: "sparkles", title: "Our Mission", description: "To provide you with the best shopping experience, offering quality products at great prices.")
-                    
-                    InfoRow(icon: "heart.fill", title: "Why Choose Us", description: "We carefully curate our products and ensure fast, reliable delivery to your doorstep.")
-                    
-                    InfoRow(icon: "shield.fill", title: "Secure Shopping", description: "Your security is our priority. All transactions are encrypted and protected.")
-                }
-                .padding(.horizontal)
-                
-                Spacer(minLength: 40)
-                
-                Text("Version 1.0.0")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                .padding()
             }
-            .padding()
+            .navigationTitle("About Us")
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .navigationTitle("About Us")
-        .navigationBarTitleDisplayMode(.inline)
     }
-}
-
-struct InfoRow: View {
-    let icon: String
-    let title: String
-    let description: String
     
-    var body: some View {
-        HStack(alignment: .top, spacing: 15) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(.blue)
-                .frame(width: 30)
-            
-            VStack(alignment: .leading, spacing: 5) {
-                Text(title)
-                    .font(.headline)
-                Text(description)
-                    .font(.body)
-                    .foregroundColor(.secondary)
+    struct InfoRow: View {
+        let icon: String
+        let title: String
+        let description: String
+        
+        var body: some View {
+            HStack(alignment: .top, spacing: 15) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundColor(.blue)
+                    .frame(width: 30)
+                
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(title)
+                        .font(.headline)
+                    Text(description)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                }
             }
         }
     }
-}
-
-
+    
+    
 

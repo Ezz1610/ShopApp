@@ -70,6 +70,7 @@ struct LoginScreen: View {
         Task {
             let success = await viewModel.login()
             if success {
+                AppViewModel.shared.isGuest  = false
                 navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: true)
             }
         }
