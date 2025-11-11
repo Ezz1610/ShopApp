@@ -136,47 +136,62 @@ private struct ProductInfoSection: View {
 
 private struct AddToCartButton: View {
     @State private var showToast:Bool = false
+    @State private var showGuestAlert: Bool = false
 
     var product: ProductModel
     @EnvironmentObject var cartManager: CartManager
+    @EnvironmentObject var navigator: AppNavigator
+
 
     var body: some View {
         Button {
-                    cartManager.addToCart(product: product)
-                       showToast = true
-                       DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                              showToast = false
-                          }
-                   } label: {
-                       RoundedRectangle(cornerRadius: 10, style: .continuous)
-                           .fill(Color.black)
-                           .frame(height: 36)
-                           .overlay(
-                               Text("Add to Cart")
-                                   .font(.system(size: 13, weight: .semibold, design: .rounded))
-                                   .foregroundColor(.white)
-                           )
-                   }
-                   .padding(.top, 4)
-                   .overlay(
-                       VStack {
-                           Spacer()
-                           if showToast {
-                               HStack {
-                                   Image(systemName: "checkmark.circle.fill")
-                                       .foregroundColor(.white)
-                                   Text("Added")
-                                       .foregroundColor(.white)
-                                       .font(.system(size: 16, weight: .medium))
-                               }
-                               .padding()
-                               .background(Color.black.opacity(0.8))
-                               .cornerRadius(12)
-                               .padding(.bottom, 50)
-                               .transition(.move(edge: .bottom).combined(with: .opacity))
-                           }
-                       }
-                       .animation(.spring(), value: showToast)
-                   )
+                    if AppViewModel.shared.isGuest {
+                        showGuestAlert = true
+                    } else {
+                        cartManager.addToCart(product: product)
+                        showToast = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            showToast = false
+                        }
+                    }
+                } label: {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(Color.black)
+                        .frame(height: 36)
+                        .overlay(
+                            Text("Add to Cart")
+                                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                .foregroundColor(.white)
+                        )
+                }
+                .padding(.top, 4)
+                .overlay(
+                    VStack {
+                        Spacer()
+                        if showToast {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.white)
+                                Text("Added")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 16, weight: .medium))
+                            }
+                            .padding()
+                            .background(Color.black.opacity(0.8))
+                            .cornerRadius(12)
+                            .padding(.bottom, 50)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                        }
+                    }
+                    .animation(.spring(), value: showToast)
+                )
+                .alert("You must login to access this feature", isPresented: $showGuestAlert) {
+                    Button("Login") {
+                        navigator.goTo(.login, replaceLast: true)
+                    }
+                    Button("Continue as Guest", role: .cancel) {
+                    }
+                }
+            }
     }
-}
+

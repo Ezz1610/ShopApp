@@ -12,7 +12,7 @@ struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewModel()
     @Bindable var currencyManager = CurrencyManager.shared
     @EnvironmentObject var navigator: AppNavigator
-    @State private var currentCity: String = ""
+
     @State private var showLogoutAlert = false
     
     var body: some View {
@@ -45,6 +45,7 @@ struct SettingsView: View {
 //           }
     }
     
+    // MARK: - User Profile Section
     private var userProfileSection: some View {
         Section {
             HStack(spacing: 15) {
@@ -53,19 +54,17 @@ struct SettingsView: View {
                     .foregroundColor(.blue)
                 
                 VStack(alignment: .leading, spacing: 5) {
-                    // ✅ Keep username and email as-is
                     Text(viewModel.username)
                         .font(.title3.bold())
                     Text(viewModel.email)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     
-                    // Display current city from LocationHelper
-                    if !currentCity.isEmpty {
+                    if !viewModel.location.isEmpty {
                         HStack(spacing: 4) {
                             Image(systemName: "mappin.circle.fill")
                                 .font(.caption)
-                            Text(currentCity)
+                            Text(viewModel.location)
                                 .font(.caption)
                         }
                         .foregroundColor(.secondary)
@@ -76,16 +75,10 @@ struct SettingsView: View {
             .padding(.vertical, 8)
         }
         .onAppear {
-            // Fetch current city instead of viewModel.requestUserLocation()
-            Task {
-                let city = LocationHelper.shared.getCurrentCity()
-                await MainActor.run {
-                    currentCity = city.name
-                }
-            }
+            viewModel.requestUserLocation()
         }
     }
-
+    
     // MARK: - Currency Section
     private var currencySection: some View {
         Section {
@@ -112,10 +105,9 @@ struct SettingsView: View {
                         Text(currencyManager.getCurrencySymbol())
                             .font(.headline)
                             .foregroundColor(.blue)
-                        
-//                        Image(systemName: "chevron.right")
-//                            .font(.caption)
-//                            .foregroundColor(.secondary)
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
                 }
             }
@@ -127,8 +119,8 @@ struct SettingsView: View {
     // MARK: - Addresses Section
     private var addressesSection: some View {
         Section {
-            Button {
-                navigator.goTo(.addressesView, replaceLast: false)
+            NavigationLink {
+                AddressesListView()
             } label: {
                 HStack(spacing: 15) {
                     Image(systemName: "house.circle.fill")
@@ -162,7 +154,7 @@ struct SettingsView: View {
             Text("Account")
         }
     }
-
+    
     // MARK: - Orders Section
     private var ordersSection: some View {
         Section {
@@ -212,9 +204,9 @@ struct SettingsView: View {
                     
                     Spacer()
                     
-//                    Image(systemName: "chevron.right")
-//                        .font(.caption)
-//                        .foregroundColor(.secondary)
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
             }
             
@@ -376,8 +368,7 @@ struct CurrencySelectionView: View {
     }
 }
 
-
-
+// MARK: - Addresses List View
 struct AddressesListView: View {
     @ObservedObject var viewModel = AddressesViewModel.shared
     @State private var showAddAddress = false
@@ -386,55 +377,22 @@ struct AddressesListView: View {
     @State private var showGuestAlert = false
     @EnvironmentObject var navigator: AppNavigator
 
-    private var headerBar: some View {
-        HStack {
-            Button(action: { navigator.goBack() }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "chevron.left")
-                    Text("Settings")
-                }
-                .foregroundColor(.blue)
-            }
-
-            Spacer()
-
-            Text("Addresses")
-                .font(.title2.bold())
-
-            Spacer()
-
-            // زر + (بديل عن toolbar)
-            Button {
-                showAddAddress = true
-            } label: {
-                Image(systemName: "plus")
-                    .foregroundColor(.blue)
-                    .font(.title3)
-            }
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 10)
-        .background(Color(.systemGray6))
-    }
-
     var body: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                if addresses.isEmpty {
-                    emptyAddressesView
-                } else {
-                    List {
-                        ForEach(addresses) { address in
-                            AddressRowView(
-                                address: address,
-                                isDefault: address.id == viewModel.defaultAddressId
-                            ) {
-                                viewModel.setDefaultAddress(address.id)
-                            }
+        ZStack {
+            if addresses.isEmpty {
+                emptyAddressesView
+            } else {
+                List {
+                    ForEach(addresses) { address in
+                        AddressRowView(
+                            address: address,
+                            isDefault: address.id == viewModel.defaultAddressId
+                        ) {
+                            viewModel.setDefaultAddress(address.id)
                         }
-                        .onDelete { offsets in
-                            deleteAddresses(at: offsets)
-                        }
+                    }
+                    .onDelete { offsets in
+                        deleteAddresses(at: offsets)
                     }
                 }
             }
@@ -442,18 +400,6 @@ struct AddressesListView: View {
         .navigationTitle("Addresses")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button {
-                    navigator.goTo(.mainTabView(selectedTab: 2),replaceLast : true)
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "chevron.left")
-                        Text("Settings")
-                    }
-                }
-            }
-
-            // ✅ زر + على اليمين
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     showAddAddress = true
@@ -462,17 +408,15 @@ struct AddressesListView: View {
                 }
             }
         }
-        // ✅ الـ sheet لازم يكون برا الـ toolbar
         .sheet(isPresented: $showAddAddress) {
             AddAddressView()
         }
-        // ✅ الـ onAppear لازم يكون برا الـ toolbar برضو
         .onAppear {
             viewModel.setModelContext(modelContext)
             viewModel.refreshAddresses()
         }
     }
-
+    
     private func deleteAddresses(at offsets: IndexSet) {
         for index in offsets {
             let address = addresses[index]
@@ -495,6 +439,7 @@ struct AddressesListView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
             
+       
             Button {
                 if AppViewModel.shared.isGuest {
                     showGuestAlert = true
@@ -514,7 +459,9 @@ struct AddressesListView: View {
                 Button("Login") {
                     navigator.goTo(.login, replaceLast: true)
                 }
-                Button("Continue as Guest", role: .cancel) {}
+                Button("Continue as Guest", role: .cancel) {
+                    // Guest يكمل بدون أي عملية
+                }
             }
         }
         .padding()
@@ -581,12 +528,10 @@ struct AddressRowView: View {
 }
 
 // MARK: - Add Address View
-
-
 struct AddAddressView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var modelContext
-
+    
     @State private var name = ""
     @State private var street = ""
     @State private var city = ""
@@ -595,54 +540,24 @@ struct AddAddressView: View {
     @State private var country = ""
     @State private var phone = ""
     @State private var setAsDefault = false
-
-    @State private var nearbyCities: [City] = []
-    @State private var isLoading = false
-    @State private var errorMessage: String?
-
+    
     var body: some View {
-        NavigationStack {
+//        NavigationStack {
             Form {
                 Section("Contact Information") {
                     TextField("Full Name", text: $name)
                     TextField("Phone Number", text: $phone)
                         .keyboardType(.phonePad)
                 }
-
+                
                 Section("Address") {
                     TextField("Street Address", text: $street)
-
-                    if isLoading {
-                        ProgressView("Loading nearby cities...")
-                    } else if !nearbyCities.isEmpty {
-                        Menu {
-                            ForEach(nearbyCities) { cityItem in
-                                Button(cityItem.name) {
-                                    city = cityItem.name
-                                }
-                            }
-                        } label: {
-                            HStack {
-                                Text(city.isEmpty ? "Select City" : city)
-                                    .foregroundColor(city.isEmpty ? .gray : .primary)
-                                Spacer()
-                                Image(systemName: "chevron.down")
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                    } else if let error = errorMessage {
-                        Text(error)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                    } else {
-                        TextField("City", text: $city)
-                    }
-
+                    TextField("City", text: $city)
                     TextField("State/Province", text: $state)
                     TextField("ZIP/Postal Code", text: $zipCode)
                     TextField("Country", text: $country)
                 }
-
+                
                 Section {
                     Toggle("Set as default address", isOn: $setAsDefault)
                 }
@@ -651,26 +566,25 @@ struct AddAddressView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel") {
+                        dismiss()
+                    }
                 }
-
+                
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { saveAddress() }
-                        .disabled(!isFormValid)
+                    Button("Save") {
+                        saveAddress()
+                    }
+                    .disabled(!isFormValid)
                 }
             }
-            .task {
-                await loadNearbyCities()
-            }
-        }
+//        }
     }
-
-    // MARK: - Form Validation
+    
     private var isFormValid: Bool {
         !name.isEmpty && !street.isEmpty && !city.isEmpty && !state.isEmpty && !zipCode.isEmpty && !country.isEmpty
     }
-
-    // MARK: - Save Address
+    
     private func saveAddress() {
         let address = Address(
             name: name,
@@ -681,35 +595,24 @@ struct AddAddressView: View {
             country: country,
             phone: phone.isEmpty ? nil : phone
         )
-
+        
+        // Insert into SwiftData context
         modelContext.insert(address)
-
+        
+        // Save context
         do {
             try modelContext.save()
-
+            
             // Set as default if needed
             AddressesViewModel.shared.setModelContext(modelContext)
             if setAsDefault {
                 AddressesViewModel.shared.setDefaultAddress(address.id)
             }
-
+            
             dismiss()
         } catch {
             print("Error saving address: \(error.localizedDescription)")
         }
-    }
-
-    // MARK: - Load Nearby Cities
-    private func loadNearbyCities() async {
-        isLoading = true
-        do {
-            let cities = try await LocationHelper.shared.getNearbyCities(limit: 10)
-            nearbyCities = cities
-            print("vvvvvvvvvvvvvvvvv \(nearbyCities.count)")
-        } catch {
-            errorMessage = "Failed to load cities: \(error.localizedDescription)"
-        }
-        isLoading = false
     }
 }
 // MARK: - Orders List View

@@ -25,7 +25,6 @@ final class AppNavigator: ObservableObject {
         case brandProducts(brand: SmartCollection, homeVM: HomeViewModel) // ✅ أضفنا الحالة الجديدة
         case productDetails(ProductModel, NavigateFrom)
         case ordersView
-        case addressesView
 
         static func == (lhs: Screen, rhs: Screen) -> Bool {
             switch (lhs, rhs) {

@@ -32,9 +32,6 @@ struct RootView: View {
 
                     case .register:
                         RegisterScreen()
-                        
-                    case .addressesView:
-                        AddressesListView()
 
                     case .cartView:
                         CartView()
