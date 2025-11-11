@@ -13,7 +13,6 @@ final class ApiServices {
     
     func fetchDiscountCodes(for ruleID: Int) async throws -> [DiscountCode] {
         let fullURL = "\(baseURL)/price_rules/\(ruleID)/discount_codes.json"
-        print("aaaaaaaa##\(fullURL)")
         let response: DiscountResponse = try await dataHelper.fetchData(from: fullURL)
         return response.discount_codes
     }
@@ -22,8 +21,6 @@ final class ApiServices {
     func fetchProducts() async throws -> [ProductModel] {
         let fullURL = "\(baseURL)\(ApiUrls.products)"
         let response: ProductsResponse = try await dataHelper.fetchData(from: fullURL)
-        print("aaaaaaaa#\(fullURL)")
-        print("aaaaaaaa#\(response.products.count)")
         return response.products
     }
   
@@ -36,10 +33,11 @@ final class ApiServices {
     }
     func fetchProducts(for collectionID: Int) async throws -> [ProductModel] {
         if collectionID == -1 {
-            print("collectionID = -1 → Fetching ALL products instead")
+            // For -1 use limit=250 as tests expect
             return try await fetchAllProducts(limit: 250)
         }
 
+        // Step 1: fetch collects for the collection id
         let collectsURL = "\(baseURL)/collects.json?collection_id=\(collectionID)"
         struct CollectsResponse: Decodable { let collects: [Collect] }
         struct Collect: Decodable { let product_id: Int }
@@ -48,6 +46,7 @@ final class ApiServices {
         let productIDs = collectsResponse.collects.map { String($0.product_id) }
         guard !productIDs.isEmpty else { return [] }
 
+        // Step 2: fetch products by comma-separated ids
         let idsString = productIDs.joined(separator: ",")
         let productsURL = "\(baseURL)/products.json?ids=\(idsString)"
         let response: ProductsResponse = try await dataHelper.fetchData(from: productsURL)
@@ -62,28 +61,23 @@ final class ApiServices {
     }
 
     func fetchVendors() async throws -> [String] {
+        // get all products (limit 250) then extract unique vendors and sort case-insensitively
         let fullURL = "\(baseURL)/products.json?limit=250"
         let response: ProductsResponse = try await dataHelper.fetchData(from: fullURL)
-        let vendors = Set(response.products.compactMap { $0.vendor })
-        return Array(vendors).sorted()
+        let vendorsSet = Set(response.products.compactMap { $0.vendor })
+        let sorted = vendorsSet.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+        return sorted
     }
-//        let urlString = "https://\(apiKey):\(password)@\(hostname)/admin/api/\(apiVersion)/products.json?vendor=\(vendor)"
 
     func fetchProducts(byVendor vendor: String) async throws -> [ProductModel] {
+        // fetch all products, then filter by vendor (case-insensitive)
         let fullURL = "\(baseURL)/products.json?limit=250"
-        print("Fetching all products from: \(fullURL)")
-        
         let response: ProductsResponse = try await dataHelper.fetchData(from: fullURL)
         
         let filteredProducts = response.products.filter { product in
             product.vendor.caseInsensitiveCompare(vendor) == .orderedSame
         }
         
-        filteredProducts.forEach { product in
-            print("Vendor: \(product.vendor)")
-        }
-        
-        print(" Loaded \(filteredProducts.count) products for vendor: \(vendor)")
         return filteredProducts
     }
 
@@ -95,13 +89,7 @@ final class ApiServices {
     
     func fetchProductsByCollectionID(_ collectionID: Int) async throws -> [ProductModel] {
         let fullURL = "\(baseURL)/collections/\(collectionID)/products.json"
-        print("Fetching products for collection ID: \(collectionID)")
-        print("URL: \(fullURL)")
-        
         let response: ProductsResponse = try await dataHelper.fetchData(from: fullURL)
-        print("Fetched \(response.products.count) products for collection \(collectionID)")
         return response.products
     }
-
-
 }

@@ -47,6 +47,7 @@ struct LoginScreen: View {
                 }
                 .font(.footnote)
                 .padding(.top, 8)
+                .foregroundStyle(AppColors.primary)
 
                 // ===== Add Continue as Guest button =====
                 Button("Continue as Guest") {
@@ -56,7 +57,7 @@ struct LoginScreen: View {
                 }
                 .font(.footnote)
                 .padding(.top, 8)
-                .foregroundColor(.blue)
+                .foregroundColor(AppColors.primary)
             }
             .padding(.horizontal)
 

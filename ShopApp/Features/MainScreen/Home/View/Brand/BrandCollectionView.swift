@@ -15,31 +15,37 @@ struct BrandCollectionView: View {
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
+       
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
         
-            Text("Brands")
-                .font(.system(size: 18, weight: .semibold, design: .rounded))
-                .foregroundColor(.primary)
-                .padding(.horizontal, 16)
-
-            LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(brands, id: \.id) { brand in
-                    Button {
-                        // ✅ Navigate using AppNavigator
-                        navigator.goTo(.brandProducts(brand: brand , homeVM: homeVM))
-                    } label: {
-                        BrandCardLuxury(brand: brand)
+            VStack(alignment: .leading, spacing: 12) {
+                
+                    Text("Brands")
+                        .font(.system(size: 18, weight: .semibold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 20)
+                    LazyVGrid(columns: columns, spacing: 16) {
+                        ForEach(brands, id: \.id) { brand in
+                            Button {
+                                // ✅ Navigate using AppNavigator
+                                navigator.goTo(.brandProducts(brand: brand , homeVM: homeVM))
+                            } label: {
+                                BrandCardLuxury(brand: brand)
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
-                    .buttonStyle(.plain)
-                }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 20)
+                
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 32)
-        }
-        .background(Color(.systemGray6))
+            .background(Color(.systemGray6)
+                .cornerRadius(25)
+            )
+        
     }
 }
 

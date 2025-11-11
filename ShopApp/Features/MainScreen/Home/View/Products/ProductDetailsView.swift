@@ -99,13 +99,13 @@ struct ProductDetailsView: View {
                         if navigateFrom == .fromHome {
                                        Text(product.vendor)
                                            .font(.subheadline)
-                                           .foregroundColor(.blue)
+                                           .foregroundColor(.black)
                                            .padding(.horizontal)
 
                                    } else {
                                        Text(HelperFunctions.navigateFromToString(navigateFrom))
                                            .font(.subheadline)
-                                           .foregroundColor(.blue)
+                                           .foregroundColor(.black)
                                            .padding(.horizontal)
                                    }
                     }

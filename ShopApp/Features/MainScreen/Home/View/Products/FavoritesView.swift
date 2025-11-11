@@ -65,7 +65,7 @@ struct FavoritesView: View {
         HStack {
             Button(action: { navigator.goBack() }) {
                 HStack(spacing: 6) { Image(systemName: "chevron.left"); Text("Home") }
-                    .foregroundColor(.blue)
+                    .foregroundColor(.black)
             }
             Spacer()
             Text("Favorites").font(.title2.bold())

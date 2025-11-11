@@ -55,7 +55,7 @@ struct OrderView: View {
                             if let url = order.order_status_url {
                                 Link("View order online", destination: URL(string: url)!)
                                     .font(.footnote)
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.black)
                             }
                         }
                         .padding(.vertical, 6)
@@ -80,7 +80,7 @@ struct OrderView: View {
                 navigator.goTo(.mainTabView(selectedTab: 2), replaceLast: true)
             }) {
                 HStack(spacing: 6) { Image(systemName: "chevron.left"); Text("Settings") }
-                    .foregroundColor(.blue)
+                    .foregroundColor(.black)
             }
             Spacer()
             Text("My Orders").font(.title2.bold())
