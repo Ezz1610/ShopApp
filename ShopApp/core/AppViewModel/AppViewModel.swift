@@ -19,7 +19,6 @@ final class AppViewModel: ObservableObject {
     @Published var isLoggedIn = false
     @Published var isGuest = false
 
-    // Navigator سيتم تمريره من بره
     var navigator: AppNavigator!
 
     private init() {}

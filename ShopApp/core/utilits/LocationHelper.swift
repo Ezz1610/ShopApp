@@ -9,7 +9,7 @@ import Foundation
 import CoreLocation
 import MapKit
 
-
+// MARK: - City Model
 struct City: Identifiable, Hashable {
     let id = UUID()
     let name: String
@@ -18,30 +18,77 @@ struct City: Identifiable, Hashable {
     let distance: Double
 }
 
-final class LocationHelper {
+// MARK: - Location Errors
+enum LocationError: Error {
+    case noLocationFound
+    case permissionDenied
+    case unknown
+}
+
+// MARK: - Location Helper
+final class LocationHelper: NSObject, CLLocationManagerDelegate {
     static let shared = LocationHelper()
-    private init() {}
 
-    // موقع القاهرة (ثابت — بدون GPS)
-    private let cairoLocation = CLLocation(latitude: 30.0444, longitude: 31.2357)
+    private let locationManager = CLLocationManager()
+    private var completion: ((Result<CLLocation, Error>) -> Void)?
 
-    /// يرجّع مدينة القاهرة كـ City Model ثابت
-    func getCurrentCity() -> City {
+    private override init() {
+        super.init()
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+    }
+
+    // MARK: - Permissions
+    func requestPermission() {
+        locationManager.requestWhenInUseAuthorization()
+    }
+
+    // MARK: - Get Current Location
+    func getCurrentLocation(completion: @escaping (Result<CLLocation, Error>) -> Void) {
+        guard CLLocationManager.locationServicesEnabled() else {
+            print(" Location services disabled")
+            completion(.failure(LocationError.permissionDenied))
+            return
+        }
+
+        self.completion = completion
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.requestLocation()
+    }
+
+    // MARK: - Get Current City (async)
+    func getCurrentCity() async throws -> City {
+        let location: CLLocation = try await withCheckedThrowingContinuation { cont in
+            getCurrentLocation { result in
+                switch result {
+                case .success(let loc): cont.resume(returning: loc)
+                case .failure(let err): cont.resume(throwing: err)
+                }
+            }
+        }
+
+        let geocoder = CLGeocoder()
+        let placemarks = try await geocoder.reverseGeocodeLocation(location)
+        guard let placemark = placemarks.first else {
+            throw LocationError.noLocationFound
+        }
+
+        let name = placemark.locality ?? placemark.subLocality ?? "Unknown City"
         return City(
-            name: "Cairo",
-            latitude: 30.0444,
-            longitude: 31.2357,
+            name: name,
+            latitude: location.coordinate.latitude,
+            longitude: location.coordinate.longitude,
             distance: 0
         )
     }
 
-    /// يجيب أقرب مدن حوالين القاهرة دائمًا (باستخدام MapKit)
+    // MARK: - Get Nearby Cities (async)
     func getNearbyCities(limit: Int = 15, radiusMeters: Double = 100_000) async throws -> [City] {
-        let currentLocation = cairoLocation
-        let center = currentLocation.coordinate
+        let currentCity = try await getCurrentCity()
+        let currentLocation = CLLocation(latitude: currentCity.latitude, longitude: currentCity.longitude)
 
         let region = MKCoordinateRegion(
-            center: center,
+            center: currentLocation.coordinate,
             latitudinalMeters: radiusMeters,
             longitudinalMeters: radiusMeters
         )
@@ -54,7 +101,10 @@ final class LocationHelper {
 
         let response: MKLocalSearch.Response = try await withCheckedThrowingContinuation { cont in
             search.start { resp, error in
-                if let error = error { cont.resume(throwing: error); return }
+                if let error = error {
+                    cont.resume(throwing: error)
+                    return
+                }
                 guard let resp = resp else {
                     cont.resume(throwing: LocationError.noLocationFound)
                     return
@@ -63,16 +113,14 @@ final class LocationHelper {
             }
         }
 
-
         var seen = Set<String>()
         var cities: [City] = []
 
         for item in response.mapItems {
             let placemark = item.placemark
             if let name = placemark.locality ?? placemark.subLocality ?? placemark.name {
-                let trimmed = name.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) // ✅ تم اصلاحها
-                guard !trimmed.isEmpty else { continue }
-                if seen.contains(trimmed) { continue }
+                let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty, !seen.contains(trimmed) else { continue }
                 seen.insert(trimmed)
 
                 let coord = placemark.coordinate
@@ -88,8 +136,37 @@ final class LocationHelper {
         cities.sort { $0.distance < $1.distance }
         return Array(cities.prefix(limit))
     }
-}
 
-enum LocationError: Error {
-    case noLocationFound
+    // MARK: - CLLocationManagerDelegate
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        switch manager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            print(" Authorized — ready to request location")
+        case .denied, .restricted:
+            print(" Location permission denied or restricted")
+            completion?(.failure(LocationError.permissionDenied))
+            completion = nil
+        case .notDetermined:
+            print(" Waiting for permission...")
+        @unknown default:
+            completion?(.failure(LocationError.unknown))
+            completion = nil
+        }
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else {
+            completion?(.failure(LocationError.noLocationFound))
+            completion = nil
+            return
+        }
+        completion?(.success(location))
+        completion = nil
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print(" Failed to get location:", error.localizedDescription)
+        completion?(.failure(error))
+        completion = nil
+    }
 }

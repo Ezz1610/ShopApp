@@ -38,9 +38,9 @@ struct SettingsView: View {
                } message: {
                    Text("Are you sure you want to log out?")
                }
-               // 👇 FIX: Add space above your custom tab bar
+               
                .safeAreaInset(edge: .bottom) {
-                   Color.clear.frame(height: 100) // Adjust height to match your tab bar
+                   Color.clear.frame(height: 100)
                }
 //           }
     }
@@ -53,14 +53,14 @@ struct SettingsView: View {
                     .foregroundColor(AppColors.primary)
                 
                 VStack(alignment: .leading, spacing: 5) {
-                    // ✅ Keep username and email as-is
+                  
                     Text(viewModel.username)
                         .font(.title3.bold())
                     Text(viewModel.email)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     
-                    // Display current city from LocationHelper
+                  
                     if !currentCity.isEmpty {
                         HStack(spacing: 4) {
                             Image(systemName: "mappin.circle.fill")
@@ -76,14 +76,21 @@ struct SettingsView: View {
             .padding(.vertical, 8)
         }
         .onAppear {
-            // Fetch current city instead of viewModel.requestUserLocation()
             Task {
-                let city = LocationHelper.shared.getCurrentCity()
-                await MainActor.run {
-                    currentCity = city.name
+                do {
+                    let city = try await LocationHelper.shared.getCurrentCity()
+                    await MainActor.run {
+                        currentCity = city.name
+                    }
+                } catch {
+                    print("❌ Failed to get current city:", error)
+                    await MainActor.run {
+                        currentCity = "Unknown"
+                    }
                 }
             }
         }
+
     }
 
     // MARK: - Currency Section
@@ -112,10 +119,7 @@ struct SettingsView: View {
                         Text(currencyManager.getCurrencySymbol())
                             .font(.headline)
                             .foregroundColor(.green)
-                        
-//                        Image(systemName: "chevron.right")
-//                            .font(.caption)
-//                            .foregroundColor(.secondary)
+
                     }
                 }
             }
@@ -188,9 +192,9 @@ struct SettingsView: View {
                         .foregroundColor(.secondary)
                 
             }
-                .contentShape(Rectangle()) // ⬅️ makes the entire area tappable
+                .contentShape(Rectangle())
                 .onTapGesture {
-                    navigator.goTo(.ordersView, replaceLast: false) // ⬅️ handle your action here
+                    navigator.goTo(.ordersView, replaceLast: false)
                 }
             
         }
@@ -212,10 +216,6 @@ struct SettingsView: View {
                         .font(.body)
                     
                     Spacer()
-                    
-//                    Image(systemName: "chevron.right")
-//                        .font(.caption)
-//                        .foregroundColor(.secondary)
                 }
             }
             
@@ -268,7 +268,7 @@ struct CurrencySelectionView: View {
             ForEach(currencyManager.supportedCurrencies, id: \.self) { currency in
                 Button {
                     currencyManager.updateCurrency(to: currency)
-                    // dismiss()
+                  
                 } label: {
                     HStack(spacing: 15) {
                      
@@ -404,7 +404,7 @@ struct AddressesListView: View {
 
             Spacer()
 
-            // زر + (بديل عن toolbar)
+            
             Button {
                 showAddAddress = true
             } label: {
@@ -454,7 +454,6 @@ struct AddressesListView: View {
                 }
             }
 
-            // ✅ زر + على اليمين
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     showAddAddress = true
@@ -463,12 +462,10 @@ struct AddressesListView: View {
                 }
             }
         }
-        // ✅ الـ sheet لازم يكون برا الـ toolbar
         .sheet(isPresented: $showAddAddress) {
             
             AddAddressView(num: 0)
         }
-        // ✅ الـ onAppear لازم يكون برا الـ toolbar برضو
         .onAppear {
             viewModel.setModelContext(modelContext)
             viewModel.refreshAddresses()
@@ -689,7 +686,6 @@ struct AddAddressView: View {
             }
         }
         var isEgyptPhoneValid: Bool {
-            // Egyptian mobile numbers: 010, 011, 012, 015 + 8 digits
             let egyptPhoneRegex = "^(010|011|012|015)[0-9]{8}$"
             return NSPredicate(format: "SELF MATCHES %@", egyptPhoneRegex).evaluate(with: phone)
         }
@@ -715,7 +711,6 @@ struct AddAddressView: View {
             do {
                 try modelContext.save()
                 
-                // Set as default if needed
                 AddressesViewModel.shared.setModelContext(modelContext)
                 if setAsDefault {
                     AddressesViewModel.shared.setDefaultAddress(address.id)
@@ -743,7 +738,6 @@ struct AddAddressView: View {
     // MARK: - Orders List View
     struct OrdersListView: View {
         // TODO: Add your OrdersViewModel here
-        // @StateObject private var viewModel = OrdersViewModel()
         
         var body: some View {
             ZStack {
@@ -762,12 +756,7 @@ struct AddAddressView: View {
                         .multilineTextAlignment(.center)
                     
                     // TODO: Add your orders list implementation here
-                    // Example structure:
-                    // List {
-                    //     ForEach(viewModel.orders) { order in
-                    //         OrderRowView(order: order)
-                    //     }
-                    // }
+                   
                 }
                 .padding()
             }

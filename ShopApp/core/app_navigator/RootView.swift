@@ -73,7 +73,7 @@ struct RootView: View {
                 .animation(.easeInOut, value: navigator.currentScreen)
                 .task {
                     SwiftDataHelper.shared(context: context)
-                    print("✅ SwiftDataHelper initialized with persistent context")
+                    print("SwiftDataHelper initialized with persistent context")
                 }
             }
         }

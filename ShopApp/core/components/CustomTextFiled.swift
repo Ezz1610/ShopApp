@@ -26,10 +26,9 @@ struct CustomTextField: View {
     var submitLabel: SubmitLabel = .done
     var onCommit: (() -> Void)? = nil
     var isEmailField: Bool = false
-    var autoFocus: Bool = false   // ← التركيز التلقائي
+    var autoFocus: Bool = false
         
-    @FocusState private var isFocused: Bool   // ← ضبط التركيز داخلي
-
+    @FocusState private var isFocused: Bool
     var height: CGFloat = 48
     var cornerRadius: CGFloat = 12
     

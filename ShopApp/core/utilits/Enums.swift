@@ -10,5 +10,5 @@ enum NavigateFrom: Int {
     case fromHome = 0
     case fromCategory = 1
     case fromFavorites = 2
-//    case fromBrand = 3
+
 }

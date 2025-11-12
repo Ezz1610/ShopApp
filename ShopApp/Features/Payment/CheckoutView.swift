@@ -39,22 +39,11 @@ struct CheckoutView: View {
         NavigationStack {
         ScrollView {
             VStack(spacing: 25) {
-                // Shipping Address Section
                 shippingAddressSection
-                
-                // Coupon Section
                 couponSection
-                
-                // Order Summary Section
                 orderSummarySection
-                
-                // Test Mode Notice
                 testModeNotice
-                
-                // Payment Method Section
                 paymentMethodSection
-                
-                // Pay Button
                 payButton
             }
             .padding()
@@ -109,7 +98,6 @@ struct CheckoutView: View {
                 .font(.title2.bold())
             
             if let appliedCoupon = appliedCoupon {
-                // Applied Coupon Display
                 HStack(spacing: 15) {
                     ZStack {
                         Circle()
@@ -152,7 +140,6 @@ struct CheckoutView: View {
                         .stroke(Color.green, lineWidth: 1)
                 )
             } else {
-                // Coupon Input
                 HStack(spacing: 12) {
                     Image(systemName: "tag.fill")
                         .foregroundColor(.black)
@@ -183,7 +170,6 @@ struct CheckoutView: View {
                         .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                 )
                 
-                // Available Coupons Hint
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Available Codes:")
                         .font(.caption.bold())
@@ -327,7 +313,6 @@ struct CheckoutView: View {
         .sheet(isPresented: $showAddAddress) {
                AddAddressView(num: 0)
            }
-           // 👇 and keep your view model setup logic
            .onAppear {
                viewModel.setModelContext(modelContext)
                viewModel.refreshAddresses()
@@ -341,13 +326,11 @@ struct CheckoutView: View {
                 .font(.title2.bold())
             
             VStack(spacing: 20) {
-                // Cart Items
                 ForEach(CartManager.shared.productsInCart) { item in
                     let basePrice = Double(item.product.variants.first?.price ?? item.product.price) ?? 0
                     let converted = basePrice * currencyManager.exchangeRate * Double(item.quantity)
                     
                     HStack(alignment: .top, spacing: 12) {
-                        // Product Image Placeholder
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.gray.opacity(0.2))
                             .frame(width: 50, height: 50)
@@ -385,7 +368,6 @@ struct CheckoutView: View {
                             .font(.body)
                     }
                     
-                    // Discount Row (if coupon applied)
                     if let appliedCoupon = appliedCoupon {
                         HStack {
                             HStack(spacing: 4) {
@@ -429,8 +411,7 @@ struct CheckoutView: View {
                             .foregroundColor(AppColors.primary)
                     }
                     .padding(.top, 4)
-                    
-                    // Savings Badge (if coupon applied)
+
                     if appliedCoupon != nil {
                         HStack {
                             Spacer()
@@ -472,7 +453,6 @@ struct CheckoutView: View {
                     vm.selectedPayment = method
                 } label: {
                     HStack(spacing: 15) {
-                        // Icon
                         ZStack {
                             Circle()
                                 .fill(vm.selectedPayment == method ? Color.black.opacity(0.1) : Color.gray.opacity(0.1))
@@ -483,7 +463,6 @@ struct CheckoutView: View {
                                 .foregroundColor(vm.selectedPayment == method ? .black : .gray)
                         }
                         
-                        // Text
                         VStack(alignment: .leading, spacing: 4) {
                             Text(method.rawValue)
                                 .font(.body.bold())
@@ -502,7 +481,6 @@ struct CheckoutView: View {
                         
                         Spacer()
                         
-                        // Selection Indicator
                         if vm.selectedPayment == method {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.black)
@@ -757,13 +735,10 @@ struct CheckoutView: View {
             return convertedTotal * (Double(percent) / 100.0)
             
         case .fixedAmount(let amount):
-            // Convert fixed amount to selected currency
-            // Assuming -50LE is in EGP, convert if needed
             if currencyManager.selectedCurrency == "EGP" {
-                return min(Double(amount), convertedTotal) // Don't discount more than total
+                return min(Double(amount), convertedTotal)
             } else {
-                // Convert EGP to current currency
-                let egpToUSD = 1.0 / 49.5 // EGP to USD rate
+                let egpToUSD = 1.0 / 49.5
                 let amountInUSD = Double(amount) * egpToUSD
                 let amountInCurrentCurrency = amountInUSD * currencyManager.exchangeRate
                 return min(amountInCurrentCurrency, convertedTotal)

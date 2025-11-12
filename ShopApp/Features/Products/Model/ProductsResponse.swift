@@ -1,5 +1,8 @@
 import Foundation
 import SwiftData
+//FIRST
+
+
 
 // MARK: - Response Wrapper
 struct ProductsResponse: Decodable {
@@ -9,7 +12,6 @@ struct ProductsResponse: Decodable {
 // MARK: - Product Model
 @Model
 final class ProductModel: Identifiable, Codable {
-    // MARK: - Stored Properties (SwiftData + Codable)
     @Attribute(.unique) var id: Int
     var title: String
     var bodyHTML: String
@@ -24,14 +26,16 @@ final class ProductModel: Identifiable, Codable {
     var tags: String
     var status: String
     var adminGraphqlAPIID: String
+    
+    var price: String
+    
+    var productImage: String
 
-    // MARK: - Transient Properties (API only, not stored in SwiftData)
     @Transient var variants: [Variant] = []
     @Transient var options: [ProductOption] = []
     @Transient var images: [ProductImage] = []
     @Transient var image: ProductImage? = nil
 
-    // MARK: - Coding Keys
     enum CodingKeys: String, CodingKey {
         case id, title
         case bodyHTML = "body_html"
@@ -46,6 +50,8 @@ final class ProductModel: Identifiable, Codable {
         case tags, status
         case adminGraphqlAPIID = "admin_graphql_api_id"
         case variants, options, images, image
+        case price
+        case productImage
     }
 
     // MARK: - Init
@@ -64,6 +70,8 @@ final class ProductModel: Identifiable, Codable {
         tags: String = "",
         status: String = "",
         adminGraphqlAPIID: String = "",
+        price: String = "0.0",
+        productImage: String = "",
         variants: [Variant] = [],
         options: [ProductOption] = [],
         images: [ProductImage] = [],
@@ -83,13 +91,15 @@ final class ProductModel: Identifiable, Codable {
         self.tags = tags
         self.status = status
         self.adminGraphqlAPIID = adminGraphqlAPIID
+        self.price = price
+        self.productImage = productImage
         self.variants = variants
         self.options = options
         self.images = images
         self.image = image
     }
 
-    // MARK: - Codable (Decodable)
+    // MARK: - Codable
     required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decodeIfPresent(Int.self, forKey: .id) ?? 0
@@ -110,9 +120,11 @@ final class ProductModel: Identifiable, Codable {
         options = try c.decodeIfPresent([ProductOption].self, forKey: .options) ?? []
         images = try c.decodeIfPresent([ProductImage].self, forKey: .images) ?? []
         image = try c.decodeIfPresent(ProductImage.self, forKey: .image)
+        
+        price = try c.decodeIfPresent(String.self, forKey: .price) ?? variants.first?.price ?? "0.0"
+        productImage = try c.decodeIfPresent(String.self, forKey: .productImage) ?? images.first?.src ?? ""
     }
 
-    // MARK: - Codable (Encodable)
     func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
         try c.encode(id, forKey: .id)
@@ -133,5 +145,76 @@ final class ProductModel: Identifiable, Codable {
         try c.encode(options, forKey: .options)
         try c.encode(images, forKey: .images)
         try c.encode(image, forKey: .image)
+        try c.encode(price, forKey: .price)
+        try c.encode(productImage, forKey: .productImage)
+    }
+}
+
+// MARK: - Extensions
+extension ProductModel {
+    var validPrice: Double {
+        if let mainPrice = Double(price), mainPrice > 0 {
+            return mainPrice
+        }
+        if let variantPrice = Double(variants.first?.price ?? "0"), variantPrice > 0 {
+            return variantPrice
+        }
+        return 0.0
+    }
+}
+extension ProductModel {
+    func copy() -> ProductModel {
+        return ProductModel(
+            id: self.id,
+            title: self.title,
+            bodyHTML: self.bodyHTML,
+            vendor: self.vendor,
+            productType: self.productType,
+            createdAt: self.createdAt,
+            updatedAt: self.updatedAt,
+            publishedAt: self.publishedAt,
+            handle: self.handle,
+            templateSuffix: self.templateSuffix,
+            publishedScope: self.publishedScope,
+            tags: self.tags,
+            status: self.status,
+            adminGraphqlAPIID: self.adminGraphqlAPIID,
+            price: self.price,
+            productImage: self.productImage,
+            variants: self.variants.map { $0.copy() },
+            options: self.options.map { $0.copy() },
+            images: self.images.map { $0.copy() },
+            image: self.image?.copy()
+        )
+    }
+}
+extension Variant {
+    func copy() -> Variant {
+        Variant(
+            id: self.id,
+            title: self.title,
+            price: self.price,
+            sku: self.sku,
+            inventoryQuantity: self.inventoryQuantity
+        )
+    }
+}
+
+extension ProductOption {
+    func copy() -> ProductOption {
+        ProductOption(
+            id: self.id,
+            name: self.name,
+            values: self.values
+        )
+    }
+}
+
+extension ProductImage {
+    func copy() -> ProductImage {
+        ProductImage(
+            id: self.id,
+            src: self.src
+        )
     }
 }

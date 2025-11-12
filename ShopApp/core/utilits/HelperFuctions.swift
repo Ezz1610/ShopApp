@@ -36,17 +36,7 @@ struct HelperFunctions {
            }
            return ""
        }
-//    static func setupDependencies() {
-//            let locator = ServiceLocator.shared
-//            
-//            locator.register(FetchDataProtocol.self, RemoteDataHelper())
-//            
-//            let useCase = MovieListUseCase(dataHelper: locator.resolve(FetchDataProtocol.self))
-//            locator.register(MovieListUseCaseProtocol.self, useCase)
-//            
-//            let viewModel = MovieViewModel(movieListUseCase: locator.resolve(MovieListUseCaseProtocol.self))
-//            locator.register(MovieViewModel.self, viewModel)
-//        }
+
     static func stringToDouble(_ value: String, defaultValue: Double = 0.0) -> Double {
         return Double(value) ?? defaultValue
     }

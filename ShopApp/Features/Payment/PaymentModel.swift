@@ -98,7 +98,7 @@ class CheckoutViewModel: ObservableObject {
                         """
                         self.showSuccessAlert = true
                         
-                        print("✅ Order captured successfully, Check your mail")
+                        print(" Order captured successfully, Check your mail")
                        
                     }
                 }

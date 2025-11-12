@@ -12,7 +12,7 @@ struct ProductDetailsView: View {
     @EnvironmentObject var cartManager: CartManager
     @State private var isAdded = false
     let product: ProductModel
-    let navigateFrom: NavigateFrom   // ✅ New
+    let navigateFrom: NavigateFrom   
     @Environment(\.dismiss) private var dismiss
     @Bindable var currencyManager = CurrencyManager.shared
 

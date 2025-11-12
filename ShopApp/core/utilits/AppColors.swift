@@ -10,8 +10,8 @@ import SwiftUI
 
 
 struct AppColors {
-    static let primary = Color(hex: "#96BF48")   // Shopify Green (Main Brand)
-    static let shopifyAccent  = Color(hex: "#008060")   // Jade (Accent / CTA)
+    static let primary = Color(hex: "#96BF48")
+    static let shopifyAccent  = Color(hex: "#008060")  
     
     static let hint = Color.gray
     static let backgroundColor = Color(hex: "#EDECEC")

@@ -45,7 +45,7 @@ final class RegisterViewModel: ObservableObject {
         }
         
         isLoading = true
-        print("🟡 [RegisterViewModel] Starting registration...")
+        print("[RegisterViewModel] Starting registration...")
 
         Task {
             do {

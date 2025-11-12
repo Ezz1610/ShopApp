@@ -11,7 +11,6 @@ import SwiftUI
 
 struct LoginScreen: View {
     @EnvironmentObject var navigator: AppNavigator
-//    @StateObject var appVM: AppViewModel
     @StateObject private var viewModel = LoginViewModel()
 
     var body: some View {

@@ -34,12 +34,11 @@ struct HomeView: View {
                         .padding(.top, 8)
 
                     VStack(alignment: .leading, spacing: 20) {
-                        // Search bar
                         HomeSearchBar(searchText: $homeVM.searchText)
                         ZStack {
-                                                  RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                                      .fill(Color.white)
-                                                      .shadow(color: Color.black.opacity(0.07), radius: 8, x: 0, y: 4)
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .fill(Color.white)
+                                        .shadow(color: Color.black.opacity(0.07), radius: 8, x: 0, y: 4)
 
                                                   CouponsView()
                                                       .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -49,13 +48,11 @@ struct HomeView: View {
                         // MARK: - Dynamic Content
                         VStack {
                             if !homeVM.searchText.isEmpty {
-                                // Search results
                                 SearchResultsView(
                                     searchText: $homeVM.searchText,
                                     categoriesVM: homeVM
                                 )
                             } else {
-                                // Loading state
                                 if homeVM.isLoading {
                                     ProgressView()
                                         .frame(maxWidth: .infinity)
@@ -67,7 +64,7 @@ struct HomeView: View {
                                 } else {
                                     VStack(spacing: 16) {
 
-                                        // MARK: - Brands / Collections
+                            // MARK: - Brands / Collections
                                         if !homeVM.brands.isEmpty {
                                 
 
@@ -90,11 +87,9 @@ struct HomeView: View {
             }
             .navigationBarHidden(true)
             .task {
-                // Load Brands and optionally vendor products
                 await homeVM.loadBrands()
                 await homeVM.loadProducts() 
-                // Optional, load all products if needed
-//                await homeVM.loadProducts(forVendor: "VendorName") // Optional
+
             }
         }
     }
@@ -119,7 +114,7 @@ struct SearchResultsView: View {
                         .font(.largeTitle)
                         .foregroundColor(.gray)
 
-                    Text("مفيش نتائج بحث لـ \"\(searchText)\"")
+                    Text("No matched items \"\(searchText)\"")
                         .foregroundColor(.gray)
                         .font(.system(size: 14, weight: .medium, design: .rounded))
                 }

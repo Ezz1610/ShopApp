@@ -22,7 +22,7 @@ final class AppNavigator: ObservableObject {
         case homeView
         case cartView
         case favoritesView
-        case brandProducts(brand: SmartCollection, homeVM: HomeViewModel) // ✅ أضفنا الحالة الجديدة
+        case brandProducts(brand: SmartCollection, homeVM: HomeViewModel) 
         case productDetails(ProductModel, NavigateFrom)
         case ordersView
         case addressesView

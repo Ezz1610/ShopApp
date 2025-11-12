@@ -100,7 +100,6 @@ private struct FavoriteButton: View {
                 navigator.goTo(.login, replaceLast: true)
             }
             Button("Continue as Guest", role: .cancel) {
-                // يكمل كـ Guest بدون أي عملية
             }
         }
 

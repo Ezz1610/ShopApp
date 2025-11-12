@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct StarRatingView: View {
-    let rating: Double        // example: 7.5 out of 10
+    let rating: Double
     let size: Double
 
     init(rating: Double, size: Double = 15) {
@@ -16,7 +16,7 @@ struct StarRatingView: View {
         self.size = size
     }
 
-    private let totalStars = 5   // always 5
+    private let totalStars = 5
 
     private var normalizedRating: Double {
         return (rating / 10) * Double(totalStars)

@@ -27,10 +27,9 @@ final class HomeViewModel: ObservableObject {
 
     // MARK: - Published Properties
     @Published var categories: [Category] = []
-    @Published var allProducts: [ProductModel] = [] // كل المنتجات
-    @Published var products: [ProductModel] = []    // المنتجات المعروضة حاليًا
+    @Published var allProducts: [ProductModel] = []
+    @Published var products: [ProductModel] = []
     @Published var favorites: [ProductModel] = []
-
     @Published var selectedCategory: Category?
     @Published var filter = ProductFilter()
     @Published var isLoading = false
@@ -57,11 +56,9 @@ final class HomeViewModel: ObservableObject {
     func loadBrands() async {
         guard !isLoading else { return }
         isLoading = true
-       // errorMessage = nil
         defer { isLoading = false }
 
         do {
-            //let fetchedBrands = try await apiService.fetchSmartCollections()
             if brands.isEmpty {
                 let fetchedBrands = try await apiService.fetchSmartCollections()
                 brands = fetchedBrands
@@ -77,33 +74,30 @@ final class HomeViewModel: ObservableObject {
     // MARK: - Load Products by Brand / Collection Title
     func loadProductsByCollectionTitle(_ collection: SmartCollection) async {
         isLoading = true
-     //   errorMessage = nil
         defer { isLoading = false }
 
         do {
             collectionProducts = []
             let products = try await apiService.fetchProducts(byVendor: collection.title)
             collectionProducts = products
-            print("✅ Loaded \(products.count) products for collection title \(collection.title)")
+            print("Loaded \(products.count) products for collection title \(collection.title)")
         } catch {
-            errorMessage = "❌ Failed to load products for collection \(collection.title): \(error.localizedDescription)"
+            errorMessage = "Failed to load products for collection \(collection.title): \(error.localizedDescription)"
             print("errorrrrrr 2 \(errorMessage)")
             collectionProducts = []
         }
     }
-    // MARK: - ADDED (Groups) - تعريف مجموعات الأنواع للأزرار
-        /// مفاتيح الشيت -> أنواع المنتج الفعلية (كما تأتي من الـ API)
+    // MARK: - ADDED (Groups)
         private let typeGroups: [String: [String]] = [
             "shoes":       ["SHOES"],
             "accessories": ["ACCESSORIES", "BAGS", "BAG"],
              "tshirts":  ["TSHIRTS", "TSHIRT", "TEES", "T-SHIRTS"]
         ]
 
-        // MARK: - ADDED (Groups) - استخراج المجموعات المختارة حاليًا من الفلتر
+        // MARK: - ADDED (Groups)
         func currentChosenGroups() -> Set<String> {
             var result = Set<String>()
             for (key, values) in typeGroups {
-                // إذا كان أي نوع من أنواع هذه المجموعة موجودًا بالفعل في الفلتر
                 if values.contains(where: { v in
                     filter.productTypes.contains { $0.caseInsensitiveCompare(v) == .orderedSame }
                 }) {
@@ -113,7 +107,7 @@ final class HomeViewModel: ObservableObject {
             return result
         }
 
-        // MARK: - ADDED (Groups) - تطبيق المجموعات القادمة من الشيت على الفلتر
+        // MARK: - ADDED (Groups)
         func applyGroups(_ groups: Set<String>) {
             var mapped = Set<String>()
             for g in groups {
@@ -124,7 +118,6 @@ final class HomeViewModel: ObservableObject {
                 }
             }
             filter.productTypes = mapped
-            // لا حاجة لاستدعاء شيء إضافي: filteredProducts محسوبة وستتحدث تلقائيًا
         }
     // MARK: - Filtered Products
     var filteredProducts: [ProductModel] {
@@ -202,7 +195,6 @@ final class HomeViewModel: ObservableObject {
     // MARK: - API & Local Filtering
     func loadProducts() async {
         isLoading = true
-      //  errorMessage = nil
         do {
             let fetched = try await apiService.fetchAllProducts(limit: 250)
             self.allProducts = fetched
@@ -226,7 +218,6 @@ final class HomeViewModel: ObservableObject {
     // MARK: - Categories
     func loadCategories() async {
         isLoading = true
-      //  errorMessage = nil
         do {
             let fetchedCategories = try await apiService.fetchCategories()
 

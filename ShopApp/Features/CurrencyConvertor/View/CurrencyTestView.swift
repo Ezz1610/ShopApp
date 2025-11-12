@@ -44,7 +44,7 @@ struct CurrencySettingsView: View {
                 }
                 
                 if let error = currencyManager.errorMessage {
-                    Text("⚠️ \(error) - Using fallback rates")
+                    Text("\(error) - Using fallback rates")
                         .font(.caption)
                         .foregroundColor(.orange)
                 }

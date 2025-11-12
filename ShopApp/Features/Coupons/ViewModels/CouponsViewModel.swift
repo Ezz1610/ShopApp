@@ -35,7 +35,6 @@ final class CouponsViewModel: ObservableObject {
                 AdItem(imageName: image, couponCode: code.code)
             }
             
-           // message = "discount codes loaded successfully "
             
         } catch {
             message = "failed to fetch discount codes: \(error.localizedDescription)"

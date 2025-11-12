@@ -25,7 +25,7 @@ final class FirebaseHelper {
         email: String,
         password: String
     ) async throws {
-        print("🟢 FirebaseHelper Register started for \(email)")
+        print(" FirebaseHelper Register started for \(email)")
 
         guard FirebaseApp.app() != nil else {
             throw NSError(
@@ -35,12 +35,10 @@ final class FirebaseHelper {
             )
         }
 
-        // 1️⃣ إنشاء المستخدم في Firebase Auth
         let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
         let user = authResult.user
-        print("✅ User created with UID:", user.uid)
+        print(" User created with UID:", user.uid)
 
-        // 2️⃣ حفظ بيانات المستخدم في Firestore
         let userData: [String: Any] = [
             "firstName": firstName,
             "lastName": lastName,
@@ -49,11 +47,10 @@ final class FirebaseHelper {
         ]
 
         try await db.collection("users").document(user.uid).setData(userData)
-        print("📦 User data saved successfully to Firestore.")
+        print(" User data saved successfully to Firestore.")
 
-        // 3️⃣ إرسال إيميل التحقق
         try await user.sendEmailVerification()
-        print("📧 Verification email sent to \(email).")
+        print(" Verification email sent to \(email).")
     }
 
     // MARK: - Login
@@ -65,18 +62,18 @@ final class FirebaseHelper {
     // MARK: - Get User Data
     func getUserData() async throws -> [String: Any]? {
         guard let user = Auth.auth().currentUser else {
-            print("⚠️ No user is currently logged in.")
+            print(" No user is currently logged in.")
             return nil
         }
 
         let document = try await db.collection("users").document(user.uid).getDocument()
 
         guard let data = document.data() else {
-            print("⚠️ User data not found for UID:", user.uid)
+            print(" User data not found for UID:", user.uid)
             return nil
         }
 
-        print("📥 User data fetched successfully:", data)
+        print(" User data fetched successfully:", data)
         return data
     }
 

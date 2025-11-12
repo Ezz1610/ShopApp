@@ -20,7 +20,6 @@ struct CouponsView: View {
                     TabView {
                         ForEach(vm.ads) { ad in
                             ZStack(alignment: .bottom) {
-                                // Background Image
                                 Image(ad.imageName)
                                     .resizable()
                                     .scaledToFill()
@@ -28,7 +27,6 @@ struct CouponsView: View {
                                     .frame(maxWidth: .infinity)
                                     .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
                                     .overlay(
-                                        // Gradient overlay for readability
                                         LinearGradient(
                                             gradient: Gradient(colors: [.black.opacity(0.3), .clear]),
                                             startPoint: .bottom,
@@ -45,7 +43,6 @@ struct CouponsView: View {
                                         }
                                     }
                                 
-                                // Text overlay
                                 VStack(spacing: 6) {
                                     Text("Tap to copy code 🤩")
                                         .font(.headline)
@@ -67,7 +64,6 @@ struct CouponsView: View {
                 await vm.loadAds()
             }
 
-            // ✅ Floating message (Toast)
             if let message = vm.message {
                 VStack {
                     Spacer()
@@ -91,7 +87,6 @@ struct CouponsView: View {
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: vm.message)
                         .onAppear {
-                            // Auto-hide after 2 seconds
                             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                                 withAnimation(.easeOut(duration: 0.5)) {
                                     vm.message = nil

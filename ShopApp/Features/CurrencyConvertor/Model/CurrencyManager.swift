@@ -100,7 +100,7 @@ class CurrencyManager {
                     if let rate = result.rates[currency] {
                         self?.exchangeRate = rate
                         self?.lastUpdateTime = Date()
-                        print("✅ Exchange rate updated: 1 USD = \(rate) \(currency)")
+                        print("Exchange rate updated: 1 USD = \(rate) \(currency)")
                     } else {
                         self?.handleError("Currency not found")
                     }
@@ -113,7 +113,7 @@ class CurrencyManager {
     
     private func handleError(_ message: String) {
         errorMessage = message
-        print("❌ Currency error: \(message)")
+        print("Currency error: \(message)")
         
         useFallbackRates()
     }

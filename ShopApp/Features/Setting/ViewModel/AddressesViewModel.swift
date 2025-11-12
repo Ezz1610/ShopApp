@@ -25,7 +25,6 @@ class AddressesViewModel: ObservableObject {
     }
     
     func refreshAddresses() {
-        // Trigger UI refresh
         objectWillChange.send()
     }
     

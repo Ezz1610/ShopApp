@@ -14,10 +14,8 @@ struct CategoriesView: View {
     @EnvironmentObject var navigator: AppNavigator
     @StateObject private var viewModel: HomeViewModel
     @State private var selectedCategoryID: Int? = nil
-    // ===== [ADDED] Filter Sheet State =====
-        @State private var showFilterSheet = false
-        @State private var tempGroups: Set<String> = []
-        // ======================================
+    @State private var showFilterSheet = false
+    @State private var tempGroups: Set<String> = []
     private let productColumns = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
@@ -31,7 +29,6 @@ struct CategoriesView: View {
     var body: some View {
        
             VStack(spacing: 0) {
-                // Header
                 HomeHeaderView()
                     .padding(.top, 8)
                     .background(Color(.systemBackground))
@@ -49,7 +46,6 @@ struct CategoriesView: View {
                                 .cornerRadius(10)
                                 .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
 
-                                // ===== [ADDED] Filter Button =====
                                 Button {
                                     tempGroups = viewModel.currentChosenGroups()
                                     showFilterSheet = true
@@ -64,11 +60,10 @@ struct CategoriesView: View {
                                     .frame(width: 44, height: 44)
                                 }
                                 .buttonStyle(.plain)
-                                // ================================
+                                
                             }
                             .padding(.horizontal)
 
-                // Categories Tabs
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
                         ForEach(viewModel.categories, id: \.id) { category in
@@ -107,7 +102,6 @@ struct CategoriesView: View {
 
                 Divider().padding(.horizontal, 8)
 
-                // Products Section
                 ScrollView {
                     if viewModel.isLoading {
                         ProgressView("Products are loading...")
@@ -144,23 +138,22 @@ struct CategoriesView: View {
                 }
 
                 if selectedCategoryID == nil {
-                    selectedCategoryID = -1   // Preselect "All"
-                    await viewModel.loadProducts()  // Load all products
+                    selectedCategoryID = -1
+                    await viewModel.loadProducts()
                 }
 
                 await viewModel.refreshFavorites()
             }
-        // ===== [ADDED] Present Filter Sheet =====
                 .sheet(isPresented: $showFilterSheet) {
                     IconMultiSelectSheet(
                         chosenGroups: $tempGroups,
                         onApply: { groups in
-                            viewModel.applyGroups(groups)   // يحدّث فلتر النوع
+                            viewModel.applyGroups(groups)
                             showFilterSheet = false
                         }
                     )
                 }
-                // =======================================
+               
             
     }
 }

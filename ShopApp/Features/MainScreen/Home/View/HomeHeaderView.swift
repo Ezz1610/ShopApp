@@ -24,7 +24,7 @@ struct HomeHeaderView: View {
                     .shadow(color: .black.opacity(0.08), radius: 3, x: 0, y: 1)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Shopyfiy")
+                    Text("ShopApp")
                         .font(.system(size: 18, weight: .semibold, design: .rounded))
                         .foregroundColor(.primary)
 
@@ -66,7 +66,7 @@ struct HomeHeaderView: View {
                         navigator.goTo(.login, replaceLast: true)
                     }
                     Button("Continue as Guest", role: .cancel) {
-                        // يكمل كـ Guest بدون حاجة تعملها
+                      
                     }
                 }
 
@@ -108,7 +108,6 @@ struct HomeHeaderView: View {
                         navigator.goTo(.login, replaceLast: true)
                     }
                     Button("Continue as Guest", role: .cancel) {
-                        // يكمل كـ Guest بدون أي عملية
                     }
                 }
 

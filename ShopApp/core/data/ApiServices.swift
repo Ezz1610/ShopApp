@@ -33,11 +33,11 @@ final class ApiServices {
     }
     func fetchProducts(for collectionID: Int) async throws -> [ProductModel] {
         if collectionID == -1 {
-            // For -1 use limit=250 as tests expect
+          
             return try await fetchAllProducts(limit: 250)
         }
 
-        // Step 1: fetch collects for the collection id
+ 
         let collectsURL = "\(baseURL)/collects.json?collection_id=\(collectionID)"
         struct CollectsResponse: Decodable { let collects: [Collect] }
         struct Collect: Decodable { let product_id: Int }
@@ -46,7 +46,7 @@ final class ApiServices {
         let productIDs = collectsResponse.collects.map { String($0.product_id) }
         guard !productIDs.isEmpty else { return [] }
 
-        // Step 2: fetch products by comma-separated ids
+
         let idsString = productIDs.joined(separator: ",")
         let productsURL = "\(baseURL)/products.json?ids=\(idsString)"
         let response: ProductsResponse = try await dataHelper.fetchData(from: productsURL)
@@ -61,7 +61,7 @@ final class ApiServices {
     }
 
     func fetchVendors() async throws -> [String] {
-        // get all products (limit 250) then extract unique vendors and sort case-insensitively
+      
         let fullURL = "\(baseURL)/products.json?limit=250"
         let response: ProductsResponse = try await dataHelper.fetchData(from: fullURL)
         let vendorsSet = Set(response.products.compactMap { $0.vendor })
@@ -70,7 +70,7 @@ final class ApiServices {
     }
 
     func fetchProducts(byVendor vendor: String) async throws -> [ProductModel] {
-        // fetch all products, then filter by vendor (case-insensitive)
+    
         let fullURL = "\(baseURL)/products.json?limit=250"
         let response: ProductsResponse = try await dataHelper.fetchData(from: fullURL)
         
