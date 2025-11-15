@@ -10,7 +10,6 @@
 		10C7FE9F2EC2663600F4AEDF /* ApiServerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10C7FE9E2EC2663600F4AEDF /* ApiServerTest.swift */; };
 		10C7FEA12EC2669100F4AEDF /* MockURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10C7FEA02EC2669100F4AEDF /* MockURLProtocol.swift */; };
 		C30B89442EC0D4FC00B190B8 /* PaymentModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B89432EC0D4FC00B190B8 /* PaymentModel.swift */; };
-		C30B894F2EC0EFD300B190B8 /* LoginViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30B894E2EC0EFD300B190B8 /* LoginViewModelTests.swift */; };
 		C30E923A2EC219C8003EC610 /* OrderStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30E92332EC219C8003EC610 /* OrderStatus.swift */; };
 		C30E923B2EC219C8003EC610 /* OrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30E92352EC219C8003EC610 /* OrderView.swift */; };
 		C30E923C2EC219C8003EC610 /* OrderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30E92372EC219C8003EC610 /* OrderViewModel.swift */; };
@@ -100,7 +99,6 @@
 		10C7FE9E2EC2663600F4AEDF /* ApiServerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiServerTest.swift; sourceTree = "<group>"; };
 		10C7FEA02EC2669100F4AEDF /* MockURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLProtocol.swift; sourceTree = "<group>"; };
 		C30B89432EC0D4FC00B190B8 /* PaymentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentModel.swift; sourceTree = "<group>"; };
-		C30B894E2EC0EFD300B190B8 /* LoginViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModelTests.swift; sourceTree = "<group>"; };
 		C30E92332EC219C8003EC610 /* OrderStatus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderStatus.swift; sourceTree = "<group>"; };
 		C30E92352EC219C8003EC610 /* OrderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderView.swift; sourceTree = "<group>"; };
 		C30E92372EC219C8003EC610 /* OrderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderViewModel.swift; sourceTree = "<group>"; };
@@ -394,7 +392,6 @@
 			isa = PBXGroup;
 			children = (
 				C315B9E62EA572AA001FDCD4 /* ShopAppTests.swift */,
-				C30B894E2EC0EFD300B190B8 /* LoginViewModelTests.swift */,
 				10C7FE9E2EC2663600F4AEDF /* ApiServerTest.swift */,
 				10C7FEA02EC2669100F4AEDF /* MockURLProtocol.swift */,
 			);
@@ -888,7 +885,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				10C7FE9F2EC2663600F4AEDF /* ApiServerTest.swift in Sources */,
-				C30B894F2EC0EFD300B190B8 /* LoginViewModelTests.swift in Sources */,
 				C315B9E72EA572AA001FDCD4 /* ShopAppTests.swift in Sources */,
 				10C7FEA12EC2669100F4AEDF /* MockURLProtocol.swift in Sources */,
 			);

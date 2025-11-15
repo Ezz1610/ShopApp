@@ -805,7 +805,7 @@ struct AddAddressView: View {
                         HStack {
                             Image(systemName: "envelope.fill")
                                 .foregroundColor(.green)
-                            Text("support@yourshopify.com")
+                            Text("support@yourshopapp.com")
                         }
                     }
                     
@@ -856,7 +856,7 @@ struct AddAddressView: View {
                         Text("About Our Store")
                             .font(.title.bold())
                         
-                        Text("Welcome to our Shopify shopping app!")
+                        Text("Welcome to our ShopApp application!")
                             .font(.title3)
                             .foregroundColor(.secondary)
                     }
@@ -892,7 +892,7 @@ struct AddAddressView: View {
             HStack(alignment: .top, spacing: 15) {
                 Image(systemName: icon)
                     .font(.title2)
-                    .foregroundColor(.blue)
+                    .foregroundColor(.black)
                     .frame(width: 30)
                 
                 VStack(alignment: .leading, spacing: 5) {
