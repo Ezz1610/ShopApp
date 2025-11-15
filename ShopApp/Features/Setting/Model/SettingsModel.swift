@@ -1,12 +1,13 @@
+////
+////  SettingsModel.swift
+////  ShopApp
+////
+////  Created by Soha Elgaly on 23/10/2025.
+////
 //
-//  SettingsModel.swift
-//  ShopApp
-//
-//  Created by Soha Elgaly on 23/10/2025.
-//
-
+import SwiftUI
 import SwiftData
-import Foundation
+
 
 @Model
 final class Address {
@@ -31,4 +32,8 @@ final class Address {
         self.phone = phone
         self.isDefault = isDefault
     }
+}
+enum AddressSourceView {
+    case settings
+    case checkout
 }

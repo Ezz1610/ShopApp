@@ -14,6 +14,7 @@ struct SettingsView: View {
     @EnvironmentObject var navigator: AppNavigator
     @State private var currentCity: String = ""
     @State private var showLogoutAlert = false
+  
     
     var body: some View {
 //        NavigationStack {
@@ -21,7 +22,7 @@ struct SettingsView: View {
             
                 userProfileSection
                 currencySection
-                addressesSection
+                SettingsAddressSection()
                 ordersSection
                 supportSection
                 logoutSection
@@ -128,45 +129,7 @@ struct SettingsView: View {
         }
     }
     
-    // MARK: - Addresses Section
-    private var addressesSection: some View {
-        Section {
-            Button {
-                navigator.goTo(.addressesView, replaceLast: false)
-            } label: {
-                HStack(spacing: 15) {
-                    Image(systemName: "house.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(.orange)
-                        .frame(width: 32)
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Addresses")
-                            .font(.body)
-                            .foregroundColor(.black)
-                        if let defaultAddress = viewModel.defaultAddress {
-                            Text(defaultAddress)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .lineLimit(1)
-                        } else {
-                            Text("Add your addresses")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    
-                    Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
-        } header: {
-            Text("Account")
-        }
-    }
+
 
     // MARK: - Orders Section
     private var ordersSection: some View {
@@ -379,362 +342,7 @@ struct CurrencySelectionView: View {
 
 
 
-struct AddressesListView: View {
-    @ObservedObject var viewModel = AddressesViewModel.shared
-    @State private var showAddAddress = false
-    @Environment(\.modelContext) private var modelContext
-    @Query private var addresses: [Address]
-    @State private var showGuestAlert = false
-    @EnvironmentObject var navigator: AppNavigator
 
-    private var headerBar: some View {
-        HStack {
-            Button(action: { navigator.goBack() }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "chevron.left")
-                    Text("Settings")
-                }
-                .foregroundColor(.black)
-            }
-
-            Spacer()
-
-            Text("Addresses")
-                .font(.title2.bold())
-
-            Spacer()
-
-            
-            Button {
-                showAddAddress = true
-            } label: {
-                Image(systemName: "plus")
-                    .foregroundColor(.black)
-                    .font(.title3)
-            }
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 10)
-        .background(Color(.systemGray6))
-    }
-
-    var body: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                if addresses.isEmpty {
-                    emptyAddressesView
-                } else {
-                    List {
-                        ForEach(addresses) { address in
-                            AddressRowView(
-                                address: address,
-                                isDefault: address.id == viewModel.defaultAddressId
-                            ) {
-                                viewModel.setDefaultAddress(address.id)
-                            }
-                        }
-                        .onDelete { offsets in
-                            deleteAddresses(at: offsets)
-                        }
-                    }
-                }
-            }
-        }
-        .navigationTitle("Addresses")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button {
-                        navigator.goTo(.mainTabView(selectedTab: 2),replaceLast : true)
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "chevron.left")
-                        Text("Settings")
-                    }
-                }
-            }
-
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    showAddAddress = true
-                } label: {
-                    Image(systemName: "plus")
-                }
-            }
-        }
-        .sheet(isPresented: $showAddAddress) {
-            
-            AddAddressView(num: 0)
-        }
-        .onAppear {
-            viewModel.setModelContext(modelContext)
-            viewModel.refreshAddresses()
-        }
-    }
-
-    private func deleteAddresses(at offsets: IndexSet) {
-        for index in offsets {
-            let address = addresses[index]
-            viewModel.deleteAddress(address)
-        }
-    }
-    
-    private var emptyAddressesView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "house.fill")
-                .font(.system(size: 60))
-                .foregroundColor(.gray)
-            
-            Text("No Addresses")
-                .font(.title2.bold())
-            
-            Text("Add your delivery addresses to make checkout faster")
-                .font(.body)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-            
-            Button {
-                if AppViewModel.shared.isGuest {
-                    showGuestAlert = true
-                } else {
-                    showAddAddress = true
-                }
-            } label: {
-                Text("Add Address")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: 200)
-                    .padding()
-                    .background(AppColors.primary)
-                    .cornerRadius(12)
-            }
-            .alert("You must login to access this feature", isPresented: $showGuestAlert) {
-                Button("Login") {
-                    navigator.goTo(.login, replaceLast: true)
-                }
-                Button("Continue as Guest", role: .cancel) {}
-            }
-        }
-        .padding()
-    }
-}
-
-// MARK: - Address Row View
-struct AddressRowView: View {
-    let address: Address
-    let isDefault: Bool
-    let onSetDefault: () -> Void
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(address.name)
-                    .font(.headline)
-                
-                Spacer()
-                
-                if isDefault {
-                    Text("Default")
-                        .font(.caption.bold())
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(AppColors.primary)
-                        .cornerRadius(6)
-                }
-            }
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(address.street)
-                    .font(.body)
-                    .foregroundColor(.primary)
-                
-                Text("\(address.city), \(address.state) \(address.zipCode)")
-                    .font(.body)
-                    .foregroundColor(.primary)
-                
-                Text(address.country)
-                    .font(.body)
-                    .foregroundColor(.primary)
-                
-                if let phone = address.phone {
-                    Text(phone)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
-            
-            if !isDefault {
-                Button {
-                    onSetDefault()
-                } label: {
-                    Text("Set as Default")
-                        .font(.caption.bold())
-                        .foregroundColor(AppColors.primary)
-                }
-            }
-        }
-        .padding(.vertical, 8)
-    }
-}
-
-// MARK: - Add Address View
-
-
-struct AddAddressView: View {
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) private var modelContext
-    var num: Int = 1
-    @State private var name = ""
-    @State private var street = ""
-    @State private var city = ""
-    @State private var state = ""
-    @State private var zipCode = ""
-    @State private var country = ""
-    @State private var phone = ""
-    @State private var setAsDefault = false
-    @EnvironmentObject var navigator: AppNavigator
-    @State private var nearbyCities: [City] = []
-    @State private var isLoading = false
-    @State private var errorMessage: String?
-    
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section("Contact Information") {
-                    TextField("Full Name", text: $name)
-                    VStack(alignment: .leading, spacing: 2) {
-                        TextField("Phone Number", text: $phone)
-                            .keyboardType(.phonePad)
-                            .onChange(of: phone) { _ in
-                                // Optional: remove non-digit characters
-                                phone = phone.filter { $0.isNumber }
-                            }
-                        
-                        // Inline validation message
-                        if !isEgyptPhoneValid && !phone.isEmpty {
-                            Text("Please enter a valid Egyptian phone number")
-                                .foregroundColor(.red)
-                                .font(.caption)
-                        }
-                    }
-                }
-                    
-                    Section("Address") {
-                        TextField("Street Address", text: $street)
-                        
-                        if isLoading {
-                            ProgressView("Loading nearby cities...")
-                        } else if !nearbyCities.isEmpty {
-                            Menu {
-                                ForEach(nearbyCities) { cityItem in
-                                    Button(cityItem.name) {
-                                        city = cityItem.name
-                                    }
-                                }
-                            } label: {
-                                HStack {
-                                    Text(city.isEmpty ? "Select City" : city)
-                                        .foregroundColor(city.isEmpty ? .gray : .primary)
-                                    Spacer()
-                                    Image(systemName: "chevron.down")
-                                        .foregroundColor(.gray)
-                                }
-                            }
-                        } else if let error = errorMessage {
-                            Text(error)
-                                .foregroundColor(.red)
-                                .font(.caption)
-                        } else {
-                            TextField("City", text: $city)
-                        }
-                        
-                        TextField("State/Province", text: $state)
-                        TextField("ZIP/Postal Code", text: $zipCode)
-                        TextField("Country", text: $country)
-                    }
-                    
-                    Section {
-                        Toggle("Set as default address", isOn: $setAsDefault)
-                    }
-                }
-                .navigationTitle("Add Address")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
-                            if num == 0 {
-                                dismiss()
-                            } else {
-                                navigator.goTo(.checkoutView, replaceLast: false)
-                            }
-                           
-                        }
-                    }
-                    
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Save") {
-                            saveAddress()
-                        }
-                            .disabled(!isFormValid)
-                    }
-                }
-                .task {
-                    await loadNearbyCities()
-                }
-            }
-        }
-        var isEgyptPhoneValid: Bool {
-            let egyptPhoneRegex = "^(010|011|012|015)[0-9]{8}$"
-            return NSPredicate(format: "SELF MATCHES %@", egyptPhoneRegex).evaluate(with: phone)
-        }
-        // MARK: - Form Validation
-        private var isFormValid: Bool {
-            !name.isEmpty && !street.isEmpty && !city.isEmpty && !state.isEmpty && !zipCode.isEmpty && !country.isEmpty
-        }
-        
-        // MARK: - Save Address
-        private func saveAddress() {
-            let address = Address(
-                name: name,
-                street: street,
-                city: city,
-                state: state,
-                zipCode: zipCode,
-                country: country,
-                phone: phone.isEmpty ? nil : phone
-            )
-            
-            modelContext.insert(address)
-            
-            do {
-                try modelContext.save()
-                
-                AddressesViewModel.shared.setModelContext(modelContext)
-                if setAsDefault {
-                    AddressesViewModel.shared.setDefaultAddress(address.id)
-                }
-                
-                dismiss()
-            } catch {
-                print("Error saving address: \(error.localizedDescription)")
-            }
-        }
-        
-        // MARK: - Load Nearby Cities
-        private func loadNearbyCities() async {
-            isLoading = true
-            do {
-                let cities = try await LocationHelper.shared.getNearbyCities(limit: 10)
-                nearbyCities = cities
-                print("vvvvvvvvvvvvvvvvv \(nearbyCities.count)")
-            } catch {
-                errorMessage = "Failed to load cities: \(error.localizedDescription)"
-            }
-            isLoading = false
-        }
-    }
     // MARK: - Orders List View
     struct OrdersListView: View {
         // TODO: Add your OrdersViewModel here
@@ -907,4 +515,631 @@ struct AddAddressView: View {
     }
     
     
+
+
+// MARK: - Addresses List View
+struct AddressesListView: View {
+    @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject var navigator: AppNavigator
+    @Query private var addresses: [Address]
+    @State private var num = 0
+    // Track where we came from
+    var sourceView: AddressSourceView = .settings
+    
+    private var defaultAddress: Address? {
+        addresses.first { $0.isDefault }
+    }
+    
+    var body: some View {
+        ZStack {
+            if addresses.isEmpty {
+                emptyStateView
+            } else {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // Default Address Card
+                        if let defaultAddr = defaultAddress {
+                            defaultAddressCard(defaultAddr)
+                        }
+                        
+                        // Other Addresses
+                        let otherAddresses = addresses.filter { !$0.isDefault }
+                        if !otherAddresses.isEmpty {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Other Addresses")
+                                    .font(.headline)
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal)
+                                
+                                ForEach(otherAddresses) { address in
+                                    addressCard(address)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.vertical)
+                }
+            }
+        }
+        .navigationTitle("My Addresses")
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    navigator.goBack()
+                    
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+            }
+            
+            if !addresses.isEmpty {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        navigator.goTo(.addAddress, replaceLast: false)
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title3)
+                            .foregroundColor(AppColors.primary)
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Default Address Card
+    private func defaultAddressCard(_ address: Address) -> some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .foregroundColor(.green)
+                    Text("Default Address")
+                        .font(.subheadline.bold())
+                        .foregroundColor(.green)
+                }
+                Spacer()
+                Menu {
+                    Button(role: .destructive) {
+                        deleteAddress(address)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.title3)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding()
+            .background(Color.green.opacity(0.1))
+            
+            // Address Content
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: "person.fill")
+                        .foregroundColor(AppColors.primary)
+                        .frame(width: 24)
+                    Text(address.name)
+                        .font(.headline)
+                }
+                
+                Divider()
+                
+                HStack(alignment: .top) {
+                    Image(systemName: "location.fill")
+                        .foregroundColor(AppColors.primary)
+                        .frame(width: 24)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(address.street)
+                        Text("\(address.city), \(address.state)")
+                        Text("\(address.zipCode), \(address.country)")
+                    }
+                    .font(.body)
+                }
+                
+                if let phone = address.phone {
+                    HStack {
+                        Image(systemName: "phone.fill")
+                            .foregroundColor(AppColors.primary)
+                            .frame(width: 24)
+                        Text(phone)
+                            .font(.body)
+                    }
+                }
+            }
+            .padding()
+        }
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.green.opacity(0.2), radius: 8, x: 0, y: 4)
+        .padding(.horizontal)
+    }
+    
+    // MARK: - Regular Address Card
+    private func addressCard(_ address: Address) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(address.name)
+                        .font(.headline)
+                    
+                    HStack(spacing: 4) {
+                        Image(systemName: "location.fill")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("\(address.street), \(address.city)")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+                
+                Spacer()
+                
+                Menu {
+                    Button {
+                        setAsDefault(address)
+                    } label: {
+                        Label("Set as Default", systemImage: "checkmark.circle")
+                    }
+                    
+                    Divider()
+                    
+                    Button(role: .destructive) {
+                        deleteAddress(address)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            Divider()
+            
+            // Quick Info
+            HStack(spacing: 20) {
+                Label(address.state, systemImage: "building.2")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                if let phone = address.phone {
+                    Label(phone, systemImage: "phone")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            // Set as Default Button
+            Button {
+                setAsDefault(address)
+            } label: {
+                HStack {
+                    Image(systemName: "checkmark.circle")
+                    Text("Set as Default")
+                }
+                .font(.subheadline.bold())
+                .foregroundColor(AppColors.primary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(AppColors.primary.opacity(0.1))
+                .cornerRadius(8)
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+        .padding(.horizontal)
+    }
+    
+    // MARK: - Empty State
+    private var emptyStateView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            ZStack {
+                Circle()
+                    .fill(AppColors.primary.opacity(0.1))
+                    .frame(width: 120, height: 120)
+                
+                Image(systemName: "house.fill")
+                    .font(.system(size: 50))
+                    .foregroundColor(AppColors.primary)
+            }
+            
+            VStack(spacing: 8) {
+                Text("No Addresses Yet")
+                    .font(.title2.bold())
+                
+                Text("Add your first delivery address to get started with fast checkout")
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            }
+            
+            Button {
+                navigator.goTo(.addAddress, replaceLast: false)
+            } label: {
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                    Text("Add Address")
+                }
+                .font(.headline)
+                .foregroundColor(.white)
+                .frame(maxWidth: 280)
+                .padding()
+                .background(AppColors.primary)
+                .cornerRadius(14)
+            }
+            
+            Spacer()
+        }
+        .padding()
+    }
+    
+    // MARK: - Actions
+    private func setAsDefault(_ address: Address) {
+        // Remove default from all
+        for addr in addresses {
+            addr.isDefault = false
+        }
+        
+        // Set new default
+        address.isDefault = true
+        
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error setting default: \(error)")
+        }
+    }
+    
+    private func deleteAddress(_ address: Address) {
+        modelContext.delete(address)
+        
+        do {
+            try modelContext.save()
+            
+            // If deleted was default and there are other addresses, set first as default
+            if address.isDefault && !addresses.isEmpty {
+                addresses.first?.isDefault = true
+                try modelContext.save()
+            }
+        } catch {
+            print("Error deleting: \(error)")
+        }
+    }
+}
+
+// MARK: - Add/Edit Address View
+struct AddAddressView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject var navigator: AppNavigator
+    @Query private var addresses: [Address]
+    
+    @State private var name = ""
+    @State private var street = ""
+    @State private var city = ""
+    @State private var state = ""
+    @State private var zipCode = ""
+    @State private var country = "Egypt"
+    @State private var phone = ""
+    @State private var setAsDefault = false
+    @State private var nearbyCities: [City] = []
+    @State private var isLoadingCities = false
+    
+    private var isFirstAddress: Bool {
+        addresses.isEmpty
+    }
+    
+    private var isFormValid: Bool {
+        !name.isEmpty &&
+        !street.isEmpty &&
+        !city.isEmpty &&
+        !state.isEmpty &&
+        !zipCode.isEmpty &&
+        !country.isEmpty &&
+        isPhoneValid
+    }
+    
+    private var isPhoneValid: Bool {
+        phone.isEmpty || phone.count >= 10
+    }
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                // Info Banner
+                if isFirstAddress {
+                    infoBanner
+                }
+                
+                // Contact Section
+                VStack(alignment: .leading, spacing: 16) {
+                    sectionHeader("Contact Information", icon: "person.fill")
+                    
+                    CustomTextField(
+                        iconName: "person",
+                        placeholder: "Full Name",
+                        text: $name
+                    )
+                    
+                    CustomTextField(
+                        iconName: "phone",
+                        placeholder: "Phone Number",
+                        text: $phone,
+                        keyboardType: .phonePad
+                    )
+                    .onChange(of: phone) { _ in
+                        phone = phone.filter { $0.isNumber }
+                    }
+                    
+                    if !phone.isEmpty && !isPhoneValid {
+                        Label("Please enter a valid phone number (min 10 digits)", systemImage: "exclamationmark.circle")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
+                }
+                
+                // Address Section
+                VStack(alignment: .leading, spacing: 16) {
+                    sectionHeader("Address Details", icon: "location.fill")
+                    
+                    CustomTextField(
+                        iconName: "road.lanes",
+                        placeholder: "Street Address",
+                        text: $street
+                    )
+                    
+                    // City Picker
+                    if isLoadingCities {
+                        HStack {
+                            ProgressView()
+                            Text("Loading cities...")
+                                .foregroundColor(.secondary)
+                        }
+                        .padding()
+                    } else if !nearbyCities.isEmpty {
+                        Menu {
+                            ForEach(nearbyCities) { cityItem in
+                                Button(cityItem.name) {
+                                    city = cityItem.name
+                                }
+                            }
+                        } label: {
+                            HStack {
+                                Image(systemName: "building.2")
+                                    .foregroundColor(AppColors.primary)
+                                Text(city.isEmpty ? "Select City" : city)
+                                    .foregroundColor(city.isEmpty ? .secondary : .primary)
+                                Spacer()
+                                Image(systemName: "chevron.down")
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding()
+                            .background(Color.gray.opacity(0.1))
+                            .cornerRadius(12)
+                        }
+                    } else {
+                        CustomTextField(
+                            iconName: "building.2",
+                            placeholder: "City",
+                            text: $city
+                        )
+                    }
+                    
+                    CustomTextField(
+                        iconName: "map",
+                        placeholder: "State/Province",
+                        text: $state
+                    )
+                    
+                    CustomTextField(
+                        iconName: "number",
+                        placeholder: "ZIP/Postal Code",
+                        text: $zipCode,
+                        keyboardType: .numberPad
+                    )
+                    
+                    CustomTextField(
+                        iconName: "flag",
+                        placeholder: "Country",
+                        text: $country
+                    )
+                }
+                
+                // Default Toggle
+                if !isFirstAddress {
+                    Toggle(isOn: $setAsDefault) {
+                        HStack {
+                            Image(systemName: "checkmark.seal.fill")
+                                .foregroundColor(setAsDefault ? .green : .secondary)
+                            Text("Set as default address")
+                                .font(.body)
+                        }
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(12)
+                }
+                
+                // Save Button
+                Button {
+                    saveAddress()
+                } label: {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                        Text("Save Address")
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(isFormValid ? AppColors.primary : Color.gray)
+                    .cornerRadius(14)
+                }
+                .disabled(!isFormValid)
+            }
+            .padding()
+        }
+        .navigationTitle("Add Address")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(false)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    navigator.goBack()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+            }
+        }
+        .task {
+            await loadNearbyCities()
+        }
+    }
+    
+    // MARK: - Info Banner
+    private var infoBanner: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "info.circle.fill")
+                .font(.title2)
+                .foregroundColor(.blue)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("First Address")
+                    .font(.subheadline.bold())
+                Text("This will be set as your default delivery address")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+        }
+        .padding()
+        .background(Color.blue.opacity(0.1))
+        .cornerRadius(12)
+    }
+    
+    // MARK: - Section Header
+    private func sectionHeader(_ title: String, icon: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .foregroundColor(AppColors.primary)
+            Text(title)
+                .font(.headline)
+        }
+    }
+    
+    // MARK: - Save Address
+    private func saveAddress() {
+        let address = Address(
+            name: name,
+            street: street,
+            city: city,
+            state: state,
+            zipCode: zipCode,
+            country: country,
+            phone: phone.isEmpty ? nil : phone,
+            isDefault: isFirstAddress || setAsDefault
+        )
+        
+        // If setting as default, remove default from others
+        if address.isDefault {
+            for addr in addresses {
+                addr.isDefault = false
+            }
+        }
+        
+        modelContext.insert(address)
+        
+        do {
+            try modelContext.save()
+            navigator.goBack()
+        } catch {
+            print("Error saving: \(error)")
+        }
+    }
+    
+    // MARK: - Load Cities
+    private func loadNearbyCities() async {
+        isLoadingCities = true
+        do {
+            nearbyCities = try await LocationHelper.shared.getNearbyCities(limit: 10)
+        } catch {
+            print("Error loading cities: \(error)")
+        }
+        isLoadingCities = false
+    }
+}
+
+
+// MARK: - Settings Address Section
+struct SettingsAddressSection: View {
+    @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject var navigator: AppNavigator
+    @Query private var addresses: [Address]
+    
+    private var defaultAddress: Address? {
+        addresses.first { $0.isDefault }
+    }
+    
+    var body: some View {
+        Section {
+            Button {
+                navigator.goTo(.addressesView, replaceLast: false)
+            } label: {
+                HStack(spacing: 15) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.orange.opacity(0.1))
+                            .frame(width: 40, height: 40)
+                        
+                        Image(systemName: "house.fill")
+                            .foregroundColor(.orange)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Addresses")
+                            .font(.body.bold())
+                            .foregroundColor(.primary)
+                        
+                        if let addr = defaultAddress {
+                            Text("\(addr.city), \(addr.state)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                        } else {
+                            Text("Add your delivery address")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+        } header: {
+            Text("Delivery")
+        }
+    }
+}
+
 

@@ -1,19 +1,8 @@
-//
-//  CheckoutView.swift
-//  ShopApp
-//
-//  Created by Soha Elgaly on 08/11/2025.
-//
-
-
-
-
-
-
 import SwiftUI
 import PayPalCheckout
 import SwiftData
 import FirebaseAuth
+
 // MARK: - Checkout View
 struct CheckoutView: View {
     @SwiftUI.Environment(\.dismiss) var dismiss
@@ -21,74 +10,201 @@ struct CheckoutView: View {
     @Bindable var currencyManager = CurrencyManager.shared
     @SwiftUI.Environment(\.modelContext) private var modelContext
     @Query private var addresses: [Address]
-    @AppStorage("defaultAddressID") private var defaultAddressID: String?
     @EnvironmentObject var navigator: AppNavigator
     @SwiftUI.State private var couponCode = ""
     @SwiftUI.State private var appliedCoupon: AppliedCoupon?
     @SwiftUI.State private var showCouponError = false
     @SwiftUI.State private var couponErrorMessage = ""
+    
     private var defaultAddress: Address? {
-        if let id = defaultAddressID, let uuid = UUID(uuidString: id) {
-            return addresses.first { $0.id == uuid }
-        }
-        return addresses.first
+        addresses.first { $0.isDefault }
     }
-    @SwiftUI.State private var showAddAddress = false
-    @ObservedObject var viewModel = AddressesViewModel.shared
+    
     var body: some View {
         NavigationStack {
-        ScrollView {
-            VStack(spacing: 25) {
-                shippingAddressSection
-                couponSection
-                orderSummarySection
-                testModeNotice
-                paymentMethodSection
-                payButton
+            ScrollView {
+                VStack(spacing: 25) {
+                    shippingAddressSection
+                    couponSection
+                    orderSummarySection
+                    testModeNotice
+                    paymentMethodSection
+                    payButton
+                }
+                .padding()
             }
-            .padding()
-        }
-        .navigationTitle("Checkout")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Cancel") {
-                
-                    navigator.goTo(.cartView, replaceLast: false)
-                    dismiss()
+            .navigationTitle("Checkout")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        navigator.goBack()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                            Text("Back")
+                        }
+                    }
                 }
             }
-        }
-        .overlay {
-            if vm.showPaymentProcessing {
-                paymentProcessingOverlay
+            .overlay {
+                if vm.showPaymentProcessing {
+                    paymentProcessingOverlay
+                }
+            }
+            .alert("Order Placed! 🎉", isPresented: $vm.showSuccessAlert) {
+                Button("View Orders") {
+                    CartManager.shared.clearCart()
+                    appliedCoupon = nil
+                    navigator.goTo(.ordersView, replaceLast: false)
+                    dismiss()
+                }
+                Button("Done") {
+                    CartManager.shared.clearCart()
+                    appliedCoupon = nil
+                    navigator.goBack()
+                }
+            } message: {
+                Text(vm.paymentMessage)
+            }
+            .alert("Invalid Coupon", isPresented: $showCouponError) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(couponErrorMessage)
+            }
+            .onAppear {
+                vm.configurePayPalCheckout()
             }
         }
-        .alert("Order Placed! 🎉", isPresented: $vm.showSuccessAlert) {
-            Button("View Orders") {
-                CartManager.shared.clearCart()
-                appliedCoupon = nil
-                navigator.goTo(.ordersView, replaceLast: false)
-                dismiss()
-            }
-            Button("Done") {
-                CartManager.shared.clearCart()
-                appliedCoupon = nil
-                dismiss()
-            }
-        } message: {
-            Text(vm.paymentMessage)
-        }
-        .alert("Invalid Coupon", isPresented: $showCouponError) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(couponErrorMessage)
-        }
-        .onAppear {
-            vm.configurePayPalCheckout()
-        }
-        
     }
+    
+    // MARK: - Shipping Address Section
+    private var shippingAddressSection: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            HStack {
+                Text("Shipping Address")
+                    .font(.title2.bold())
+                Spacer()
+                
+                // Only show Change button when there ARE addresses
+                if !addresses.isEmpty {
+                    Button {
+                        navigator.goTo(.addressesView, replaceLast: false)
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("Change")
+                                .font(.subheadline.bold())
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                        }
+                        .foregroundColor(AppColors.primary)
+                    }
+                }
+            }
+            
+            if let address = defaultAddress {
+                // Address Card - NOT tappable
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: "location.fill")
+                            .font(.title3)
+                            .foregroundColor(AppColors.primary)
+                        
+                        Text(address.name)
+                            .font(.headline)
+                        
+                        Spacer()
+                        
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                    }
+                    
+                    Divider()
+                    
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "house.fill")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .frame(width: 16)
+                            Text(address.street)
+                                .font(.body)
+                        }
+                        
+                        HStack(spacing: 8) {
+                            Image(systemName: "mappin.circle.fill")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .frame(width: 16)
+                            Text("\(address.city), \(address.state) \(address.zipCode)")
+                                .font(.body)
+                        }
+                        
+                        HStack(spacing: 8) {
+                            Image(systemName: "flag.fill")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .frame(width: 16)
+                            Text(address.country)
+                                .font(.body)
+                        }
+                        
+                        if let phone = address.phone {
+                            HStack(spacing: 8) {
+                                Image(systemName: "phone.fill")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .frame(width: 16)
+                                Text(phone)
+                                    .font(.body)
+                            }
+                        }
+                    }
+                }
+                .padding()
+                .background(Color.black.opacity(0.05))
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.black.opacity(0.3), lineWidth: 1)
+                )
+            } else {
+                // No Address Card - Tappable button
+                Button {
+                    navigator.goTo(.addAddress, replaceLast: false)
+                } label: {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.orange)
+                                Text("No Address Selected")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                            }
+                            
+                            Text("Add a delivery address to continue")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(AppColors.primary)
+                    }
+                    .padding()
+                    .background(Color.orange.opacity(0.1))
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+        }
     }
     
     // MARK: - Coupon Section
@@ -184,139 +300,6 @@ struct CheckoutView: View {
                 .padding(.top, 8)
             }
         }
-    }
-    
-    // MARK: - Shipping Address Section
-    private var shippingAddressSection: some View {
-        
-        VStack(alignment: .leading, spacing: 15) {
-            HStack {
-                       Text("Shipping Address")
-                           .font(.title2.bold())
-                       Spacer()
-                       
-                       Button {
-                           showAddAddress = true
-                       } label: {
-                           HStack(spacing: 4) {
-                               Text(addresses.isEmpty ? "Add" : "Change")
-                                   .font(.subheadline.bold())
-                               Image(systemName: "chevron.right")
-                                   .font(.caption)
-                           }
-                           .foregroundColor(.black)
-                       }
-                   }
-            
-            if let address = defaultAddress {
-                // Address Card
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Image(systemName: "location.fill")
-                            .font(.title3)
-                            .foregroundColor(AppColors.primary)
-                        
-                        Text(defaultAddress!.name)
-                            .font(.headline)
-                        
-                        Spacer()
-                        
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                    }
-                    
-                    Divider()
-                    
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "house.fill")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .frame(width: 16)
-                            Text(defaultAddress!.street)
-                                .font(.body)
-                        }
-                        
-                        HStack(spacing: 8) {
-                            Image(systemName: "mappin.circle.fill")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .frame(width: 16)
-                            Text("\(defaultAddress?.city), \(defaultAddress?.state) \(defaultAddress?.zipCode)")
-                                .font(.body)
-                        }
-                        
-                        HStack(spacing: 8) {
-                            Image(systemName: "flag.fill")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .frame(width: 16)
-                            Text(defaultAddress!.country)
-                                .font(.body)
-                        }
-                        
-                        if let phone = defaultAddress?.phone {
-                            HStack(spacing: 8) {
-                                Image(systemName: "phone.fill")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                    .frame(width: 16)
-                                Text(phone)
-                                    .font(.body)
-                            }
-                        }
-                    }
-                }
-                .padding()
-                .background(Color.black.opacity(0.05))
-                .cornerRadius(12)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.black.opacity(0.3), lineWidth: 1)
-                )
-            } else {
-                // No Address Card
-                NavigationLink {
-                    AddressesListView()
-                } label: {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundColor(.orange)
-                                Text("No Address Selected")
-                                    .font(.headline)
-                                    .foregroundColor(.primary)
-                            }
-                            
-                            Text("Add a delivery address to continue")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        
-                        Spacer()
-                        
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(AppColors.primary)
-                    }
-                    .padding()
-                    .background(Color.orange.opacity(0.1))
-                    .cornerRadius(12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-                    )
-                }
-            }
-        }
-        .sheet(isPresented: $showAddAddress) {
-               AddAddressView(num: 0)
-           }
-           .onAppear {
-               viewModel.setModelContext(modelContext)
-               viewModel.refreshAddresses()
-           }
     }
     
     // MARK: - Order Summary
@@ -577,8 +560,6 @@ struct CheckoutView: View {
                             .font(.headline)
                     }
                     
-                    let baseTotal = CartManager.shared.totalCartValueInUSD
-                    let convertedTotal = baseTotal * currencyManager.exchangeRate
                     let finalTotal = calculateFinalTotal()
                     Text("\(currencyManager.getCurrencySymbol())\(String(format: "%.2f", finalTotal))")
                         .font(.subheadline)
@@ -673,7 +654,7 @@ struct CheckoutView: View {
             vm.showSuccessAlert = true
             Task {
                 do { try await createShopifyOrder() }
-                catch { print(" Shopify order creation failed: \(error.localizedDescription)") }
+                catch { print("Shopify order creation failed: \(error.localizedDescription)") }
             }
         }
     }
@@ -685,12 +666,12 @@ struct CheckoutView: View {
         }
         Task {
             do { try await createShopifyOrder() }
-            catch { print(" Shopify order creation failed: \(error.localizedDescription)") }
+            catch { print("Shopify order creation failed: \(error.localizedDescription)") }
         }
     }
     
     // MARK: - Coupon Logic
-      func applyCoupon() {
+    func applyCoupon() {
         let code = couponCode.uppercased().trimmingCharacters(in: .whitespaces)
         
         switch code {
@@ -714,7 +695,7 @@ struct CheckoutView: View {
             appliedCoupon = AppliedCoupon(
                 code: code,
                 type: .fixedAmount(50),
-                description: " -50 on your order"
+                description: "-50 on your order"
             )
             couponCode = ""
             
@@ -750,7 +731,61 @@ struct CheckoutView: View {
         let baseTotal = CartManager.shared.totalCartValueInUSD
         let convertedTotal = baseTotal * currencyManager.exchangeRate
         let discount = calculateDiscount()
-        return max(0, convertedTotal - discount) // Ensure total doesn't go negative
+        return max(0, convertedTotal - discount)
+    }
+    
+    // MARK: - Shopify Order Creation
+    private func createShopifyOrder() async throws {
+        print("Creating Shopify order...")
+        
+        let userEmail = Auth.auth().currentUser?.email ?? ""
+        
+        let url = URL(string: "\(AppConstant.baseUrl)/orders.json")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(AppConstant.shopifyAccessToken, forHTTPHeaderField: "X-Shopify-Access-Token")
+        
+        let lineItems: [[String: Any]] = CartManager.shared.productsInCart.map { cartItem in
+            let priceStr = cartItem.product.variants.first?.price ?? cartItem.product.price
+            return [
+                "title": cartItem.product.title,
+                "quantity": cartItem.quantity,
+                "price": priceStr
+            ]
+        }
+        
+        let body: [String: Any] = [
+            "order": [
+                "email": userEmail,
+                "send_receipt": true,
+                "send_fulfillment_receipt": true,
+                "financial_status": "paid",
+                "payment_gateway_names": ["PayPal"],
+                "line_items": lineItems,
+                "shipping_address": [
+                    "address1": "address",
+                    "first_name": "Prodify",
+                    "last_name": "User",
+                    "country": "Egypt"
+                ]
+            ]
+        ]
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+        }
+        
+        if http.statusCode == 201 {
+            print("Shopify order created successfully")
+        } else {
+            let msg = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("Shopify order creation failed: \(msg)")
+            throw NSError(domain: "", code: http.statusCode, userInfo: [NSLocalizedDescriptionKey: msg])
+        }
     }
 }
 
@@ -785,55 +820,3 @@ struct CouponHintBadge: View {
             )
     }
 }
-private func createShopifyOrder() async throws {
-            print("Creating Shopify order...")
-
-            let userEmail = Auth.auth().currentUser?.email ?? ""
-
-            let url = URL(string: "\(AppConstant.baseUrl)/orders.json")!
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue(AppConstant.shopifyAccessToken, forHTTPHeaderField: "X-Shopify-Access-Token")
-
-            let lineItems: [[String: Any]] = CartManager.shared.productsInCart.map { cartItem in
-                let priceStr = cartItem.product.variants.first?.price ?? cartItem.product.price
-                return [
-                    "title": cartItem.product.title,
-                    "quantity": cartItem.quantity,
-                    "price": priceStr
-                ]
-            }
-
-            let body: [String: Any] = [
-                "order": [
-                    "email": userEmail,
-                    "send_receipt": true,
-                    "send_fulfillment_receipt": true,
-                    "financial_status": "paid",
-                    "payment_gateway_names": ["PayPal"],
-                    "line_items": lineItems,
-                    "shipping_address": [
-                        "address1": "address",
-                        "first_name": "Prodify",
-                        "last_name": "User",
-                        "country": "Egypt"
-                    ]
-                ]
-            ]
-
-            request.httpBody = try JSONSerialization.data(withJSONObject: body)
-
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let http = response as? HTTPURLResponse else {
-                throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
-            }
-
-            if http.statusCode == 201 {
-                print(" Shopify order created successfully")
-            } else {
-                let msg = String(data: data, encoding: .utf8) ?? "Unknown error"
-                print(" Shopify order creation failed: \(msg)")
-                throw NSError(domain: "", code: http.statusCode, userInfo: [NSLocalizedDescriptionKey: msg])
-            }
-        }

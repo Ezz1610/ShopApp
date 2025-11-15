@@ -68,6 +68,7 @@ struct RootView: View {
                         AddressesListView()
                     case .checkoutView:
                         CheckoutView()
+                   
                     }
                 }
                 .animation(.easeInOut, value: navigator.currentScreen)

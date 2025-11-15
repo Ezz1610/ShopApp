@@ -12,7 +12,6 @@ struct CartView: View {
     
     @EnvironmentObject var cartManager: CartManager 
     @EnvironmentObject var navigator: AppNavigator
-    @State private var showCheckout = false
     @Bindable var currencyManager = CurrencyManager.shared
     fileprivate func cartRow(productInCart: ProductInCart) -> some View {
         let product = productInCart.product
@@ -103,7 +102,7 @@ struct CartView: View {
                     }
                 } else {
                     VStack(spacing:-25) {
-                    Button(action: { showCheckout = true }) {
+                        Button(action: { navigator.goTo(.checkoutView, replaceLast: false)}) {
                         Text("Proceed to Checkout")
                             .font(.headline.bold())
                             .foregroundColor(.white)
@@ -112,10 +111,8 @@ struct CartView: View {
                             .background(AppColors.primary)
                             .cornerRadius(10)
                             .padding()
-                    }
-                    .sheet(isPresented: $showCheckout) {
-                        CheckoutView()
-                    }
+                        }
+
                        
                         Button(action: { navigator.goTo(.mainTabView(selectedTab: 0), replaceLast: true)}) {
                         Text("Go Shopping 🛍️")
