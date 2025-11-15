@@ -28,7 +28,7 @@ struct RootView: View {
                         SplashScreenView()
 
                     case .login:
-                        LoginScreen()
+                        LoginScreen(appVM: appVM)
 
                     case .register:
                         RegisterScreen()
